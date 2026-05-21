@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURA – Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="stylesheet" href="/static/css/login.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-brand">
+      <div class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 3c0 4 12 3 12 9S6 18 6 21M18 3C18 7 6 6 6 12s12 6 12 9"
+                stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <span class="logo-text">AURA</span>
+    </div>
+    <span class="header-sub">Instituto Buko Kaesemodel</span>
+  </header>
+
+  <main>
+    <div class="card" role="main">
+      <div class="login-panel">
+
+        <h1>Acesso ao sistema</h1>
+        <p class="sub">Insira suas credenciais para continuar</p>
+
+        <div class="alert" id="alertBanner" role="alert" aria-live="assertive">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="alertMsg"></span>
+        </div>
+
+        <form id="loginForm" novalidate>
+
+          <!-- E-mail -->
+          <div class="form-group" id="grpEmail">
+            <label for="email">E-mail profissional</label>
+            <div class="input-wrap">
+              <input type="email" id="email" name="email"
+                     placeholder="seuemail@ibk.org.br"
+                     autocomplete="email"
+                     aria-required="true"
+                     aria-describedby="emailError" />
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <p class="field-error" id="emailError" role="alert">
+              <svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Informe um e-mail válido.
+            </p>
+          </div>
+
+          <!-- Senha -->
+          <div class="form-group" id="grpSenha">
+            <label for="senha">Senha</label>
+            <div class="input-wrap">
+              <input type="password" id="senha" name="senha"
+                     placeholder="••••••••"
+                     autocomplete="current-password"
+                     aria-required="true"
+                     aria-describedby="senhaError" />
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <button type="button" class="toggle-pw" id="togglePw"
+                      aria-label="Mostrar senha" aria-pressed="false">
+                <svg id="eyeIcon" viewBox="0 0 24 24">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+            <p class="field-error" id="senhaError" role="alert">
+              <svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              A senha é obrigatória.
+            </p>
+          </div>
+
+          <!-- Opções -->
+          <div class="row-options">
+            <label class="remember">
+              <input type="checkbox" id="remember" />
+              Lembrar-me
+            </label>
+            <a href="#recuperar-senha" class="forgot">Esqueceu a senha?</a>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn-primary" id="btnLogin">
+            <span class="btn-label">Entrar</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <p class="footer-note">
+          Uso exclusivo de profissionais credenciados pelo IBK.<br>
+          Acesso via HTTPS · Sessão encerrada após 10 min de inatividade.
+        </p>
+      </div>
+    </div>
+
+  </main>
+  <script 
+    src="/static/server/login.js">
+  </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+/* ========================================
+   login.css — estilos exclusivos da página
+   de login. Depende de styles.css (global).
+   ======================================== */
+
+/* ---------- Card ---------- */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+  animation: rise .55s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Login panel ---------- */
+.login-panel {
+  padding: 3.25rem 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* barra decorativa no topo */
+.login-panel::before {
+  content: '';
+  display: block;
+  height: 4px;
+  margin: -3.25rem -3rem 2.75rem;
+  background: linear-gradient(90deg, var(--primary-mid), var(--primary));
+}
+
+/* ---------- Títulos ---------- */
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.sub {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+/* ---------- Alert banner ---------- */
+.alert {
+  display: none;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid transparent;
+  animation: slideIn .3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; }
+}
+
+.alert.error {
+  display: flex;
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error);
+}
+
+.alert.success {
+  display: flex;
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success);
+}
+
+.alert svg {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------- Form groups ---------- */
+.form-group {
+  margin-bottom: 1.1rem;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+/* ---------- Input wrap ---------- */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrap input {
+  width: 100%;
+  height: 46px;
+  padding: 0 2.6rem 0 0.875rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--primary-light);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.input-wrap input::placeholder { color: var(--text-placeholder); }
+
+.input-wrap input:focus {
+  border-color: var(--border-focus);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(58,155,213,.18);
+}
+
+/* ícone decorativo à direita */
+.input-wrap > svg:not(button svg) {
+  position: absolute;
+  right: 0.75rem;
+  width: 16px; height: 16px;
+  stroke: var(--text-muted); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  pointer-events: none;
+  transition: stroke var(--transition);
+}
+
+/* quando há toggle, empurra o ícone decorativo */
+.input-wrap:has(.toggle-pw) > svg:not(button svg) {
+  right: 2.5rem;
+}
+
+.input-wrap:focus-within > svg:not(button svg) {
+  stroke: var(--border-focus);
+}
+
+/* ---------- Toggle senha ---------- */
+.toggle-pw {
+  position: absolute;
+  right: 0.5rem;
+  background: none; border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition);
+}
+
+.toggle-pw:hover, .toggle-pw:focus-visible { color: var(--primary); outline: none; }
+.toggle-pw:focus-visible { box-shadow: 0 0 0 2px var(--border-focus); }
+
+.toggle-pw svg {
+  width: 17px; height: 17px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------- Estado inválido ---------- */
+.form-group.invalid .input-wrap input {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(214,64,69,.12);
+}
+
+.field-error {
+  display: none;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--error);
+}
+
+.field-error svg {
+  flex-shrink: 0;
+  stroke: currentColor; fill: none;
+}
+
+.form-group.invalid .field-error { display: flex; }
+
+/* ---------- Opções (lembrar / esqueci) ---------- */
+.row-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.25rem 0 1.5rem;
+  font-size: 0.8rem;
+}
+
+.remember {
+  display: flex; align-items: center; gap: 0.4rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.remember input[type="checkbox"] {
+  width: 15px; height: 15px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.forgot {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.forgot:hover { color: var(--primary-hover); text-decoration: underline; }
+
+/* ---------- Botão primário ---------- */
+.btn-primary {
+  width: 100%;
+  height: 46px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-mid), var(--primary));
+  color: #fff;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: .92;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(61, 203, 208, 0.4)
+}
+
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(58,155,213,.45); }
+.btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ---------- Spinner ---------- */
+.spinner {
+  display: none;
+  width: 17px; height: 17px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+.btn-primary.loading .btn-label { display: none; }
+.btn-primary.loading .spinner   { display: block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Rodapé do card ---------- */
+.footer-note {
+  margin-top: 1.75rem;
+  font-size: .68rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.7;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 480px) {
+  .card { border-radius: var(--radius-md); }
+  .login-panel { padding: 2.5rem 1.5rem 2rem; }
+  .login-panel::before { margin: -2.5rem -1.5rem 2.25rem; }
+  h1 { font-size: 1.35rem; }
+}

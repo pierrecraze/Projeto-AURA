@@ -1,0 +1,126 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Variáveis globais ---------- */
+:root {
+  --primary:        #1a6fb5;
+  --primary-hover:  #155d99;
+  --primary-mid:    #3a9bd5;
+  --primary-light:  #eaf5fc;
+
+  --bg:             #eaf5fc;
+  --surface:        #ffffff;
+  --border:         #b8d9ef;
+  --border-focus:   #3a9bd5;
+
+  --text:           #1c2d3a;
+  --text-muted:     #6b8fa8;
+  --text-placeholder: #9cb8cf;
+
+  --error:          #d64045;
+  --error-bg:       #fdecea;
+  --error-border:   #f5bcbc;
+
+  --success:        #2a9d5c;
+  --success-bg:     #e8f7ef;
+  --success-border: #a8dfc1;
+
+  --header-bg:      rgba(255,255,255,.72);
+  --header-text:    #1c2d3a;
+
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  22px;
+
+  --shadow-card: 0 20px 60px rgba(26,111,181,.14);
+  --shadow-btn:  0 4px 20px rgba(26,111,181,.35);
+
+  --transition: .25s cubic-bezier(.4,0,.2,1);
+}
+
+/* ---------- Background mesh ---------- */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 10% 20%, rgba(58,155,213,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 90% 80%, rgba(26,111,181,.12) 0%, transparent 65%),
+    linear-gradient(160deg, #daf0fb 0%, #eaf5fc 55%, #d6edf8 100%);
+  pointer-events: none;
+}
+
+/* ---------- Header ---------- */
+header {
+  position: relative; z-index: 10;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(180,220,245,.5);
+  padding: 0 2.5rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-mark {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-mid));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark svg { width: 18px; height: 18px; }
+
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary);
+  letter-spacing: .04em;
+}
+
+.header-sub {
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------- Main ---------- */
+main {
+  flex: 1;
+  position: relative; z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+/* ---------- Responsivo global ---------- */
+@media (max-width: 480px) {
+  header { padding: 0 1rem; }
+  .header-sub { display: none; }
+}
