@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- o heaeader -->
   <header>
     <div class="header-brand">
       <div class="logo-mark" aria-hidden="true">
@@ -33,7 +33,7 @@
       <div class="header-user">
         <div class="user-avatar" aria-hidden="true">DR</div>
         <div class="user-info">
-          <span class="user-name">Dr. Ricardo Alves</span>
+          <span class="user-name">Dr. Lionel Aura</span>
           <span class="user-role">Profissional de Saúde</span>
         </div>
       </div>
@@ -48,7 +48,7 @@
     </div>
   </header>
 
-  <!-- Session timeout warning -->
+  <!-- timeout -->
   <div class="session-banner" id="sessionBanner" role="alert" aria-live="assertive">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="10"/>
@@ -61,10 +61,10 @@
   <main>
     <div class="dashboard">
 
-      <!-- Saudação -->
+      <!-- o bem vindo da sala -->
       <section class="welcome-row">
         <div>
-          <h1 class="welcome-title">Bom dia, Dr. Ricardo.</h1>
+          <h1 class="welcome-title">Bom dia, Dr. Lionel Aura.</h1>
           <p class="welcome-sub">Aqui está o resumo das suas atividades na plataforma AURA.</p>
         </div>
         <div class="welcome-actions">
@@ -86,7 +86,7 @@
         </div>
       </section>
 
-      <!-- Cards de métricas -->
+      <!-- cards de métricas e graficos la -->
       <section class="metrics-grid" aria-label="Indicadores de uso">
         <div class="metric-card" role="region" aria-labelledby="m1-label">
           <div class="metric-icon metric-icon--blue" aria-hidden="true">
@@ -151,10 +151,9 @@
         </div>
       </section>
 
-      <!-- Conteúdo principal -->
       <div class="content-grid">
 
-        <!-- Pacientes recentes -->
+        <!-- caixa de pacientes recentes (so protoripo por enquanto) -->
         <section class="panel" aria-labelledby="recent-title">
           <div class="panel-header">
             <h2 id="recent-title">Pacientes recentes</h2>
@@ -312,10 +311,8 @@
           <p class="table-empty" id="tableEmpty" hidden>Nenhum paciente encontrado.</p>
         </section>
 
-        <!-- Coluna lateral -->
         <aside class="sidebar">
 
-          <!-- Acesso rápido -->
           <section class="panel" aria-labelledby="quick-title">
             <div class="panel-header">
               <h2 id="quick-title">Acesso rápido</h2>
@@ -389,7 +386,7 @@
             </div>
           </section>
 
-          <!-- Sobre o sistema -->
+          <!-- sobre o sistema -->
           <section class="panel panel--info" aria-labelledby="about-title">
             <div class="panel-header">
               <h2 id="about-title">Sobre o AURA</h2>
@@ -416,7 +413,7 @@
 
   <script src="/static/server/home.js"></script>
   <script>
-    /* ---- Busca inline ---- */
+    /* busca inline */
     const btnSearch    = document.getElementById('btnSearch');
     const searchWrap   = document.getElementById('searchWrap');
     const searchInput  = document.getElementById('searchInput');
@@ -441,7 +438,7 @@
       tableEmpty.hidden = visible > 0;
     });
 
-    /* ---- Aviso de sessão (simulado) ---- */
+    /* aviso de sessão (prototipo so simula) */
     const banner       = document.getElementById('sessionBanner');
     const countdown    = document.getElementById('sessionCountdown');
     const btnKeep      = document.getElementById('btnKeepSession');
@@ -469,7 +466,7 @@
       /* aqui chamaria a API para renovar a sessão */
     });
 
-    /* Simula aviso após 5 s para demonstração */
+    /* simula aviso após 5 s para demonstração */
     setTimeout(startWarning, 5000);
   </script>
 </body>
