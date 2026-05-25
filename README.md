@@ -1,3 +1,5 @@
+## Estrutura das pastas:
+``` text
 Projeto-AURA/
 ├── main.py
 ├── routes/
@@ -17,3 +19,4 @@ Projeto-AURA/
 │       └── api.js
 ├── .env
 └── requirements.txt
+```
