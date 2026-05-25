@@ -1,4 +1,4 @@
-## Estrutura das pastas:
+## Estrutura das pastas e arquivos do repositório:
 ``` text
 Projeto-AURA/
 ├── main.py
