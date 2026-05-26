@@ -1,4 +1,11 @@
 ## Descrição do projeto:
+> Título: Ambiente Unificado de Rastreio e Avaliação (AURA).
+
+
+
+> Autores: João Pedro M. Correa, Matheus Antunes, Patrick Davidson, Pedro Magno e Pierre Craze.
+> Disciplina: Experiência Criativa | 3° Período.
+
 
 ## Tecnologias implementadas:
 
@@ -24,3 +31,4 @@ Projeto-AURA/
 ├── .env
 └── requirements.txt
 ```
+
