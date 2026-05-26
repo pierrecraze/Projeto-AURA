@@ -2,11 +2,17 @@
 > Título: Ambiente Unificado de Rastreio e Avaliação (AURA).
 > <br>
 > Disciplina: Experiência Criativa | 3° Período.
+> Autores:
+  - João Pedro M. Correa
+  - Matheus Antunes
+  - Patrick Davidson
+  - Pedro Magno
+  - Pierre Craze
+
 
 <p>O sistema detêm como proposta, funcionar como uma ferramenta de triagem para auxiliar o Instituto Buko Kaesemodel (IBK) na identifição prematura de pessoas que possuem suspeita de possuir a "Síndrome do X Frágil". a partir de um checklist estruturado que se baseia em sinais cognitivos, físicos e comportamentais do indivíduo.</p> 
 <p>Idealmente, a interface será bem objetiva, onde irá conter apenas as informações, dados e páginas que o usuário realmente precisar, dessa forma, garante um sistema leve, rápido e profissional para quem for usufruir</p>
 
-> Autores: João Pedro M. Correa, Matheus Antunes, Patrick Davidson, Pedro Magno e Pierre Craze.
 
 
 
