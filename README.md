@@ -21,6 +21,8 @@
 - Python
 - MySQL
 
+<br>
+
 ## 🗂️ Estrutura das pastas e arquivos do repositório:
 ``` text
 Projeto-AURA/
