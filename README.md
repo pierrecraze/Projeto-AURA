@@ -1,3 +1,7 @@
+## Descrição do projeto:
+
+## Tecnologias implementadas:
+
 ## Estrutura das pastas e arquivos do repositório:
 ``` text
 Projeto-AURA/
