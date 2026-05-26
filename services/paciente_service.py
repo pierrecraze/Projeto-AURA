@@ -2,6 +2,9 @@ import asyncio
 from schemas.paciente import PacienteCreate
 from models.paciente import PacienteModel  # Importação corrigida
 
+from schemas.log import LogCreate
+from services import log_service
+
 # Banco temporário simulado com instâncias do Modelo
 banco_de_pacientes = [
     PacienteModel(
@@ -35,6 +38,14 @@ async def criar_paciente_mock(paciente_in: PacienteCreate):
         grupos=paciente_in.grupos
     )
     banco_de_pacientes.append(novo_paciente)
+
+    novo_log = LogCreate(
+        entidade="Paciente",
+        acao="Criação",
+        detalhes=f"O paciente {novo_paciente.nome} (ID: {novo_paciente.id}) foi cadastrado."
+    )
+    await log_service.criar_log_mock(novo_log)
+
     return novo_paciente
 
 async def listar_pacientes_mock():
@@ -51,6 +62,14 @@ async def atualizar_paciente_mock(id_paciente: int, paciente_in: PacienteCreate)
             paciente.status = paciente_in.status
             paciente.responsavel = paciente_in.responsavel
             paciente.grupos = paciente_in.grupos
+
+            novo_log = LogCreate(
+                entidade="Paciente",
+                acao="Atualização",
+                detalhes=f"Os dados do paciente {paciente.nome} (ID: {paciente.id}) foram atualizados."
+            )
+            await log_service.criar_log_mock(novo_log)
+
             return paciente
     return None
 
@@ -60,5 +79,13 @@ async def inativar_paciente_mock(id_paciente: int):
     for paciente in banco_de_pacientes:
         if paciente.id == id_paciente:
             paciente.status = "Inativo"
+
+            novo_log = LogCreate(
+                entidade="Paciente",
+                acao="Inativação",
+                detalhes=f"O paciente {paciente.nome} (ID: {paciente.id}) foi inativado."
+            )
+            await log_service.criar_log_mock(novo_log)
+            
             return paciente
     return None
