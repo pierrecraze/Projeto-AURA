@@ -51,6 +51,7 @@ Projeto-AURA/
 │       └── login.js
 │   ├── dashboard.html
 │   ├── dashboardMedico.html
+│   ├── favicon.ico
 │   ├── formulario.html
 │   ├── index.html
 │   ├── listaPaciente.html
