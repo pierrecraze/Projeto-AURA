@@ -1,16 +1,17 @@
-# schemas/paciente.py
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-# Classe base com os atributos comuns
 class PacienteBase(BaseModel):
     nome: str
     cpf: str
     status: str
+    responsavel: list[str]  # Corrigido o 'n'
+    grupos: list[str]       # Adicionado para vincular aos convênios
 
-# Usado para RECEBER dados (POST)
 class PacienteCreate(PacienteBase):
     pass
 
-# Usado para DEVOLVER dados (Tem o ID do banco)
 class Paciente(PacienteBase):
     id: int
+
+    # Necessário para o Pydantic converter o PacienteModel do banco em JSON
+    model_config = ConfigDict(from_attributes=True)
