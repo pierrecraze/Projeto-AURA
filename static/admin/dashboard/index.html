@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Admin - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i data-lucide="activity"></i></div>
+          <div>
+            <p class="brand-title">AURA Admin</p>
+            <p class="brand-subtitle">PROJETO AURA</p>
+          </div>
+        </div>
+        <div class="institution-badge">Instituto Buko Kaesemodel</div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <p class="nav-title">Menu</p>
+        <button class="nav-item active"><i data-lucide="layout-dashboard"></i> Dashboard <i data-lucide="chevron-right" class="icon-right"></i></button>
+        <button class="nav-item" onclick="window.location.href='../convenios/index.html'"><i data-lucide="building"></i> Gestão de Convênios</button>
+        <button class="nav-item" onclick="window.location.href='../logs/index.html'"><i data-lucide="shield"></i> Auditoria de Logs</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="nav-item logout"><i data-lucide="log-out"></i> Sair da conta</button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="badge-admin">Admin</span>
+          <span class="separator">|</span>
+          <div class="global-search">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Busca global por médicos ou pacientes...">
+            <span class="shortcut">Ctrl K</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="date-text" id="current-date"></span>
+          <div class="notification">
+            <i data-lucide="bell"></i>
+            <span class="notification-dot"></span>
+          </div>
+          <div class="avatar">ADM</div>
+        </div>
+      </header>
+
+      <main class="content">
+        
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Visão Geral do Sistema</h1>
+            <p class="page-subtitle">Resumo operacional do Instituto Buko Kaesemodel — Projeto AURA</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="kpi-grid">
+          </div>
+
+        <div class="dashboard-grid">
+          
+          <div class="card chart-card">
+            <div class="chart-header">
+              <div>
+                <h2 class="card-title">Evolução de Triagens</h2>
+                <p class="card-subtitle">Volume de checklists nos últimos 12 meses</p>
+              </div>
+              <div class="chart-filters">
+                <button class="filter-btn">2024</button>
+                <button class="filter-btn active">2025</button>
+              </div>
+            </div>
+            
+            <div class="chart-wrapper">
+              <canvas id="triagensChart"></canvas>
+            </div>
+
+            <div class="chart-footer">
+              <div>
+                <p class="stat-label">Total no período</p>
+                <p class="stat-value">1.483</p>
+              </div>
+              <div>
+                <p class="stat-label">Média mensal</p>
+                <p class="stat-value">124</p>
+              </div>
+              <div>
+                <p class="stat-label">Pico (Out)</p>
+                <p class="stat-value">170</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card activity-card">
+            <div class="activity-header">
+              <h2 class="card-title">Atividades Recentes</h2>
+              <span class="view-all">Ver tudo</span>
+            </div>
+
+            <div class="alert-box">
+              <i data-lucide="alert-triangle"></i>
+              <span>Vínculos e dados em conformidade com a LGPD</span>
+            </div>
+
+            <div class="activity-list" id="activity-list">
+              </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

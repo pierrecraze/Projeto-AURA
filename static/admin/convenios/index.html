@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Admin - Gestão de Convênios</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i data-lucide="activity"></i></div>
+          <div>
+            <p class="brand-title">AURA Admin</p>
+            <p class="brand-subtitle">PROJETO AURA</p>
+          </div>
+        </div>
+        <div class="institution-badge">Instituto Buko Kaesemodel</div>
+      </div>
+      <nav class="sidebar-nav">
+        <p class="nav-title">Menu</p>
+        <button class="nav-item" onclick="window.location.href='../dashboard/index.html'"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+        <button class="nav-item active"><i data-lucide="building"></i> Gestão de Convênios <i data-lucide="chevron-right" class="icon-right"></i></button>
+        <button class="nav-item" onclick="window.location.href='../logs/index.html'"><i data-lucide="shield"></i> Auditoria de Logs</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-item logout"><i data-lucide="log-out"></i> Sair da conta</button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="badge-admin">Admin</span>
+          <span class="separator">|</span>
+          <div class="global-search">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Busca global por médicos ou pacientes...">
+            <span class="shortcut">Ctrl K</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="date-text" id="current-date"></span>
+          <div class="notification">
+            <i data-lucide="bell"></i>
+            <span class="notification-dot"></span>
+          </div>
+          <div class="avatar">ADM</div>
+        </div>
+      </header>
+
+      <main class="content">
+        
+        <div id="view-convenios">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Gestão de Convênios e Grupos</h1>
+              <p class="page-subtitle" id="stats-convenios">0 convênios registrados no sistema</p>
+            </div>
+            <button class="btn-primary" onclick="openModalAddConvenio()"><i data-lucide="plus"></i> Novo Convênio</button>
+          </div>
+
+          <div class="convenios-grid" id="convenios-grid">
+            </div>
+        </div>
+
+        <div id="view-detalhes" class="hidden">
+          
+          <div class="breadcrumb">
+            <span onclick="goBackToConvenios()"><i data-lucide="arrow-left"></i> Voltar para Convênios</span>
+            <i data-lucide="chevron-right" class="div"></i>
+            <strong id="detalhe-nome-convenio">Nome do Convênio</strong>
+          </div>
+
+          <div class="page-header mt-4">
+            <div>
+              <h1 class="page-title" id="detalhe-titulo">Nome do Convênio</h1>
+              <p class="page-subtitle">CNPJ: <span id="detalhe-cnpj">00.000.000/0000-00</span></p>
+            </div>
+            <button class="btn-export"><i data-lucide="download"></i> Exportar Relatório</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="tabs">
+                <button class="tab active" id="tab-medicos" onclick="switchTab('medicos')">
+                  Médicos Vinculados <span class="tab-badge badge-blue" id="badge-tab-medicos">0</span>
+                </button>
+                <button class="tab" id="tab-pacientes" onclick="switchTab('pacientes')">
+                  Pacientes Vinculados <span class="tab-badge" id="badge-tab-pacientes">0</span>
+                </button>
+              </div>
+              <div class="header-actions">
+                <button class="btn-outline-small" onclick="alert('Funcionalidade de vincular existente')"><i data-lucide="link"></i> Vincular Existente</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead id="dynamic-thead">
+                  </thead>
+                <tbody id="dynamic-tbody">
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="privacy-note mt-4">
+          <i data-lucide="shield-check"></i>
+          <p>Alterações de perfil e vinculações são registradas imutavelmente no log de auditoria (LGPD).</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="modal-perfil" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-perfil-title">Editar Perfil</h2>
+          <p id="modal-perfil-sub">Gerenciamento de dados e convênios vinculados</p>
+        </div>
+        <button class="btn-close" onclick="closeModalPerfil()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="perfil-nome" class="form-input">
+        </div>
+        
+        <div class="form-grid mt-3">
+          <div class="form-group">
+            <label id="perfil-doc-label">Documento</label>
+            <input type="text" id="perfil-doc" class="form-input" disabled style="background: #F1F5F9; color: #94A3B8;">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="perfil-status" class="form-input">
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider mt-4 mb-4"></div>
+
+        <h3 class="section-title"><i data-lucide="building"></i> Convênios Vinculados</h3>
+        <p class="section-sub">Selecione os grupos e convênios que este usuário possui acesso/atendimento.</p>
+        
+        <div class="checkbox-grid" id="perfil-convenios-list">
+          </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModalPerfil()">Cancelar</button>
+        <button class="btn-primary" onclick="savePerfil()"><i data-lucide="save"></i> Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden">
+    <i data-lucide="check-circle" id="toast-icon"></i>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
