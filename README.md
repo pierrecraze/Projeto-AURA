@@ -5,7 +5,7 @@ O sistema detêm como proposta, funcionar como uma ferramenta de triagem para au
 Idealmente, a interface será bem objetiva, onde irá conter apenas as informações, dados e páginas que o usuário realmente precisar, dessa forma, garante um sistema leve, rápido e profissional para quem for usufruir.
 
 > Autores: João Pedro M. Correa, Matheus Antunes, Patrick Davidson, Pedro Magno e Pierre Craze.
-> <br>
+<br>
 > Disciplina: Experiência Criativa | 3° Período.
 
 
