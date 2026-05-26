@@ -1,13 +1,15 @@
 ## Descrição do projeto:
 > Título: Ambiente Unificado de Rastreio e Avaliação (AURA).
 
-
+O sistema detêm como proposta, funcionar como uma ferramenta de triagem para auxiliar o Instituto Buko Kaesemodel (IBK) na identifição prematura de pessoas que possuem suspeita de possuir a "Síndrome do X Frágil". a partir de um checklist estruturado que se baseia em sinais cognitivos, físicos e comportamentais do indivíduo.
+Idealmente, a interface será bem objetiva, onde irá conter apenas as informações, dados e páginas que o usuário realmente precisar, dessa forma, garante um sistema leve, rápido e profissional para quem for usufruir.
 
 > Autores: João Pedro M. Correa, Matheus Antunes, Patrick Davidson, Pedro Magno e Pierre Craze.
 > Disciplina: Experiência Criativa | 3° Período.
 
 
 ## Tecnologias implementadas:
+
 
 ## Estrutura das pastas e arquivos do repositório:
 ``` text
