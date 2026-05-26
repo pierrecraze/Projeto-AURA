@@ -17,6 +17,43 @@
 ## Estrutura das pastas e arquivos do repositório:
 ``` text
 Projeto-AURA/
+├── database/
+│   └── db.py
+├── models/
+│   └── item.py
+├── routes/
+│   └── item.py
+├── services/
+│   └── item_service.py
+├── static/                
+│   ├── css/
+│   │   └── dashboard.css
+│   │   └── formulario.css
+│   │   └── home.css
+│   │   └── listaPaciente.css
+│   │   └── login.css
+│   │   └── styles.css
+│   └── server/
+│       ├── api.js
+│       └── app.js
+│       └── formulario.js
+│       └── home.js
+│       └── listaPaciente.js
+│       └── login.js
+│   ├── dashboard.html
+│   ├── dashboardMedico.html
+│   ├── formulario.html
+│   ├── index.html
+│   ├── listaPaciente.html
+│   ├── login.html
+├── .env
+├── README.md
+├── main.py
+└── requirements.txt
+```
+
+<!-- VERSÃO ANTERIOR:
+Projeto-AURA/
 ├── main.py
 ├── routes/
 │   └── items.py
@@ -35,6 +72,6 @@ Projeto-AURA/
 │       └── api.js
 ├── .env
 └── requirements.txt
-```
+-->
 
 
