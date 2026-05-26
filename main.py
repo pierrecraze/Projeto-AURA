@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import pacientes, medicos
+from routes import grupos, pacientes, medicos
 
 # 1. Inicialização do Aplicativo
 app = FastAPI(
@@ -27,6 +27,7 @@ def status_api():
 # 3. PRIMEIRO: Incluir as rotas da API
 app.include_router(pacientes.router, tags=["Pacientes"])
 app.include_router(medicos.router, tags=["Médicos"])
+app.include_router(grupos.router, tags=["Grupos"])
 
 
 # 4. POR ÚLTIMO: Montar os arquivos estáticos
