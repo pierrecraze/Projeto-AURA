@@ -2,6 +2,9 @@ import asyncio
 from schemas.grupo import Grupo, GrupoCreate
 from models.grupo import GrupoModel
 
+from schemas.log import LogCreate
+from services import log_service
+
 # Nosso "banco" temporário
 banco_de_grupos = []
 
@@ -16,6 +19,14 @@ async def criar_grupo_mock(grupo_in: GrupoCreate):
         status=grupo_in.status
     )
     banco_de_grupos.append(novo_grupo)
+
+    novo_log = LogCreate(
+        entidade="Grupo",
+        acao="Criação",
+        detalhes=f"O grupo/convênio {novo_grupo.nome} (ID: {novo_grupo.id}) foi criado."
+    )
+    await log_service.criar_log_mock(novo_log)
+
     return novo_grupo
 
 async def listar_grupos_mock():
@@ -31,6 +42,14 @@ async def atualizar_grupo_mock(id: int, grupo_in: GrupoCreate):
             grupo.nome = grupo_in.nome
             grupo.cnpj = grupo_in.cnpj
             grupo.status = grupo_in.status
+
+            novo_log = LogCreate(
+                entidade="Grupo",
+                acao="Atualização",
+                detalhes=f"Os dados do grupo/convênio {grupo.nome} (ID: {grupo.id}) foram atualizados."
+            )
+            await log_service.criar_log_mock(novo_log)
+
             return grupo
     return None
 
@@ -42,6 +61,14 @@ async def inativar_grupo_mock(id_grupo: int): # Inativar um grupo (Soft Delete)
         if grupo.id == id_grupo:
             # Em vez de apagar, fazemos o Soft Delete
             grupo.status = "Inativo"
+
+            novo_log = LogCreate(
+                entidade="Grupo",
+                acao="Inativação",
+                detalhes=f"O grupo/convênio {grupo.nome} (ID: {grupo.id}) foi inativado."
+            )
+            await log_service.criar_log_mock(novo_log)
+
             return grupo
             
     # Se não achar o grupo, retorna vazio
