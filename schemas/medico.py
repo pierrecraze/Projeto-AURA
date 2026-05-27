@@ -16,5 +16,6 @@ class MedicoCreate(MedicoBase):
 # Usado para DEVOLVER dados (Tem o ID do banco)
 class Medico(MedicoBase):
     id: int
+    data_cadastro: str
 
     model_config = ConfigDict(from_attributes=True)

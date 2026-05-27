@@ -1,28 +1,23 @@
 import asyncio
+from datetime import datetime
+
 from schemas.log import LogCreate
 from schemas.medico import MedicoCreate, Medico
 from models.medico import MedicoModel
 from services import log_service
 
 banco_de_medicos = [
-MedicoModel(
-        id=1, 
-        nome="Dr. João Silva", 
-        crm="12345", 
-        email="joao.silva@hospital.com", 
-        status="Ativo", 
-        senha="senha123", 
-        grupos=["Unimed"]
+    MedicoModel(
+        id=1, nome="Dr. João Silva", crm="12345", email="joao.silva@hospital.com", 
+        status="Ativo", senha="senha123", grupos=["Unimed"], 
+        data_cadastro="2026-05-10T08:00:00" # <-- Adicione aqui
     ),
     MedicoModel(
-        id=2, 
-        nome="Dra. Maria Oliveira", 
-        crm="67890", 
-        email="maria.oliveira@hospital.com", 
-        status="Ativo", 
-        senha="senha456", 
-        grupos=["Bradesco", "Amil"]
-    )]
+        id=2, nome="Dra. Maria Oliveira", crm="67890", email="maria.oliveira@hospital.com", 
+        status="Ativo", senha="senha456", grupos=["Bradesco", "Amil"], 
+        data_cadastro="2026-05-12T14:30:00" # <-- Adicione aqui
+    )
+]
 
 async def criar_medico_mock(medico_in: MedicoCreate):
     await asyncio.sleep(0.5)
@@ -36,7 +31,8 @@ async def criar_medico_mock(medico_in: MedicoCreate):
         email=medico_in.email,
         status=medico_in.status,
         senha=medico_in.senha,
-        grupos=medico_in.grupos
+        grupos=medico_in.grupos,
+        data_cadatro=datetime.now().isoformat()
     )
     banco_de_medicos.append(novo_medico)
 

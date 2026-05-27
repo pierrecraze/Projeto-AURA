@@ -12,6 +12,7 @@ class PacienteCreate(PacienteBase):
 
 class Paciente(PacienteBase):
     id: int
+    data_cadastro: str
 
     # Necessário para o Pydantic converter o PacienteModel do banco em JSON
     model_config = ConfigDict(from_attributes=True)
