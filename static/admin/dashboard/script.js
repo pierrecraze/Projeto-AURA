@@ -1,20 +1,9 @@
-// --- Dados Operacionais Reais ---
-const chartData = [
-    { mes: "Jan", triagens: 68 }, { mes: "Fev", triagens: 82 },
-    { mes: "Mar", triagens: 95 }, { mes: "Abr", triagens: 110 },
-    { mes: "Mai", triagens: 88 }, { mes: "Jun", triagens: 124 },
-    { mes: "Jul", triagens: 145 }, { mes: "Ago", triagens: 132 },
-    { mes: "Set", triagens: 158 }, { mes: "Out", triagens: 170 },
-    { mes: "Nov", triagens: 148 }, { mes: "Dez", triagens: 163 },
-];
+const API_URL = "http://localhost:8000/api";
 
-const kpis = [
-    { label: "Grupos / Convênios", value: "5", delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
-    { label: "Total de Médicos", value: "42", delta: "+3", deltaLabel: "vinculados este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
-    { label: "Pacientes na Base", value: "1.204", delta: "+28", deltaLabel: "registrados este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
-    { label: "Triagens — SXF", value: "856", delta: "+15", deltaLabel: "realizadas este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
-];
-
+// --- Variáveis Globais (Iniciam vazias/zeradas e serão preenchidas pela API) ---
+let chartData = [];
+let kpis = [];
+// Mantive as activities fixas por enquanto até ligarmos a API de Logs
 const activities = [
     { type: "info", icon: "building", text: "Novo grupo de convênio configurado", sub: "Particular (Sem Convênio)", time: "5 min" },
     { type: "success", icon: "check-circle", text: "Vínculos de médicos atualizados", sub: "Dr. Carlos Mendes -> Unimed", time: "25 min" },
@@ -29,17 +18,54 @@ const typeStyles = {
     alert:   { bg: "#FEF2F2", color: "#DC2626" }
 };
 
+let meuGrafico; // Variável global para guardar a instância do gráfico
+
+// --- Busca de Dados no Backend ---
+async function carregarDadosDashboard() {
+    try {
+        const resposta = await fetch(`${API_URL}/dashboard/resumo`);
+        const dados = await resposta.json();
+        
+        console.log("Dados recebidos da API AURA:", dados);
+        
+        // 1. Atualiza o array de KPIs com proteção (|| 0)
+        kpis = [
+            { label: "Grupos / Convênios", value: (dados.total_grupos || 0).toString(), delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
+            { label: "Total de Médicos", value: (dados.total_medicos || 0).toString(), delta: `+${dados.medicos_mes || 0}`, deltaLabel: "vinculados este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
+            { label: "Pacientes na Base", value: (dados.total_pacientes || 0).toString(), delta: `+${dados.pacientes_mes || 0}`, deltaLabel: "registrados este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
+            { label: "Triagens — SXF", value: (dados.total_triagens || 0).toString(), delta: `+${dados.triagens_mes || 0}`, deltaLabel: "realizadas este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
+        ];
+
+        // 2. Proteção para o gráfico (se a lista não vier, usa uma lista de zeros)
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const graficoDados = dados.grafico_triagens || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
+        chartData = graficoDados.map((valor, index) => {
+            return { mes: meses[index], triagens: valor };
+        });
+
+        // 3. Manda redesenhar a tela
+        renderKPIs();
+        atualizarGrafico();
+        lucide.createIcons();
+    } catch (erro) {
+        console.error("Erro ao carregar o dashboard:", erro);
+        // Em um cenário real, você poderia exibir um toast de erro aqui
+    }
+}
+
 // --- Inicialização ---
 document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     document.getElementById("current-date").textContent = today;
 
-    renderKPIs();
-    renderActivities();
+    // Inicializa o gráfico vazio primeiro, para não dar "pulo" na tela
     initChart();
+    renderActivities();
+    lucide.createIcons();
     
-    // Instancia os ícones Lucide no carregamento
-    lucide.createIcons(); 
+    // Busca os dados da API
+    carregarDadosDashboard();
 });
 
 // --- Injeções de Componentes no DOM ---
@@ -96,13 +122,13 @@ function renderActivities() {
 function initChart() {
     const ctx = document.getElementById('triagensChart').getContext('2d');
     
-    new Chart(ctx, {
+    meuGrafico = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: chartData.map(d => d.mes),
+            labels: [], // Começa vazio
             datasets: [{
                 label: 'Triagens',
-                data: chartData.map(d => d.triagens),
+                data: [], // Começa vazio
                 backgroundColor: '#2563EB',
                 borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 0, bottomRight: 0 },
                 borderSkipped: false,
@@ -142,4 +168,11 @@ function initChart() {
             }
         }
     });
+}
+
+// Função para injetar os dados no gráfico depois que eles chegam da API
+function atualizarGrafico() {
+    meuGrafico.data.labels = chartData.map(d => d.mes);
+    meuGrafico.data.datasets[0].data = chartData.map(d => d.triagens);
+    meuGrafico.update(); // Manda a biblioteca redesenhar
 }

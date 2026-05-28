@@ -125,11 +125,45 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .log-status-right svg { width: 11px; height: 11px; color: rgba(255,255,255,0.35); }
 .log-status-right span { font-size: 11px; color: rgba(255,255,255,0.35); font-family: monospace; }
 
-.table-wrapper { overflow-x: auto; }
+.table-wrapper { 
+    /* Calcula o espaço da tela dinamicamente para não estourar o layout */
+    max-height: calc(100vh - 380px); 
+    overflow-y: auto; 
+    overflow-x: hidden;
+}
+
+/* Estilizando a barra de rolagem para ficar bonita no fundo escuro */
+.table-wrapper::-webkit-scrollbar { width: 8px; }
+.table-wrapper::-webkit-scrollbar-track { background: var(--log-bg); }
+.table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+.table-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
 /* Cabeçalhos Estáticos Dark */
-th { padding: 9px 14px; text-align: left; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55); letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--navy); white-space: nowrap; user-select: none; }
+th { 
+    padding: 9px 14px; text-align: left; 
+    font-size: 10px; 
+    font-weight: 700; 
+    color: rgba(255,255,255,0.55); 
+    letter-spacing: 0.08em; 
+    text-transform: uppercase; 
+    border-bottom: 1px solid var(--border); 
+    background: var(--navy); 
+    white-space: nowrap; 
+    user-select: none;
+    position: sticky; 
+    top: 0; 
+    z-index: 10; 
+}
 
+/* ─── CONTROLE DE LARGURA DAS COLUNAS ─── */
+th:nth-child(1) { width: 14%; } /* Data / Hora */
+th:nth-child(2) { width: 14%; } /* Usuário */
+th:nth-child(3) { width: 10%; } /* Entidade */
+th:nth-child(4) { width: 40%; } /* Ação Realizada (Ganha o espaço principal) */
+th:nth-child(5) { width: 11%; } /* Endereço IP */
+th:nth-child(6) { width: 11%; } /* Categoria */
+
+/* ─── CORES DO FUNDO DA TABELA (DARK UI) ─── */
 td { padding: 9px 14px; border-bottom: 1px solid var(--log-border); font-family: 'Courier New', monospace; font-size: 12px; }
 tr:nth-child(even) td { background: var(--log-bg); }
 tr:nth-child(odd) td { background: var(--log-row-alt); }

@@ -1,28 +1,72 @@
-/* ─── Banco de Dados Local (Mock Relacional) ─────────────────── */
-let convenios = [
-    { id: 1, nome: "Unimed", cnpj: "04.487.255/0001-81", status: "Ativo" },
-    { id: 2, nome: "Bradesco Saúde", cnpj: "92.693.118/0001-60", status: "Ativo" },
-    { id: 3, nome: "SulAmérica", cnpj: "01.685.053/0001-56", status: "Ativo" },
-    { id: 4, nome: "Amil Assistência", cnpj: "29.309.127/0001-79", status: "Inativo" },
-    { id: 5, nome: "Particular (Sem Convênio)", cnpj: "Isento", status: "Ativo" },
-];
+/* ─── Configuração da API ────────────────────────────────────── */
+const API_URL = "http://localhost:8000/api";
 
-let medicos = [
-    { id: 1, nome: "Dr. Carlos Eduardo Mendes", doc: "CRM PR-45.821", status: "Ativo", convenios: [1, 2, 5] },
-    { id: 2, nome: "Dra. Patrícia Andrade", doc: "CRM SP-71.203", status: "Ativo", convenios: [1, 3] },
-    { id: 3, nome: "Dr. Rodrigo Figueiredo", doc: "CRM PR-38.104", status: "Ativo", convenios: [2, 5] },
-    { id: 4, nome: "Dra. Mariana Rocha", doc: "CRM PR-55.012", status: "Inativo", convenios: [4] },
-];
+// Nossas variáveis agora começam vazias e serão preenchidas pelo servidor
+let convenios = [];
+let medicos = [];
+let pacientes = [];
 
-let pacientes = [
-    { id: 1, nome: "Lucas Henrique Oliveira", doc: "CPF 041.***.***-77", status: "Ativo", convenios: [1] },
-    { id: 2, nome: "Sofia Beatriz Almeida", doc: "CPF 132.***.***-21", status: "Ativo", convenios: [2] },
-    { id: 3, nome: "Ana Clara Ferreira", doc: "CPF 204.***.***-14", status: "Inativo", convenios: [1] },
-    { id: 4, nome: "Gabriel Torres Lima", doc: "CPF 098.***.***-65", status: "Ativo", convenios: [5] },
-];
+/* ─── Busca e Tradução de Dados (O Motor Full-Stack) ───────── */
+async function carregarDadosDaAPI() {
+    try {
+        // Usamos Promise.all para o "motoboy" buscar os 3 pacotes ao mesmo tempo (mais rápido!)
+        const [resGrupos, resMedicos, resPacientes] = await Promise.all([
+            fetch(`${API_URL}/grupos/`),
+            fetch(`${API_URL}/medicos/`),
+            fetch(`${API_URL}/pacientes/`)
+        ]);
+
+        // Abrindo os pacotes JSON
+        const dbGrupos = await resGrupos.json();
+        const dbMedicos = await resMedicos.json();
+        const dbPacientes = await resPacientes.json();
+
+        // 1. Traduzindo Grupos para Convênios do Front-end
+        convenios = dbGrupos.map(g => ({
+            id: g.id,
+            nome: g.nome,
+            cnpj: "00.000.000/0000-00", // Fallback caso não exista CNPJ no Python
+            status: g.status || "Ativo"
+        }));
+
+        // 2. Traduzindo Médicos
+        medicos = dbMedicos.map(m => ({
+            id: m.id,
+            nome: m.nome,
+            doc: `CRM ${m.crm}`, // Adiciona o prefixo visual
+            status: m.status || "Ativo",
+            // O Python manda textos ["Unimed"]. Aqui convertemos para IDs [1]
+            convenios: m.grupos.map(nomeGrupo => {
+                const grupoEncontrado = convenios.find(c => c.nome === nomeGrupo);
+                return grupoEncontrado ? grupoEncontrado.id : null;
+            }).filter(id => id !== null)
+        }));
+
+        // 3. Traduzindo Pacientes
+        pacientes = dbPacientes.map(p => ({
+            id: p.id,
+            nome: p.nome,
+            doc: `CPF ${p.cpf}`, // Adiciona o prefixo visual
+            status: p.status,
+            convenios: p.grupos.map(nomeGrupo => {
+                const grupoEncontrado = convenios.find(c => c.nome === nomeGrupo);
+                return grupoEncontrado ? grupoEncontrado.id : null;
+            }).filter(id => id !== null)
+        }));
+
+        console.log("Integração concluída!", { convenios, medicos, pacientes });
+        
+        // Agora que temos os dados, mandamos desenhar a tela
+        renderApp();
+
+    } catch (erro) {
+        console.error("Erro ao carregar dados do servidor:", erro);
+        showToast("Erro de conexão com o servidor. Verifique se o Uvicorn está rodando.");
+    }
+}
+
 
 /* ─── Estado e Roteamento (History API) ─────────────────────── */
-// Lê a URL atual caso o utilizador faça "Refresh" na página de um convénio
 const urlParams = new URLSearchParams(window.location.search);
 const convenioIdDaUrl = urlParams.get('convenio');
 
@@ -33,10 +77,8 @@ let state = {
     editingPerfil: null 
 };
 
-// Regista o estado inicial no histórico do navegador assim que a página carrega
 window.history.replaceState({ view: state.view, id: state.activeConvenioId }, '', window.location.search || '?view=grid');
 
-// Ouve o evento do botão "Voltar" ou "Avançar" do navegador
 window.addEventListener('popstate', (event) => {
     if (event.state) {
         state.view = event.state.view;
@@ -54,7 +96,9 @@ const getBadge = (status) => `<span class="status-badge ${status.toLowerCase()}"
 document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
     document.getElementById("current-date").textContent = today;
-    renderApp();
+    
+    // Dispara a busca no servidor assim que a tela abre
+    carregarDadosDaAPI();
 });
 
 /* ─── Lógica de Renderização Principal ─────────────────────── */
@@ -76,7 +120,7 @@ function renderApp() {
 
 /* ─── Tela 1: Grid de Convênios ─────────────────────────────── */
 function renderConveniosGrid() {
-    document.getElementById("stats-convenios").textContent = `${convenios.length} convénios registados no sistema`;
+    document.getElementById("stats-convenios").textContent = `${convenios.length} convênios registrados no sistema`;
     const grid = document.getElementById("convenios-grid");
     grid.innerHTML = "";
 
@@ -112,30 +156,22 @@ function renderConveniosGrid() {
     });
 }
 
-// Navegar para Detalhes (Adiciona ao Histórico)
 function openConvenio(id) {
     state.activeConvenioId = id;
     state.activeTab = 'medicos';
     state.view = 'detalhes';
-    
-    // Altera a URL no navegador sem recarregar a página
     window.history.pushState({ view: 'detalhes', id: id }, '', `?convenio=${id}`);
-    
     renderApp();
 }
 
-// Navegar de volta para Grid (Adiciona ao Histórico)
 function goBackToConvenios() {
     state.view = 'grid';
     state.activeConvenioId = null;
-    
-    // Altera a URL no navegador de volta para a view principal
     window.history.pushState({ view: 'grid', id: null }, '', `?view=grid`);
-    
     renderApp();
 }
 
-/* ─── Tela 2: Detalhes do Convénio (Hub Interno) ────────────── */
+/* ─── Tela 2: Detalhes do Convênio (Hub Interno) ────────────── */
 function renderConvenioDetalhes() {
     const cv = convenios.find(c => c.id === state.activeConvenioId);
     if (!cv) return goBackToConvenios();
@@ -243,6 +279,8 @@ window.closeModalPerfil = function() {
     state.editingPerfil = null;
 };
 
+// Aqui o JS atualiza a visualização da tela temporariamente. 
+// Para salvar de verdade, faríamos um fetch() com o método PUT batendo na sua API.
 window.savePerfil = function() {
     if (!state.editingPerfil) return;
 
@@ -262,7 +300,7 @@ window.savePerfil = function() {
 
     closeModalPerfil();
     renderApp(); 
-    showToast("Perfil atualizado e vinculado com sucesso.");
+    showToast("Perfil atualizado visualmente (Demonstração).");
 };
 
 /* ─── Toasts e UX ───────────────────────────────────────────── */
@@ -274,5 +312,5 @@ function showToast(msg) {
 }
 
 window.openModalAddConvenio = function() {
-    alert("Nesta versão de demonstração, o fluxo principal de Arquitetura de Convénios já está mapeado no HTML/CSS. A criação seria idêntica ao modal de perfil.");
+    alert("Nesta versão de demonstração, o fluxo principal de Arquitetura de Convênios já está mapeado no HTML/CSS. A criação seria idêntica ao modal de perfil.");
 };
