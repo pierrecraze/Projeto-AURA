@@ -2,16 +2,16 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import grupos, pacientes, medicos, logs, dashboard, triagens
+from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth
 
-# 1. Inicialização do Aplicativo
+# Inicialização do Aplicativo
 app = FastAPI(
     title="API Projeto AURA",
     description="Backend para o sistema de triagem clínica do IBK",
     version="1.0.0"
 )
 
-# 2. Configuração de CORS (Cross-Origin Resource Sharing)
+# Configuração de CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,13 +24,14 @@ app.add_middleware(
 def status_api():
     return {"status": "Teste API"}
 
-# 3. PRIMEIRO: Incluir as rotas da API
+# Incluir as rotas da API
 app.include_router(pacientes.router, tags=["Pacientes"])
 app.include_router(medicos.router, tags=["Médicos"])
 app.include_router(grupos.router, tags=["Grupos"])
 app.include_router(logs.router, tags=["Logs"])
 app.include_router(dashboard.router, tags=["Dashboard"])
 app.include_router(triagens.router, tags=["Triagens"])
+app.include_router(auth.router, tags=["Auth"])
 
-# 4. POR ÚLTIMO: Montar os arquivos estáticos
+# Montar os arquivos estáticos
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
