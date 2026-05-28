@@ -1,36 +1,8 @@
-// --- Dados Base ---
-const LOGS_RAW = [
-    { id:1,  ts:"2026-05-23T14:32:01", usuario:"Admin", acao:"Login realizado com sucesso", ip:"187.22.10.45", cat:"ACESSO" },
-    { id:2,  ts:"2026-05-23T14:35:18", usuario:"Dr. Carlos Mendes", acao:"Visualizou perfil do paciente #0007", ip:"200.18.32.91", cat:"INFO" },
-    { id:3,  ts:"2026-05-23T14:41:55", usuario:"Dr. Carlos Mendes", acao:"Criou nova triagem — Paciente #0007", ip:"200.18.32.91", cat:"ACAO" },
-    { id:4,  ts:"2026-05-23T14:50:02", usuario:"Sistema", acao:"Backup automático iniciado (2,4 GB)", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:5,  ts:"2026-05-23T14:52:39", usuario:"Sistema", acao:"Backup concluído com sucesso", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:6,  ts:"2026-05-23T15:01:14", usuario:"Desconhecido", acao:"Tentativa de login falha — CRM inválido", ip:"45.33.182.9", cat:"CRITICO" },
-    { id:7,  ts:"2026-05-23T15:01:22", usuario:"Desconhecido", acao:"Tentativa de login falha — senha incorreta", ip:"45.33.182.9", cat:"CRITICO" },
-    { id:8,  ts:"2026-05-23T15:01:30", usuario:"Desconhecido", acao:"IP bloqueado após 3 tentativas falhas", ip:"45.33.182.9", cat:"CRITICO" },
-    { id:9,  ts:"2026-05-23T15:10:47", usuario:"Admin", acao:"Aprovou cadastro de Dra. Ana Carolina Costa", ip:"187.22.10.45", cat:"ACAO" },
-    { id:10, ts:"2026-05-23T15:18:03", usuario:"Dra. Patrícia Andrade", acao:"Visualizou checklist SXF — Paciente #0002", ip:"177.44.19.120", cat:"INFO" },
-    { id:11, ts:"2026-05-23T15:22:30", usuario:"Admin", acao:"Inativou perfil do paciente #0004", ip:"187.22.10.45", cat:"ALERTA" },
-    { id:12, ts:"2026-05-23T15:35:11", usuario:"Dr. Rodrigo Figueiredo", acao:"Registrou resultado de triagem — Paciente #0003", ip:"200.155.7.88", cat:"ACAO" },
-    { id:13, ts:"2026-05-23T15:40:00", usuario:"Sistema", acao:"Sessão expirada — Dr. Thiago Souza", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:14, ts:"2026-05-23T15:47:29", usuario:"Dr. Thiago Souza", acao:"Re-login após expiração de sessão", ip:"191.33.44.200", cat:"ACESSO" },
-    { id:15, ts:"2026-05-23T16:00:01", usuario:"Sistema", acao:"Rotina de limpeza de logs antigos executada", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:16, ts:"2026-05-23T16:05:55", usuario:"Admin", acao:"Exportou relatório CSV de médicos", ip:"187.22.10.45", cat:"INFO" },
-    { id:17, ts:"2026-05-23T16:10:14", usuario:"Dra. Camila Ribeiro", acao:"Atualizou dados de triagem — Paciente #0012", ip:"189.22.50.66", cat:"ACAO" },
-    { id:18, ts:"2026-05-23T16:15:33", usuario:"Admin", acao:"Inativou médico: Dra. Mariana Rocha", ip:"187.22.10.45", cat:"ALERTA" },
-    { id:19, ts:"2026-05-23T16:21:09", usuario:"Sistema", acao:"Verificação de integridade do banco executada", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:20, ts:"2026-05-23T16:28:47", usuario:"Dr. Marcelo Cunha", acao:"Visualizou perfil do paciente #0011", ip:"201.76.33.14", cat:"INFO" },
-    { id:21, ts:"2026-05-23T16:35:02", usuario:"Desconhecido", acao:"Tentativa de acesso à rota /admin/export sem autorização", ip:"92.17.4.230", cat:"CRITICO" },
-    { id:22, ts:"2026-05-23T16:40:18", usuario:"Admin", acao:"Redefiniu permissões de acesso — Dr. Felipe Nascimento", ip:"187.22.10.45", cat:"ACAO" },
-    { id:23, ts:"2026-05-23T16:55:44", usuario:"Sistema", acao:"Sincronização de índices do banco concluída", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:24, ts:"2026-05-23T17:02:11", usuario:"Dra. Patrícia Andrade", acao:"Logout manual realizado", ip:"177.44.19.120", cat:"ACESSO" },
-    { id:25, ts:"2026-05-23T17:10:58", usuario:"Dr. Felipe Nascimento", acao:"Criou nova triagem — Paciente #0017", ip:"201.55.88.32", cat:"ACAO" },
-    { id:26, ts:"2026-05-23T17:18:03", usuario:"Admin", acao:"Visualizou log de auditoria completo", ip:"187.22.10.45", cat:"INFO" },
-    { id:27, ts:"2026-05-23T17:25:30", usuario:"Sistema", acao:"Alerta: uso de CPU acima de 85% por 60s", ip:"10.0.0.1", cat:"ALERTA" },
-    { id:28, ts:"2026-05-23T17:30:00", usuario:"Sistema", acao:"CPU normalizada — alerta encerrado", ip:"10.0.0.1", cat:"SISTEMA" },
-    { id:29, ts:"2026-05-23T17:41:22", usuario:"Dr. Carlos Mendes", acao:"Logout manual realizado", ip:"200.18.32.91", cat:"ACESSO" },
-    { id:30, ts:"2026-05-23T17:55:00", usuario:"Sistema", acao:"Relatório diário gerado e armazenado", ip:"10.0.0.1", cat:"SISTEMA" },
-];
+// --- Configuração da API ---
+const API_URL = "http://localhost:8000/api";
+
+// Array começa vazio e será preenchido pelo Python
+let LOGS_RAW = [];
 
 const CAT_LABELS = {
     CRITICO: "Crítico", ALERTA: "Alerta", ACESSO: "Acesso", 
@@ -42,6 +14,41 @@ const CAT_ICONS = {
     SISTEMA: "database", ACAO: "file-text", INFO: "info"
 };
 
+// --- Busca de Dados no Backend ---
+// --- Busca de Dados no Backend ---
+async function carregarLogsDaAPI() {
+    try {
+        const resposta = await fetch(`${API_URL}/logs/`);
+        const dbLogs = await resposta.json();
+
+        // Traduzindo o padrão do Python para o visual do Front-end
+        LOGS_RAW = dbLogs.map(log => {
+            let categoria = "SISTEMA";
+            if (log.acao === "Criação") categoria = "ACAO";
+            else if (log.acao === "Atualização") categoria = "INFO";
+            else if (log.acao === "Exclusão") categoria = "ALERTA";
+
+            return {
+                id: log.id,
+                ts: log.data_hora,
+                usuario: "Sistema", // Fixo até termos o Login
+                entidade: log.entidade, // <-- Agora guardamos a entidade separada
+                acao: `${log.acao} — ${log.detalhes}`, // Deixamos o texto mais limpo
+                ip: "127.0.0.1",
+                cat: categoria
+            };
+        });
+
+        console.log("Logs de auditoria sincronizados:", LOGS_RAW);
+        
+        renderKPIs();
+        updateApp(false);
+
+    } catch (erro) {
+        console.error("Erro ao carregar logs do servidor:", erro);
+    }
+}
+
 // --- Estado Global e History API ---
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -51,7 +58,7 @@ let state = {
     dataIni: urlParams.get('inicio') || "",
     dataFim: urlParams.get('fim') || "",
     page: parseInt(urlParams.get('page')) || 1,
-    perPage: 12
+    perPage: 50
 };
 
 // Regista estado inicial
@@ -90,9 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeBtn = document.querySelector(`.cat-btn[data-cat="${state.catFiltro}"]`);
     if(activeBtn) activeBtn.classList.add("active");
 
-    renderKPIs();
     setupEventListeners();
-    updateApp(false);
+    
+    // Dispara a busca na API
+    carregarLogsDaAPI();
 });
 
 // --- Lógica de Renderização ---
@@ -162,7 +170,7 @@ function renderTable(slice) {
     tbody.innerHTML = "";
 
     if (slice.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:56px 0; color:rgba(255,255,255,0.25);">// nenhum registo encontrado para os filtros selecionados</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:56px 0; color:rgba(255,255,255,0.25);">// nenhum registro encontrado para os filtros selecionados</td></tr>`;
         return;
     }
 
@@ -191,7 +199,13 @@ function renderTable(slice) {
         tr.innerHTML = `
             <td><span style="color: ${tsColor}; letter-spacing: 0.02em;">${fmtTs(log.ts)}</span></td>
             <td><span style="color: ${userColor}; font-weight: ${userWeight};">${userText}</span></td>
-            <td><span style="color: ${acaoColor}; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${acaoText}</span></td>
+            
+            <td><span style="color: #cbd5e1; font-weight: 500; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px;">${log.entidade}</span></td>
+            
+            <td title="${acaoText}" style="cursor: help;">
+                <span style="color: ${acaoColor}; display:block; width: 100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${acaoText}</span>
+            </td>
+            
             <td><span style="color: ${ipColor}; background:rgba(255,255,255,0.04); padding:2px 7px; border-radius:4px;">${log.ip}</span></td>
             <td>
                 <span class="badge-table badge-${log.cat}">
