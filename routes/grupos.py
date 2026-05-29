@@ -1,8 +1,11 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Depends
 from schemas.grupo import Grupo, GrupoCreate
 from services import grupo_service
 
-router = APIRouter(prefix="/api/grupos", tags=["Grupos"])
+from core.security import obter_usuario_atual
+
+# Colocando o cadeado na porta principal do arquivo
+router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Grupo, status_code=status.HTTP_201_CREATED)
 async def cadastrar_grupo(grupo_in: GrupoCreate): #recebe os dados do grupo a ser criado

@@ -15,10 +15,26 @@ const CAT_ICONS = {
 };
 
 // --- Busca de Dados no Backend ---
-// --- Busca de Dados no Backend ---
 async function carregarLogsDaAPI() {
     try {
-        const resposta = await fetch(`${API_URL}/logs/`);
+        const token = localStorage.getItem('aura_token');
+
+        const resposta = await fetch(`${API_URL}/logs/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            }
+        });
+
+        if (resposta.status === 401) {
+            console.error('Sessão expirada. Chutando para o Login.');
+            localStorage.removeItem('aura_token');
+            localStorage.removeItem('aura_user');
+            window.location.replace('/static/login.html'); 
+            return; 
+        }
+
         const dbLogs = await resposta.json();
 
         // Traduzindo o padrão do Python para o visual do Front-end
@@ -32,8 +48,8 @@ async function carregarLogsDaAPI() {
                 id: log.id,
                 ts: log.data_hora,
                 usuario: "Sistema", // Fixo até termos o Login
-                entidade: log.entidade, // <-- Agora guardamos a entidade separada
-                acao: `${log.acao} — ${log.detalhes}`, // Deixamos o texto mais limpo
+                entidade: log.entidade, 
+                acao: `${log.acao} — ${log.detalhes}`, 
                 ip: "127.0.0.1",
                 cat: categoria
             };
@@ -305,3 +321,14 @@ window.changePage = function(newPage) {
     state.page = newPage;
     updateApp(true);
 };
+
+// --- Sistema de Logout (Para garantir que a porta está bem trancada) ---
+const btnLogout = document.querySelector('.logout');
+
+if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+        localStorage.removeItem('aura_token');
+        localStorage.removeItem('aura_user');
+        window.location.replace('/static/login.html'); 
+    });
+}

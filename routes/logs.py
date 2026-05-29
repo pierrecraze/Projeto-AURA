@@ -1,8 +1,11 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Depends
 from schemas.log import Log, LogCreate
 from services import log_service
 
-router = APIRouter(prefix="/api/logs", tags=["Logs"])
+from core.security import obter_usuario_atual
+
+# Colocando o cadeado na porta principal do arquivo
+router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Log, status_code=status.HTTP_201_CREATED)
 async def registrar_log(log_in: LogCreate): #recebe os dados do log a ser criado

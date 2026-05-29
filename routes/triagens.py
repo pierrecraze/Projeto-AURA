@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from schemas.triagem import Triagem, TriagemCreate
 from services import triagem_service
 
-router = APIRouter(prefix="/api/triagens", tags=["Triagens"])
+from core.security import obter_usuario_atual
+
+# Colocando o cadeado na porta principal do arquivo
+router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Triagem, status_code=status.HTTP_201_CREATED)
 async def registrar_triagem(triagem_in: TriagemCreate):
