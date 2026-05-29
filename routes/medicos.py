@@ -1,8 +1,11 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Depends
 from schemas.medico import Medico, MedicoCreate
 from services import medico_service
 
-router = APIRouter(prefix="/api/medicos", tags=["Médicos"])
+from core.security import obter_usuario_atual
+
+# Colocando o cadeado na porta principal do arquivo
+router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Medico, status_code=status.HTTP_201_CREATED)
 async def cadastrar_medico(medico_in: MedicoCreate): #recebe os dados do médico a ser criado
