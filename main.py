@@ -20,18 +20,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api/status")
-def status_api():
-    return {"status": "Teste API"}
-
 # Incluir as rotas da API
-app.include_router(pacientes.router, tags=["Pacientes"])
-app.include_router(medicos.router, tags=["Médicos"])
-app.include_router(grupos.router, tags=["Grupos"])
-app.include_router(logs.router, tags=["Logs"])
-app.include_router(dashboard.router, tags=["Dashboard"])
-app.include_router(triagens.router, tags=["Triagens"])
+app.include_router(pacientes.router, prefix="/api/pacientes", tags=["Pacientes"])
+app.include_router(medicos.router, prefix="/api/medicos", tags=["Médicos"])
+app.include_router(grupos.router, prefix="/api/grupos", tags=["Grupos"])
+app.include_router(logs.router, prefix="/api/logs", tags=["Logs"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(triagens.router, prefix="/api/triagens", tags=["Triagens"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
-# Montar os arquivos estáticos
+# Servir arquivos estáticos
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

@@ -9,44 +9,64 @@ let pacientes = [];
 /* ─── Busca e Tradução de Dados (O Motor Full-Stack) ───────── */
 async function carregarDadosDaAPI() {
     try {
-        // Usamos Promise.all para o "motoboy" buscar os 3 pacotes ao mesmo tempo (mais rápido!)
+        // 1. Pegamos a pulseira no cofre
+        const token = localStorage.getItem('aura_token');
+        
+        // 2. Preparamos o envelope de segurança
+        const opcoesComToken = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            }
+        };
+
+        // 3. O motoboy busca os 3 pacotes ao mesmo tempo COM o token
         const [resGrupos, resMedicos, resPacientes] = await Promise.all([
-            fetch(`${API_URL}/grupos/`),
-            fetch(`${API_URL}/medicos/`),
-            fetch(`${API_URL}/pacientes/`)
+            fetch(`${API_URL}/grupos/`, opcoesComToken),
+            fetch(`${API_URL}/medicos/`, opcoesComToken),
+            fetch(`${API_URL}/pacientes/`, opcoesComToken)
         ]);
+
+        // 4. Verificação de Segurança (Se alguma delas der 401, expulsa o usuário)
+        if (resGrupos.status === 401 || resMedicos.status === 401 || resPacientes.status === 401) {
+            console.error('Sessão expirada. Chutando para o Login.');
+            localStorage.removeItem('aura_token');
+            localStorage.removeItem('aura_user');
+            window.location.replace('/static/login.html'); 
+            return; 
+        }
 
         // Abrindo os pacotes JSON
         const dbGrupos = await resGrupos.json();
         const dbMedicos = await resMedicos.json();
         const dbPacientes = await resPacientes.json();
 
-        // 1. Traduzindo Grupos para Convênios do Front-end
+        // Traduzindo Grupos
         convenios = dbGrupos.map(g => ({
             id: g.id,
             nome: g.nome,
-            cnpj: "00.000.000/0000-00", // Fallback caso não exista CNPJ no Python
+            cnpj: "00.000.000/0000-00", 
             status: g.status || "Ativo"
         }));
 
-        // 2. Traduzindo Médicos
+        // Traduzindo Médicos
         medicos = dbMedicos.map(m => ({
             id: m.id,
             nome: m.nome,
-            doc: `CRM ${m.crm}`, // Adiciona o prefixo visual
+            doc: `CRM ${m.crm}`, 
             status: m.status || "Ativo",
-            // O Python manda textos ["Unimed"]. Aqui convertemos para IDs [1]
             convenios: m.grupos.map(nomeGrupo => {
                 const grupoEncontrado = convenios.find(c => c.nome === nomeGrupo);
                 return grupoEncontrado ? grupoEncontrado.id : null;
             }).filter(id => id !== null)
         }));
 
-        // 3. Traduzindo Pacientes
+        // Traduzindo Pacientes
         pacientes = dbPacientes.map(p => ({
             id: p.id,
             nome: p.nome,
-            doc: `CPF ${p.cpf}`, // Adiciona o prefixo visual
+            doc: `CPF ${p.cpf}`, 
             status: p.status,
             convenios: p.grupos.map(nomeGrupo => {
                 const grupoEncontrado = convenios.find(c => c.nome === nomeGrupo);
@@ -56,7 +76,6 @@ async function carregarDadosDaAPI() {
 
         console.log("Integração concluída!", { convenios, medicos, pacientes });
         
-        // Agora que temos os dados, mandamos desenhar a tela
         renderApp();
 
     } catch (erro) {
@@ -97,7 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
     document.getElementById("current-date").textContent = today;
     
-    // Dispara a busca no servidor assim que a tela abre
     carregarDadosDaAPI();
 });
 
@@ -279,8 +297,6 @@ window.closeModalPerfil = function() {
     state.editingPerfil = null;
 };
 
-// Aqui o JS atualiza a visualização da tela temporariamente. 
-// Para salvar de verdade, faríamos um fetch() com o método PUT batendo na sua API.
 window.savePerfil = function() {
     if (!state.editingPerfil) return;
 
@@ -314,3 +330,14 @@ function showToast(msg) {
 window.openModalAddConvenio = function() {
     alert("Nesta versão de demonstração, o fluxo principal de Arquitetura de Convênios já está mapeado no HTML/CSS. A criação seria idêntica ao modal de perfil.");
 };
+
+// --- Sistema de Logout (Para garantir que a porta está bem trancada) ---
+const btnLogout = document.querySelector('.logout');
+
+if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+        localStorage.removeItem('aura_token');
+        localStorage.removeItem('aura_user');
+        window.location.replace('/static/login.html'); 
+    });
+}
