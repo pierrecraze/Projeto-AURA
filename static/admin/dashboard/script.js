@@ -176,3 +176,37 @@ function atualizarGrafico() {
     meuGrafico.data.datasets[0].data = chartData.map(d => d.triagens);
     meuGrafico.update(); // Manda a biblioteca redesenhar
 }
+
+// 1. Antes de pedir os dados, pegamos a pulseira no cofre do navegador
+const token = localStorage.getItem('aura_token');
+
+// 2. Fazemos o pedido ao Python passando a pulseira junto
+fetch('http://localhost:8000/api/dashboard/resumo', {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+        // Aqui está a mágica: O anexo da Pulseira VIP
+        'Authorization': `Bearer ${token}` 
+    }
+})
+.then(response => {
+    // 3. A verificação do Barman
+    if (response.status === 401) {
+        // Se a pulseira for falsa ou tiver passado dos 60 minutos (vencida)
+        console.error('Sessão expirada ou token inválido');
+        localStorage.removeItem('aura_token'); // Arrancamos a pulseira velha
+        window.location.replace('/static/login.html'); // Chutamos para a porta de entrada
+        throw new Error('Sessão expirada'); // Para a execução do código
+    }
+    
+    // Se o status for 200 OK, a pulseira é válida! Pegamos os dados.
+    return response.json();
+})
+.then(dados => {
+    // 4. Aqui você injeta os dados reais no seu HTML (KPIs, gráficos, etc.)
+    console.log("Dados recebidos com sucesso:", dados);
+    // Exemplo: document.getElementById('kpi-total').textContent = dados.total;
+})
+.catch(error => {
+    console.error('Erro ao buscar dados:', error);
+});
