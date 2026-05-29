@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 
-secret_key = "chave-secreta-super-segura"  
+secret_key = "chave_secreta_projeto_aura_ibk_muito_segura_2026_oficial"  
 algorithm = "HS256"
 token_expiration_minutes = 60
 

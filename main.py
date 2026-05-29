@@ -31,7 +31,7 @@ app.include_router(grupos.router, tags=["Grupos"])
 app.include_router(logs.router, tags=["Logs"])
 app.include_router(dashboard.router, tags=["Dashboard"])
 app.include_router(triagens.router, tags=["Triagens"])
-app.include_router(auth.router, tags=["Auth"])
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
 # Montar os arquivos estáticos
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
