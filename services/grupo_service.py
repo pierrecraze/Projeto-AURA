@@ -77,3 +77,22 @@ async def inativar_grupo_mock(id_grupo: int): # Inativar um grupo (Soft Delete)
             
     # Se não achar o grupo, retorna vazio
     return None
+
+async def reativar_grupo_mock(id_grupo: int): # Reativar um grupo
+
+    await asyncio.sleep(0.5)
+
+    for grupo in banco_de_grupos:
+        if grupo.id == id_grupo:
+            grupo.status = "Ativo"
+
+            novo_log = LogCreate(
+                entidade="Grupo",
+                acao="Reativação",
+                detalhes=f"O grupo/convênio {grupo.nome} (ID: {grupo.id}) foi reativado."
+            )
+            await log_service.criar_log_mock(novo_log)
+
+            return grupo
+            
+    return None

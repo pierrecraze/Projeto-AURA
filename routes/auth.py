@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from core.security import verificar_senha, criar_token_jwt, gerar_hash_senha
 
@@ -15,26 +16,26 @@ usuarios = {
         "senha": senha_hash_admin,
         "role": "admin"
     }
-    }
-
-# Endpoint de login
-class LoginRequest(BaseModel):
-    email: str
-    senha: str
+}
 
 @router.post("/login", summary="Autenticar usuário e gerar token JWT")
-async def realizar_login(credenciais: LoginRequest):
+async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends()):
+    # O OAuth2PasswordRequestForm coleta os dados do formulário do Swagger.
+    # Ele mapeia o campo 'username' para o e-mail do usuário.
+    email_usuario = credenciais.username
+    senha_usuario = credenciais.password
 
     # Verificar se o usuário existe
-    usuario_encontrado = usuarios.get(credenciais.email)
+    usuario_encontrado = usuarios.get(email_usuario)
 
     if not usuario_encontrado:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="E-mail ou senha inválidos")
+            detail="E-mail ou senha inválidos"
+        )
     
     # Verificar a senha
-    senha_valida = verificar_senha(credenciais.senha, usuario_encontrado["senha"])
+    senha_valida = verificar_senha(senha_usuario, usuario_encontrado["senha"])
 
     if not senha_valida:
         raise HTTPException(
