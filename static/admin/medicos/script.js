@@ -119,6 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     document.getElementById("current-date").textContent = today;
 
+    setupNotificacoes();
+
     // Busca live
     document.getElementById("search-input").addEventListener("input", e => {
         state.searchQuery = e.target.value.toLowerCase();
@@ -519,6 +521,22 @@ function showToast(msg, type = "success") {
     toast.className = `toast ${type}`;
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 3500);
+}
+
+function setupNotificacoes() {
+    const notifBtn = document.getElementById("notifBtn");
+    const notifPanel = document.getElementById("notifPanel");
+    if (notifBtn && notifPanel) {
+        notifBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            notifPanel.classList.toggle("open");
+        });
+        document.addEventListener("click", (e) => {
+            if (!notifPanel.contains(e.target)) {
+                notifPanel.classList.remove("open");
+            }
+        });
+    }
 }
 
 // Logout

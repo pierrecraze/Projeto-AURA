@@ -16,7 +16,9 @@ async def criar_grupo_mock(grupo_in: GrupoCreate):
         id=len(banco_de_grupos) + 1,
         nome=grupo_in.nome,
         cnpj=grupo_in.cnpj,
-        status=grupo_in.status
+        status=grupo_in.status,
+        cor=grupo_in.cor,
+        logo=grupo_in.logo
     )
     banco_de_grupos.append(novo_grupo)
 
@@ -42,6 +44,8 @@ async def atualizar_grupo_mock(id: int, grupo_in: GrupoCreate):
             grupo.nome = grupo_in.nome
             grupo.cnpj = grupo_in.cnpj
             grupo.status = grupo_in.status
+            grupo.cor = grupo_in.cor
+            grupo.logo = grupo_in.logo
 
             novo_log = LogCreate(
                 entidade="Grupo",

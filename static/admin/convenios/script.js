@@ -1,343 +1,333 @@
-/* ─── Configuração da API ────────────────────────────────────── */
-const API_URL = "http://localhost:8000/api";
+// ==========================================
+// AURA — Gestão de Convênios (Grupos)
+// ==========================================
 
-// Nossas variáveis agora começam vazias e serão preenchidas pelo servidor
-let convenios = [];
-let medicos = [];
-let pacientes = [];
+const API_URL = "http://localhost:8000/api/grupos/";
+let conveniosData = [];
+let activeConvenio = null;
+let editId = null;
 
-/* ─── Busca e Tradução de Dados (O Motor Full-Stack) ───────── */
-async function carregarDadosDaAPI() {
+document.addEventListener("DOMContentLoaded", () => {
+    setupDate();
+    setupSidebar();
+    setupProfile();
+    setupNotificacoes();
+    carregarConvenios();
+});
+
+// ==========================================
+// 1. CARGA DE DADOS (API)
+// ==========================================
+async function carregarConvenios() {
     try {
-        // 1. Pegamos a pulseira no cofre
         const token = localStorage.getItem('aura_token');
-        
-        // 2. Preparamos o envelope de segurança
-        const opcoesComToken = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-            }
-        };
+        const res = await fetch(API_URL, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-        // 3. O motoboy busca os 3 pacotes ao mesmo tempo COM o token
-        const [resGrupos, resMedicos, resPacientes] = await Promise.all([
-            fetch(`${API_URL}/grupos/`, opcoesComToken),
-            fetch(`${API_URL}/medicos/`, opcoesComToken),
-            fetch(`${API_URL}/pacientes/`, opcoesComToken)
-        ]);
-
-        // 4. Verificação de Segurança (Se alguma delas der 401, expulsa o usuário)
-        if (resGrupos.status === 401 || resMedicos.status === 401 || resPacientes.status === 401) {
-            console.error('Sessão expirada. Chutando para o Login.');
+        if (res.status === 401) {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
-            window.location.replace('/static/login.html'); 
-            return; 
+            window.location.replace('/static/login.html');
+            return;
         }
 
-        // Abrindo os pacotes JSON
-        const dbGrupos = await resGrupos.json();
-        const dbMedicos = await resMedicos.json();
-        const dbPacientes = await resPacientes.json();
-
-        // Traduzindo Grupos
-        convenios = dbGrupos.map(g => ({
-            id: g.id,
-            nome: g.nome,
-            cnpj: "00.000.000/0000-00", 
-            status: g.status || "Ativo"
-        }));
-
-        // Traduzindo Médicos
-        medicos = dbMedicos.map(m => ({
-            id: m.id,
-            nome: m.nome,
-            doc: `CRM ${m.crm}`, 
-            status: m.status || "Ativo",
-            convenios: m.grupos.map(nomeGrupo => {
-                const grupoEncontrado = convenios.find(c => c.nome === nomeGrupo);
-                return grupoEncontrado ? grupoEncontrado.id : null;
-            }).filter(id => id !== null)
-        }));
-
-        // Traduzindo Pacientes
-        pacientes = dbPacientes.map(p => ({
-            id: p.id,
-            nome: p.nome,
-            doc: `CPF ${p.cpf}`, 
-            status: p.status,
-            convenios: p.grupos.map(nomeGrupo => {
-                const grupoEncontrado = convenios.find(c => c.nome === nomeGrupo);
-                return grupoEncontrado ? grupoEncontrado.id : null;
-            }).filter(id => id !== null)
-        }));
-
-        console.log("Integração concluída!", { convenios, medicos, pacientes });
-        
-        renderApp();
-
-    } catch (erro) {
-        console.error("Erro ao carregar dados do servidor:", erro);
-        showToast("Erro de conexão com o servidor. Verifique se o Uvicorn está rodando.");
+        if (res.ok) {
+            conveniosData = await res.json();
+            renderConvenios();
+            updateStats();
+        } else {
+            showToast("Erro ao buscar convênios da API.", "error");
+        }
+    } catch (err) {
+        console.error("Erro na API:", err);
+        showToast("Erro de conexão com o servidor.", "error");
     }
 }
 
-
-/* ─── Estado e Roteamento (History API) ─────────────────────── */
-const urlParams = new URLSearchParams(window.location.search);
-const convenioIdDaUrl = urlParams.get('convenio');
-
-let state = {
-    view: convenioIdDaUrl ? 'detalhes' : 'grid',
-    activeConvenioId: convenioIdDaUrl ? parseInt(convenioIdDaUrl) : null,
-    activeTab: 'medicos', 
-    editingPerfil: null 
-};
-
-window.history.replaceState({ view: state.view, id: state.activeConvenioId }, '', window.location.search || '?view=grid');
-
-window.addEventListener('popstate', (event) => {
-    if (event.state) {
-        state.view = event.state.view;
-        state.activeConvenioId = event.state.id;
-        renderApp();
-    }
-});
-
-/* ─── Utilitários ───────────────────────────────────────────── */
-const initials = (n) => n.replace(/^Dr[a]?\. /, "").split(" ").slice(0, 2).map((p) => p[0]).join("").toUpperCase();
-const avatarBg = (id) => ["#1D4ED8","#0369A1","#6D28D9","#047857","#B45309","#9D174D"][id % 6];
-const getBadge = (status) => `<span class="status-badge ${status.toLowerCase()}"><span class="dot"></span>${status}</span>`;
-
-/* ─── Inicialização ─────────────────────────────────────────── */
-document.addEventListener("DOMContentLoaded", () => {
-    const today = new Date().toLocaleDateString("pt-BR", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
-    document.getElementById("current-date").textContent = today;
-    
-    carregarDadosDaAPI();
-});
-
-/* ─── Lógica de Renderização Principal ─────────────────────── */
-function renderApp() {
-    const viewGrid = document.getElementById("view-convenios");
-    const viewDetalhes = document.getElementById("view-detalhes");
-
-    if (state.view === 'grid') {
-        viewGrid.classList.remove("hidden");
-        viewDetalhes.classList.add("hidden");
-        renderConveniosGrid();
-    } else {
-        viewGrid.classList.add("hidden");
-        viewDetalhes.classList.remove("hidden");
-        renderConvenioDetalhes();
-    }
-    lucide.createIcons();
-}
-
-/* ─── Tela 1: Grid de Convênios ─────────────────────────────── */
-function renderConveniosGrid() {
-    document.getElementById("stats-convenios").textContent = `${convenios.length} convênios registrados no sistema`;
+// ==========================================
+// 2. RENDERIZAÇÃO DO GRID PRINCIPAL
+// ==========================================
+function renderConvenios() {
     const grid = document.getElementById("convenios-grid");
     grid.innerHTML = "";
 
-    convenios.forEach(cv => {
-        const countMed = medicos.filter(m => m.convenios.includes(cv.id)).length;
-        const countPac = pacientes.filter(p => p.convenios.includes(cv.id)).length;
+    if (conveniosData.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <i data-lucide="building-2"></i>
+                <p>Nenhum convênio ou operadora cadastrado.</p>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    conveniosData.forEach((conv, idx) => {
+        // Fallback de cor caso o convênio não tenha cor cadastrada
+        const stripeClass = `stripe-${(idx % 6) + 1}`;
+        
+        const corDestaque = conv.cor ? `background: ${conv.cor};` : '';
+        const corIcone = conv.cor ? `color: ${conv.cor}; background: ${conv.cor}22;` : '';
+        const logoHtml = conv.logo 
+            ? `<img src="${conv.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`
+            : `<i data-lucide="building-2"></i>`;
 
         const card = document.createElement("div");
         card.className = "convenio-card";
-        card.onclick = () => openConvenio(cv.id);
-        
+        card.onclick = () => openConvenioDetails(conv.id);
+
         card.innerHTML = `
-            <div class="cv-header">
-                <div>
-                    <div class="cv-icon"><i data-lucide="building"></i></div>
-                    <h2 class="cv-title">${cv.nome}</h2>
-                    <p class="cv-cnpj">${cv.cnpj}</p>
+            <div class="cv-stripe ${conv.cor ? '' : stripeClass}" style="${corDestaque}"></div>
+            <div class="cv-body">
+                <div class="cv-top">
+                    <div class="cv-icon-wrap" style="${corIcone}">
+                        ${logoHtml}
+                    </div>
+                    <div class="status-badge ${conv.status.toLowerCase()}">
+                        <div class="dot"></div> ${conv.status}
+                    </div>
                 </div>
-                ${getBadge(cv.status)}
-            </div>
-            <div class="cv-stats">
-                <div class="cv-stat">
-                    <span class="cv-stat-val">${countMed}</span>
-                    <span class="cv-stat-label">Médicos</span>
-                </div>
-                <div class="cv-stat">
-                    <span class="cv-stat-val">${countPac}</span>
-                    <span class="cv-stat-label">Pacientes</span>
+                <h3 class="cv-title">${conv.nome}</h3>
+                <p class="cv-cnpj">${conv.cnpj || 'CNPJ não informado'}</p>
+                <div class="cv-stats">
+                    <div class="cv-stat">
+                        <span class="cv-stat-val">—</span>
+                        <span class="cv-stat-label">Médicos</span>
+                    </div>
+                    <div class="cv-stat">
+                        <span class="cv-stat-val">—</span>
+                        <span class="cv-stat-label">Pacientes</span>
+                    </div>
                 </div>
             </div>
         `;
         grid.appendChild(card);
     });
+
+    lucide.createIcons();
 }
 
-function openConvenio(id) {
-    state.activeConvenioId = id;
-    state.activeTab = 'medicos';
-    state.view = 'detalhes';
-    window.history.pushState({ view: 'detalhes', id: id }, '', `?convenio=${id}`);
-    renderApp();
+function updateStats() {
+    const ativos = conveniosData.filter(c => c.status === "Ativo").length;
+    document.getElementById("stats-convenios").textContent = `${conveniosData.length} convênio(s) cadastrado(s)`;
+    
+    const statsBar = document.getElementById("stats-bar");
+    if (statsBar) {
+        statsBar.innerHTML = `
+            <div class="stat-chip">
+                <div class="stat-chip-icon" style="background:#EFF6FF;color:#1D4ED8;"><i data-lucide="building-2"></i></div>
+                <div>
+                    <div class="stat-chip-val">${conveniosData.length}</div>
+                    <div class="stat-chip-label">Total Cadastrados</div>
+                </div>
+            </div>
+            <div class="stat-chip">
+                <div class="stat-chip-icon" style="background:#F0FDF4;color:#15803D;"><i data-lucide="check-circle"></i></div>
+                <div>
+                    <div class="stat-chip-val">${ativos}</div>
+                    <div class="stat-chip-label">Convênios Ativos</div>
+                </div>
+            </div>
+        `;
+    }
+    lucide.createIcons();
+}
+
+// ==========================================
+// 3. VIEW DE DETALHES DO CONVÊNIO
+// ==========================================
+function openConvenioDetails(id) {
+    activeConvenio = conveniosData.find(c => c.id === id);
+    if (!activeConvenio) return;
+
+    document.getElementById("view-convenios").classList.add("hidden");
+    document.getElementById("view-detalhes").classList.remove("hidden");
+
+    document.getElementById("detalhe-nome-convenio").textContent = activeConvenio.nome;
+    document.getElementById("detalhe-titulo").textContent = activeConvenio.nome;
+    document.getElementById("detalhe-cnpj").textContent = activeConvenio.cnpj || "00.000.000/0000-00";
+
+    // KPIs fictícios para visualização base, deverão vir da API se necessário no futuro
+    document.getElementById("hero-count-medicos").textContent = "—";
+    document.getElementById("hero-count-pacientes").textContent = "—";
+
+    switchTab('medicos');
+    window.scrollTo(0, 0);
 }
 
 function goBackToConvenios() {
-    state.view = 'grid';
-    state.activeConvenioId = null;
-    window.history.pushState({ view: 'grid', id: null }, '', `?view=grid`);
-    renderApp();
+    document.getElementById("view-convenios").classList.remove("hidden");
+    document.getElementById("view-detalhes").classList.add("hidden");
+    activeConvenio = null;
 }
 
-/* ─── Tela 2: Detalhes do Convênio (Hub Interno) ────────────── */
-function renderConvenioDetalhes() {
-    const cv = convenios.find(c => c.id === state.activeConvenioId);
-    if (!cv) return goBackToConvenios();
-
-    document.getElementById("detalhe-nome-convenio").textContent = cv.nome;
-    document.getElementById("detalhe-titulo").textContent = cv.nome;
-    document.getElementById("detalhe-cnpj").textContent = cv.cnpj;
-
-    const medicosVinculados = medicos.filter(m => m.convenios.includes(cv.id));
-    const pacientesVinculados = pacientes.filter(p => p.convenios.includes(cv.id));
-
-    document.getElementById("badge-tab-medicos").textContent = medicosVinculados.length;
-    document.getElementById("badge-tab-pacientes").textContent = pacientesVinculados.length;
-
-    document.getElementById("tab-medicos").className = `tab ${state.activeTab === 'medicos' ? 'active' : ''}`;
-    document.getElementById("tab-pacientes").className = `tab ${state.activeTab === 'pacientes' ? 'active' : ''}`;
+function switchTab(tabName) {
+    document.getElementById("tab-medicos").classList.toggle("active", tabName === "medicos");
+    document.getElementById("tab-pacientes").classList.toggle("active", tabName === "pacientes");
 
     const thead = document.getElementById("dynamic-thead");
     const tbody = document.getElementById("dynamic-tbody");
 
-    if (state.activeTab === 'medicos') {
-        thead.innerHTML = `<tr><th>Médico Vinculado</th><th>CRM</th><th>Status no Sistema</th><th style="text-align:right">Ação</th></tr>`;
-        renderTbody(tbody, medicosVinculados, 'medico');
+    if (tabName === "medicos") {
+        thead.innerHTML = `<tr><th>Médico</th><th>CRM</th><th>Status</th><th style="text-align:right">Ações</th></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum médico vinculado até o momento.</td></tr>`;
     } else {
-        thead.innerHTML = `<tr><th>Paciente Vinculado</th><th>CPF</th><th>Status no Sistema</th><th style="text-align:right">Ação</th></tr>`;
-        renderTbody(tbody, pacientesVinculados, 'paciente');
+        thead.innerHTML = `<tr><th>Paciente</th><th>CPF</th><th>Status</th><th style="text-align:right">Ações</th></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum paciente vinculado até o momento.</td></tr>`;
     }
 }
 
-function renderTbody(tbody, lista, tipo) {
-    tbody.innerHTML = "";
-    if (lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#94A3B8;">Nenhum ${tipo} vinculado a este grupo.</td></tr>`;
+// ==========================================
+// 4. MODAL NOVO/EDITAR CONVÊNIO
+// ==========================================
+function openModalAddConvenio() {
+    editId = null;
+    document.getElementById("modal-convenio-title").textContent = "Novo Convênio";
+    document.getElementById("convenio-nome").value = "";
+    document.getElementById("convenio-cnpj").value = "";
+    document.getElementById("convenio-status").value = "Ativo";
+    document.getElementById("convenio-cor").value = "#1746C8";
+    document.getElementById("convenio-cor-hex").textContent = "#1746C8";
+    document.getElementById("convenio-logo").value = "";
+    
+    document.getElementById("modal-convenio").classList.remove("hidden");
+}
+
+function closeModalConvenio() {
+    document.getElementById("modal-convenio").classList.add("hidden");
+}
+
+async function saveConvenio() {
+    const nome = document.getElementById("convenio-nome").value.trim();
+    const cnpj = document.getElementById("convenio-cnpj").value.trim();
+    const status = document.getElementById("convenio-status").value;
+    const cor = document.getElementById("convenio-cor").value;
+    const logoInput = document.getElementById("convenio-logo");
+
+    if (!nome) {
+        showToast("O nome do convênio é obrigatório.", "error");
         return;
     }
 
-    lista.forEach(item => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>
-                <div class="td-flex">
-                    <div class="user-avatar" style="background:${avatarBg(item.id)}">${initials(item.nome)}</div>
-                    <div>
-                        <p class="user-name">${item.nome}</p>
-                        <p class="user-sub">ID #${String(item.id).padStart(4, '0')}</p>
-                    </div>
-                </div>
-            </td>
-            <td><code style="background:#F1F5F9; padding:2px 6px; border-radius:4px; font-family:monospace; font-size:12px;">${item.doc}</code></td>
-            <td>${getBadge(item.status)}</td>
-            <td style="text-align:right;">
-                <button class="btn-icon" title="Editar Perfil / Vínculos" onclick="openModalPerfil('${tipo}', ${item.id})">
-                    <i data-lucide="edit-3"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function switchTab(tabName) {
-    state.activeTab = tabName;
-    renderApp();
-}
-
-/* ─── Modal de Edição de Perfil ─────────────────────────────── */
-window.openModalPerfil = function(tipo, id) {
-    const list = tipo === 'medico' ? medicos : pacientes;
-    const item = list.find(x => x.id === id);
-    if (!item) return;
-
-    state.editingPerfil = { tipo, ...item };
-
-    document.getElementById("modal-perfil-title").textContent = `Editar ${tipo === 'medico' ? 'Médico' : 'Paciente'}`;
-    document.getElementById("perfil-nome").value = item.nome;
-    document.getElementById("perfil-doc-label").textContent = tipo === 'medico' ? 'CRM' : 'CPF';
-    document.getElementById("perfil-doc").value = item.doc;
-    document.getElementById("perfil-status").value = item.status;
-
-    const chkGrid = document.getElementById("perfil-convenios-list");
-    chkGrid.innerHTML = "";
-    
-    convenios.forEach(cv => {
-        const isChecked = item.convenios.includes(cv.id);
-        const div = document.createElement("label");
-        div.className = `chk-item ${isChecked ? 'checked' : ''}`;
-        div.innerHTML = `
-            <input type="checkbox" value="${cv.id}" ${isChecked ? 'checked' : ''} onchange="toggleCheckbox(this)">
-            <span>${cv.nome}</span>
-        `;
-        chkGrid.appendChild(div);
-    });
-
-    document.getElementById("modal-perfil").classList.remove("hidden");
-    lucide.createIcons();
-};
-
-window.toggleCheckbox = function(input) {
-    if(input.checked) input.parentElement.classList.add("checked");
-    else input.parentElement.classList.remove("checked");
-};
-
-window.closeModalPerfil = function() {
-    document.getElementById("modal-perfil").classList.add("hidden");
-    state.editingPerfil = null;
-};
-
-window.savePerfil = function() {
-    if (!state.editingPerfil) return;
-
-    const novoNome = document.getElementById("perfil-nome").value;
-    const novoStatus = document.getElementById("perfil-status").value;
-    const checkboxes = document.querySelectorAll('#perfil-convenios-list input[type="checkbox"]:checked');
-    const novosConvenios = Array.from(checkboxes).map(cb => parseInt(cb.value));
-
-    const list = state.editingPerfil.tipo === 'medico' ? medicos : pacientes;
-    const idx = list.findIndex(x => x.id === state.editingPerfil.id);
-    
-    if (idx !== -1) {
-        list[idx].nome = novoNome;
-        list[idx].status = novoStatus;
-        list[idx].convenios = novosConvenios;
+    let logoBase64 = null;
+    if (logoInput.files && logoInput.files[0]) {
+        logoBase64 = await toBase64(logoInput.files[0]);
     }
 
-    closeModalPerfil();
-    renderApp(); 
-    showToast("Perfil atualizado visualmente (Demonstração).");
-};
+    const payload = { nome, cnpj, status, cor, logo: logoBase64 };
 
-/* ─── Toasts e UX ───────────────────────────────────────────── */
-function showToast(msg) {
-    const toast = document.getElementById("toast");
-    document.getElementById("toast-msg").textContent = msg;
-    toast.classList.remove("hidden");
-    setTimeout(() => toast.classList.add("hidden"), 3500);
+    try {
+        const token = localStorage.getItem("aura_token");
+        const url = editId ? `${API_URL}${editId}` : API_URL;
+        const method = editId ? "PUT" : "POST";
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            showToast(`Convênio salvo com sucesso!`, "success");
+            closeModalConvenio();
+            carregarConvenios();
+        } else {
+            showToast("Erro ao salvar o convênio.", "error");
+        }
+    } catch (err) {
+        showToast("Erro de conexão.", "error");
+    }
 }
 
-window.openModalAddConvenio = function() {
-    alert("Nesta versão de demonstração, o fluxo principal de Arquitetura de Convênios já está mapeado no HTML/CSS. A criação seria idêntica ao modal de perfil.");
-};
-
-// --- Sistema de Logout (Para garantir que a porta está bem trancada) ---
-const btnLogout = document.querySelector('.logout');
-
-if (btnLogout) {
-    btnLogout.addEventListener('click', () => {
-        localStorage.removeItem('aura_token');
-        localStorage.removeItem('aura_user');
-        window.location.replace('/static/login.html'); 
+function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
     });
+}
+
+// ==========================================
+// 5. COMPONENTES GLOBAIS E UI
+// ==========================================
+function setupDate() {
+    const dateEl = document.getElementById("current-date");
+    if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    }
+}
+
+function setupSidebar() {
+    const btn = document.getElementById("sidebarToggle");
+    if (btn) {
+        btn.addEventListener("click", () => {
+            document.getElementById("sidebar").classList.toggle("collapsed");
+        });
+    }
+}
+
+function setupProfile() {
+    const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
+    const nome = user.nome || "Admin Principal";
+    const iniciais = nome.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase() || "AD";
+
+    ["profileName", "topbarName"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = nome;
+    });
+    ["profileAvatar", "topbarAvatar"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = iniciais;
+    });
+    
+    const btnLogout = document.querySelector('.logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('aura_token');
+            localStorage.removeItem('aura_user');
+            window.location.replace('/static/login.html');
+        });
+    }
+}
+
+function setupNotificacoes() {
+    const notifBtn = document.getElementById("notifBtn");
+    const notifPanel = document.getElementById("notifPanel");
+    if (notifBtn && notifPanel) {
+        notifBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            notifPanel.classList.toggle("open");
+        });
+        document.addEventListener("click", (e) => {
+            if (!notifPanel.contains(e.target)) {
+                notifPanel.classList.remove("open");
+            }
+        });
+    }
+}
+
+function showToast(msg, type = "success") {
+    const toast = document.getElementById("toast");
+    const msgEl = document.getElementById("toast-msg");
+    const icon = document.getElementById("toast-icon");
+    
+    toast.className = `toast ${type}`;
+    msgEl.textContent = msg;
+    
+    if (type === "success") {
+        icon.setAttribute("data-lucide", "check-circle");
+        toast.style.background = "";
+        toast.style.color = "";
+        toast.style.borderColor = "";
+    } else {
+        icon.setAttribute("data-lucide", "alert-circle");
+        toast.style.background = "#FEF2F2";
+        toast.style.color = "#DC2626";
+        toast.style.borderColor = "#FECACA";
+    }
+    
+    toast.classList.remove("hidden");
+    lucide.createIcons();
+    setTimeout(() => toast.classList.add("hidden"), 3500);
 }
