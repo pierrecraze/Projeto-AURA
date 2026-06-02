@@ -1,10 +1,13 @@
 from pydantic import BaseModel
+from typing import Optional
 
 # Classe base com os atributos comuns
 class GrupoBase(BaseModel):
     nome: str
     cnpj: str
     status: str
+    cor: Optional[str] = None
+    logo: Optional[str] = None
 
 class GrupoCreate(GrupoBase):
     pass

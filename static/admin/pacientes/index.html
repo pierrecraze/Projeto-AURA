@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pacientes — Instituto Buko Kaesemodel</title>
+  
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+</head>
+<body>
+  <div class="app-container">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i data-lucide="activity"></i></div>
+          <div class="brand-text">
+            <p class="brand-title">Instituto Buko</p>
+            <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
+          </div>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Alternar menu">
+          <i data-lucide="menu" id="toggleIcon"></i>
+        </button>
+      </div>
+      <nav class="sidebar-nav">
+        <p class="nav-title">Menu Principal</p>
+        <button class="nav-item" onclick="window.location.href='../dashboard/index.html'"><i data-lucide="layout-dashboard"></i><span class="nav-label"> Dashboard</span></button>
+        <button class="nav-item" onclick="window.location.href='../convenios/index.html'"><i data-lucide="building-2"></i><span class="nav-label"> Gestão de Convênios</span></button>
+        <button class="nav-item" onclick="window.location.href='../medicos/index.html'"><i data-lucide="stethoscope"></i><span class="nav-label"> Médicos</span></button>
+        <button class="nav-item active"><i data-lucide="users"></i><span class="nav-label"> Pacientes</span></button>
+        <p class="nav-title" style="margin-top: 14px;">Sistema</p>
+        <button class="nav-item" onclick="window.location.href='../logs/index.html'"><i data-lucide="shield-check"></i><span class="nav-label"> Auditoria de Logs</span></button>
+        <button class="nav-item" onclick="window.location.href='../config/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="profile-card" id="profileCard">
+          <div class="profile-avatar" id="profileAvatar">AD</div>
+          <div class="profile-info">
+            <p class="profile-name" id="profileName">Admin Principal</p>
+            <p class="profile-role">Administrador · IBK</p>
+          </div>
+          <i data-lucide="more-vertical" class="profile-more"></i>
+        </div>
+        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="page-breadcrumb">
+            <div class="breadcrumb-icon"><i data-lucide="users"></i></div>
+            <span class="breadcrumb-label">Pacientes</span>
+            <span class="breadcrumb-sep">·</span>
+            <span class="breadcrumb-sub">Gestão e cadastro de pacientes</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="date-chip">
+            <i data-lucide="calendar"></i>
+            <span id="current-date"></span>
+          </span>
+          <div class="topbar-divider"></div>
+          <button class="top-action-btn" id="notifBtn" aria-label="Notificações">
+            <i data-lucide="bell"></i>
+            <span class="notification-dot" id="notifDot"></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- KPIs -->
+        <div class="pac-kpi-grid">
+          <div class="pac-kpi">
+            <div class="pac-kpi-icon" style="background:#EFF6FF"><i data-lucide="users" style="color:#1D4ED8"></i></div>
+            <div>
+              <p class="pac-kpi-label">Total de Pacientes</p>
+              <p class="pac-kpi-value" id="kpiTotal">—</p>
+            </div>
+          </div>
+          <div class="pac-kpi">
+            <div class="pac-kpi-icon" style="background:#ECFDF5"><i data-lucide="user-check" style="color:#059669"></i></div>
+            <div>
+              <p class="pac-kpi-label">Ativos</p>
+              <p class="pac-kpi-value" id="kpiAtivos">—</p>
+            </div>
+          </div>
+          <div class="pac-kpi">
+            <div class="pac-kpi-icon" style="background:#FEF9EC"><i data-lucide="user-x" style="color:#D97706"></i></div>
+            <div>
+              <p class="pac-kpi-label">Inativos</p>
+              <p class="pac-kpi-value" id="kpiInativos">—</p>
+            </div>
+          </div>
+          <div class="pac-kpi">
+            <div class="pac-kpi-icon" style="background:#F5F3FF"><i data-lucide="user-plus" style="color:#6D28D9"></i></div>
+            <div>
+              <p class="pac-kpi-label">Novos este mês</p>
+              <p class="pac-kpi-value" id="kpiNovos">—</p>
+            </div>
+          </div>
+          <div class="pac-kpi">
+            <div class="pac-kpi-icon" style="background:#FEF2F2"><i data-lucide="alert-circle" style="color:#DC2626"></i></div>
+            <div>
+              <p class="pac-kpi-label">Sem convênio</p>
+              <p class="pac-kpi-value" id="kpiSemConvenio">—</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de ações -->
+        <div class="pac-toolbar">
+          <div class="pac-search-wrap">
+            <i data-lucide="search" class="pac-search-icon"></i>
+            <input type="text" id="searchInput" class="pac-search" placeholder="Buscar por nome, CPF ou e-mail…">
+            <span class="pac-search-shortcut">Ctrl K</span>
+          </div>
+          <div class="pac-toolbar-right">
+            <div class="pac-filter-group">
+              <select id="filterStatus" class="pac-select">
+                <option value="">Todos os status</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+              <select id="filterConvenio" class="pac-select">
+                <option value="">Todos os convênios</option>
+                <option value="Unimed">Unimed</option>
+                <option value="Bradesco Saúde">Bradesco Saúde</option>
+                <option value="SulAmérica">SulAmérica</option>
+                <option value="Particular">Particular</option>
+              </select>
+            </div>
+            <button class="btn-secondary" id="btnExport"><i data-lucide="download"></i> Exportar</button>
+            <button class="btn-primary" id="btnNovo"><i data-lucide="user-plus"></i> Novo Paciente</button>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="card pac-table-card">
+          <div class="pac-table-meta">
+            <span class="pac-table-count" id="tableCount">Exibindo <strong>0</strong> pacientes</span>
+            <div class="pac-view-toggle">
+              <button class="view-btn active" id="viewTable" title="Tabela"><i data-lucide="table-2"></i></button>
+              <button class="view-btn" id="viewGrid" title="Cards"><i data-lucide="layout-grid"></i></button>
+            </div>
+          </div>
+
+          <!-- VIEW: Tabela -->
+          <div id="tableView">
+            <table class="pac-table">
+              <thead>
+                <tr>
+                  <th class="col-pac">Paciente</th>
+                  <th class="col-cpf">CPF</th>
+                  <th class="col-contato">Contato</th>
+                  <th class="col-medicos">Médico(s) Responsável</th>
+                  <th class="col-convenio">Convênio(s)</th>
+                  <th class="col-status">Status</th>
+                  <th class="col-actions"></th>
+                </tr>
+              </thead>
+              <tbody id="pacientesTableBody"></tbody>
+            </table>
+            <div class="pac-empty" id="tableEmpty" style="display:none">
+              <i data-lucide="search-x"></i>
+              <p>Nenhum paciente encontrado para os filtros aplicados.</p>
+            </div>
+          </div>
+
+          <!-- VIEW: Cards -->
+          <div id="gridView" style="display:none">
+            <div class="pac-cards-grid" id="pacientesCardGrid"></div>
+            <div class="pac-empty" id="gridEmpty" style="display:none">
+              <i data-lucide="search-x"></i>
+              <p>Nenhum paciente encontrado.</p>
+            </div>
+          </div>
+
+          <!-- Paginação -->
+          <div class="pac-pagination">
+            <button class="pag-btn" id="pagPrev"><i data-lucide="chevron-left"></i> Anterior</button>
+            <div class="pag-pages" id="pagPages"></div>
+            <button class="pag-btn" id="pagNext">Próximo <i data-lucide="chevron-right"></i></button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: Detalhes do Paciente -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalPaciente">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-avatar" id="modalAvatar">--</div>
+          <div>
+            <h2 class="modal-title" id="modalNome">—</h2>
+            <p class="modal-subtitle" id="modalSubtitle">—</p>
+          </div>
+        </div>
+        <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="info">Identificação</button>
+        <button class="modal-tab" data-tab="medicos">Médicos</button>
+        <button class="modal-tab" data-tab="convenios">Convênios</button>
+        <button class="modal-tab" data-tab="triagens">Triagens (LGPD)</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- TAB: Identificação -->
+        <div class="tab-panel active" id="tab-info">
+          <div class="info-grid">
+            <div class="info-field">
+              <label>Nome Completo</label>
+              <span id="dNome">—</span>
+            </div>
+            <div class="info-field">
+              <label>CPF</label>
+              <span id="dCpf">—</span>
+            </div>
+            <div class="info-field">
+              <label>Data de Nascimento</label>
+              <span id="dNasc">—</span>
+            </div>
+            <div class="info-field">
+              <label>Sexo</label>
+              <span id="dSexo">—</span>
+            </div>
+            <div class="info-field">
+              <label>Telefone</label>
+              <span id="dTel">—</span>
+            </div>
+            <div class="info-field">
+              <label>E-mail</label>
+              <span id="dEmail">—</span>
+            </div>
+            <div class="info-field info-field-full">
+              <label>Endereço</label>
+              <span id="dEnd">—</span>
+            </div>
+            <div class="info-field">
+              <label>Status</label>
+              <span id="dStatus">—</span>
+            </div>
+            <div class="info-field">
+              <label>Cadastrado em</label>
+              <span id="dCadastro">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Médicos -->
+        <div class="tab-panel" id="tab-medicos">
+          <div class="detail-list" id="detalhesMedicos"></div>
+        </div>
+
+        <!-- TAB: Convênios -->
+        <div class="tab-panel" id="tab-convenios">
+          <div class="detail-list" id="detalhesConvenios"></div>
+        </div>
+
+        <!-- TAB: Triagens -->
+        <div class="tab-panel" id="tab-triagens">
+          <div class="detail-list" id="detalhesTriagens"></div>
+          <div class="privacy-note mt-3" style="justify-content: center; padding: 14px; background: #F8FAFC; border-radius: 8px; margin-top: 16px;">
+            <i data-lucide="shield-check" style="color: #10B981;"></i>
+            <p style="text-align: center;"><strong>Acesso Restrito:</strong> Devido ao sigilo médico e à LGPD, administradores visualizam apenas metadados. O resultado clínico é restrito.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <span class="modal-lgpd"><i data-lucide="shield-check"></i> CPF mascarado conforme LGPD</span>
+        <div class="modal-footer-actions">
+          <button class="btn-secondary" id="modalCancelar">Fechar</button>
+          <button class="btn-primary" id="modalEditar"><i data-lucide="pencil"></i> Editar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL DE NOTIFICAÇÕES -->
+  <div class="notif-panel" id="notifPanel">
+    <div class="notif-panel-header">
+      <span class="notif-panel-title">Notificações</span>
+      <button class="notif-mark-all" id="markAllRead">Marcar todas como lidas</button>
+    </div>
+    <div class="notif-list" id="notifList"></div>
+    <div class="notif-panel-footer">
+      <button class="notif-view-all">Ver histórico completo</button>
+    </div>
+  </div>
+  <div class="notif-backdrop" id="notifBackdrop"></div>
+
+  <script src="pacientes.js"></script>
+  <script>
+    // Sobrescreve a data para garantir o formato por extenso
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+      document.getElementById("current-date").textContent = today;
+    });
+
+    // Handler para buscar triagens (LGPD) no modal
+    document.addEventListener("click", async (e) => {
+      if (e.target.classList.contains("modal-tab") && e.target.dataset.tab === "triagens") {
+        const container = document.getElementById("detalhesTriagens");
+        container.innerHTML = `<p style="text-align:center;color:#94A3B8;padding:20px;">Auditoria de triagens segura...</p>`;
+        
+        try {
+          const token = localStorage.getItem("aura_token");
+          const [resT, resM, resP] = await Promise.all([
+            fetch("http://localhost:8000/api/triagens/", { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch("http://localhost:8000/api/medicos/", { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch("http://localhost:8000/api/pacientes/", { headers: { 'Authorization': `Bearer ${token}` } })
+          ]);
+          
+          if (resT.ok && resM.ok && resP.ok) {
+            const triagens = await resT.json();
+            const medicos = await resM.json();
+            const pacientes = await resP.json();
+            
+            const pacNome = document.getElementById("dNome").textContent;
+            const pac = pacientes.find(p => p.nome === pacNome);
+            
+            if (pac) {
+              const triagensPaciente = triagens.filter(t => t.paciente_id === pac.id).sort((a,b) => new Date(b.data_hora) - new Date(a.data_hora));
+              if (triagensPaciente.length === 0) {
+                container.innerHTML = `<p style="text-align:center;color:#94A3B8;padding:20px;">Nenhuma triagem registrada para este paciente.</p>`;
+              } else {
+                container.innerHTML = triagensPaciente.map(t => {
+                  const m = medicos.find(med => med.id === t.medico_id) || { nome: "Desconhecido" };
+                  const d = new Date(t.data_hora);
+                  const dataStr = d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'});
+                  return `
+                  <div class="detail-card">
+                    <div class="detail-card-icon"><i data-lucide="clipboard-list"></i></div>
+                    <div class="detail-card-info">
+                      <p class="detail-card-name">Triagem Realizada — ${dataStr}</p>
+                      <p class="detail-card-sub">Responsável: ${m.nome}</p>
+                    </div>
+                    <span class="detail-card-badge" style="background:#ECFDF5;color:#10B981;display:flex;align-items:center;gap:4px;">
+                      <i data-lucide="lock" style="width:10px;height:10px;"></i> Confidencial
+                    </span>
+                  </div>`;
+                }).join("");
+                lucide.createIcons();
+              }
+            }
+          }
+        } catch (err) {
+          container.innerHTML = `<p style="text-align:center;color:#EF4444;padding:20px;">Erro ao carregar histórico.</p>`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -7,9 +7,8 @@ from services import log_service
 
 # Banco de dados fictício com algumas triagens para alimentar seu dashboard
 banco_de_triagens = [
-    TriagemModel(id=1, medico_id=1, paciente_id=1, resultado="Risco Baixo", data_hora="2026-05-24T10:30:00"),
-    TriagemModel(id=2, medico_id=1, paciente_id=2, resultado="Risco Moderado", data_hora="2026-05-25T14:15:00"),
-    TriagemModel(id=3, medico_id=2, paciente_id=1, resultado="Risco Alto", data_hora="2026-05-26T09:00:00")
+    TriagemModel(id=i, medico_id=(i%2)+1, paciente_id=i, resultado="Risco Baixo", data_hora=f"2026-05-{10+(i%15):02d}T10:30:00")
+    for i in range(1, 13)
 ]
 
 async def criar_triagem_mock(triagem_in: TriagemCreate):

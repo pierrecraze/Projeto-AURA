@@ -5,6 +5,7 @@ const API_URL = "http://localhost:8000/api";
 let medicos    = [];
 let convenios  = [];
 let pacientes  = [];
+let triagens   = [];
 
 /* ─── Estado da UI ─────────────────────────────────────────── */
 let state = {
@@ -27,13 +28,14 @@ async function carregarDados() {
         const token = localStorage.getItem('aura_token');
         const opts = { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
 
-        const [resMed, resGrupos, resPac] = await Promise.all([
+        const [resMed, resGrupos, resPac, resTriagens] = await Promise.all([
             fetch(`${API_URL}/medicos/`,   opts),
             fetch(`${API_URL}/grupos/`,    opts),
-            fetch(`${API_URL}/pacientes/`, opts)
+            fetch(`${API_URL}/pacientes/`, opts),
+            fetch(`${API_URL}/triagens/`,  opts)
         ]);
 
-        if ([resMed, resGrupos, resPac].some(r => r.status === 401)) {
+        if ([resMed, resGrupos, resPac, resTriagens].some(r => r.status === 401)) {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
             window.location.replace('/static/login.html');
@@ -43,6 +45,7 @@ async function carregarDados() {
         const dbMed    = await resMed.json();
         const dbGrupos = await resGrupos.json();
         const dbPac    = await resPac.json();
+        const dbTriagens = await resTriagens.json();
 
         convenios = dbGrupos.map(g => ({ id: g.id, nome: g.nome, cnpj: "00.000.000/0000-00", status: g.status || "Ativo" }));
 
@@ -72,6 +75,13 @@ async function carregarDados() {
                 return g ? g.id : null;
             }).filter(x => x !== null),
             medicoId:  p.medico_id || null
+        }));
+
+        triagens = dbTriagens.map(t => ({
+            id: t.id,
+            medicoId: t.medico_id,
+            pacienteId: t.paciente_id,
+            dataHora: t.data_hora
         }));
 
         renderApp();
@@ -111,6 +121,13 @@ function usarDadosDemostracao() {
         { id: 109, nome: "Rafael Nunes",     doc: "CPF 999.000.111-22", status: "Ativo",   convenios: [2],    medicoId: 7 },
         { id: 110, nome: "Isabela Freitas",  doc: "CPF 000.111.222-33", status: "Inativo", convenios: [1],    medicoId: 8 },
     ];
+    triagens = [];
+    pacientes.forEach((p, idx) => {
+        triagens.push({ id: triagens.length + 1, medicoId: p.medicoId || 1, pacienteId: p.id, dataHora: `2026-05-${String(10 + (idx % 15)).padStart(2,'0')}T10:30:00` });
+        if (Math.random() > 0.5) {
+            triagens.push({ id: triagens.length + 1, medicoId: p.medicoId || 1, pacienteId: p.id, dataHora: `2026-05-${String(12 + (idx % 15)).padStart(2,'0')}T14:15:00` });
+        }
+    });
     renderApp();
 }
 
@@ -118,6 +135,8 @@ function usarDadosDemostracao() {
 document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     document.getElementById("current-date").textContent = today;
+
+    setupNotificacoes();
 
     // Busca live
     document.getElementById("search-input").addEventListener("input", e => {
@@ -519,6 +538,22 @@ function showToast(msg, type = "success") {
     toast.className = `toast ${type}`;
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 3500);
+}
+
+function setupNotificacoes() {
+    const notifBtn = document.getElementById("notifBtn");
+    const notifPanel = document.getElementById("notifPanel");
+    if (notifBtn && notifPanel) {
+        notifBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            notifPanel.classList.toggle("open");
+        });
+        document.addEventListener("click", (e) => {
+            if (!notifPanel.contains(e.target)) {
+                notifPanel.classList.remove("open");
+            }
+        });
+    }
 }
 
 // Logout

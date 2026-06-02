@@ -47,7 +47,7 @@ async function carregarLogsDaAPI() {
             return {
                 id: log.id,
                 ts: log.data_hora,
-                usuario: "Sistema", // Fixo até termos o Login
+                usuario: "Sistema", 
                 entidade: log.entidade, 
                 acao: `${log.acao} — ${log.detalhes}`, 
                 ip: "127.0.0.1",
@@ -77,14 +77,12 @@ let state = {
     perPage: 50
 };
 
-// Regista estado inicial
 window.history.replaceState({ ...state }, '', window.location.search || '?logview=default');
 
-// Deteta navegação do navegador (Botão Voltar)
 window.addEventListener('popstate', (event) => {
     if (event.state) {
         state = { ...event.state };
-        updateApp(false); // Atualiza sem fazer pushState de novo
+        updateApp(false); 
     }
 });
 
@@ -100,12 +98,33 @@ function updateUrlState() {
     window.history.pushState({ ...state }, '', newUrl);
 }
 
-// --- Inicialização ---
+// --- Inicialização e Configuração UI ---
 document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
     document.getElementById("current-date").textContent = today;
 
-    // Sincroniza a interface com a URL caso a página seja acedida via link direto
+    // Toggle da sidebar
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("sidebarToggle");
+    const toggleIcon = document.getElementById("toggleIcon");
+    let collapsed = false;
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+            collapsed = !collapsed;
+            sidebar.classList.toggle("collapsed", collapsed);
+            toggleIcon.setAttribute("data-lucide", collapsed ? "panel-left-open" : "menu");
+            lucide.createIcons();
+        });
+    }
+
+    // Perfil do admin
+    const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
+    const nome = user.nome || "Admin Principal";
+    const iniciais = nome.split(" ").slice(0,2).map(n => n[0]).join("").toUpperCase() || "AD";
+
+    ["profileName", "topbarName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
+    ["profileAvatar", "topbarAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
+
     document.getElementById("search-input").value = state.query;
     document.getElementById("filter-date-ini").value = state.dataIni;
     document.getElementById("filter-date-fim").value = state.dataFim;
@@ -114,16 +133,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if(activeBtn) activeBtn.classList.add("active");
 
     setupEventListeners();
-    
-    // Dispara a busca na API
     carregarLogsDaAPI();
+    lucide.createIcons();
 });
 
 // --- Lógica de Renderização ---
 function updateApp(pushState = true) {
     if(pushState) updateUrlState();
 
-    // 1. Filtragem
     let lista = [...LOGS_RAW];
     
     if (state.catFiltro !== "TODOS") {
@@ -144,28 +161,23 @@ function updateApp(pushState = true) {
         );
     }
 
-    // 2. Ordenação Estática (Sempre por TS Descendente como default de log)
     lista.sort((a, b) => {
         if (a.ts < b.ts) return 1;
         if (a.ts > b.ts) return -1;
         return 0;
     });
 
-    // 3. Paginação
     const totalPages = Math.ceil(lista.length / state.perPage);
     if (state.page > totalPages && totalPages > 0) state.page = totalPages;
     
     const start = (state.page - 1) * state.perPage;
     const slice = lista.slice(start, start + state.perPage);
 
-    // 4. Atualizar DOM
     renderTable(slice);
     renderPagination(lista.length, totalPages);
     updateClearFiltersVisibility();
     
     document.getElementById("log-count-display").textContent = `${lista.length} entradas exibidas`;
-    
-    // IMPORTANTE: Recria os ícones Lucide da tela
     lucide.createIcons();
 }
 
@@ -265,16 +277,13 @@ function updateClearFiltersVisibility() {
     else searchClear.classList.add("hidden");
 }
 
-// --- Helpers de Formatação ---
 function fmtTs(isoString) {
     const d = new Date(isoString);
     const pad = (n) => String(n).padStart(2, "0");
     return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-// --- Event Listeners ---
 function setupEventListeners() {
-    // Categorias
     document.querySelectorAll(".cat-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
@@ -285,7 +294,6 @@ function setupEventListeners() {
         });
     });
 
-    // Datas
     document.getElementById("filter-date-ini").addEventListener("change", (e) => {
         state.dataIni = e.target.value; state.page = 1; updateApp(true);
     });
@@ -293,18 +301,15 @@ function setupEventListeners() {
         state.dataFim = e.target.value; state.page = 1; updateApp(true);
     });
 
-    // Busca
     document.getElementById("search-input").addEventListener("input", (e) => {
         state.query = e.target.value; state.page = 1; updateApp(true);
     });
 
-    // Limpar Busca
     document.getElementById("clear-search").addEventListener("click", () => {
         state.query = ""; document.getElementById("search-input").value = "";
         state.page = 1; updateApp(true);
     });
 
-    // Limpar Tudo
     document.getElementById("clear-all-filters").addEventListener("click", () => {
         state.query = ""; state.catFiltro = "TODOS"; state.dataIni = ""; state.dataFim = "";
         document.getElementById("search-input").value = "";
@@ -316,15 +321,13 @@ function setupEventListeners() {
     });
 }
 
-// Ação de Paginação no Escopo Global
 window.changePage = function(newPage) {
     state.page = newPage;
     updateApp(true);
 };
 
-// --- Sistema de Logout (Para garantir que a porta está bem trancada) ---
+// --- Logout ---
 const btnLogout = document.querySelector('.logout');
-
 if (btnLogout) {
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('aura_token');

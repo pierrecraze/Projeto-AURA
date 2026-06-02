@@ -55,10 +55,6 @@
       
       <header class="topbar">
         <div class="topbar-left">
-          <div class="topbar-welcome">
-            <p class="welcome-name" id="welcomeName">Admin Principal <span class="welcome-wave">👋</span></p>
-          </div>
-          <div class="topbar-divider"></div>
           <div class="page-breadcrumb">
             <div class="breadcrumb-icon"><i data-lucide="layout-dashboard"></i></div>
             <span class="breadcrumb-label">Dashboard</span>
@@ -123,15 +119,15 @@
             <div class="chart-footer">
               <div>
                 <p class="stat-label">Total no período</p>
-                <p class="stat-value">1.483</p>
+                <p class="stat-value" id="statTotalPeriodo">—</p>
               </div>
               <div>
                 <p class="stat-label">Média mensal</p>
-                <p class="stat-value">124</p>
+                <p class="stat-value" id="statMediaMensal">—</p>
               </div>
               <div>
-                <p class="stat-label">Pico (Out)</p>
-                <p class="stat-value">170</p>
+                <p class="stat-label" id="statPicoMes">Pico</p>
+                <p class="stat-value" id="statPicoValor">—</p>
               </div>
             </div>
           </div>
@@ -147,7 +143,7 @@
               <div class="donut-wrapper">
                 <canvas id="convenioChart"></canvas>
                 <div class="donut-center-label">
-                  <span class="donut-total" id="donutTotal">1.450</span>
+                  <span class="donut-total" id="donutTotal">—</span>
                   <span class="donut-total-label">pacientes</span>
                 </div>
               </div>

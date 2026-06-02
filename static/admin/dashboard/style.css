@@ -288,12 +288,6 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; background: var(--slat
   flex-shrink: 0;
 }
 
-/* ====== TOPBAR WELCOME ====== */
-.topbar-welcome { display: flex; flex-direction: column; line-height: 1.2; }
-.welcome-greeting { font-size: 11px; color: #94A3B8; font-weight: 400; }
-.welcome-name { font-size: 14px; font-weight: 700; color: #0F172A; }
-.welcome-wave { font-size: 13px; }
-
 /* Page Header */
 .page-header { margin-bottom: 22px; }
 .page-title { font-size: 20px; font-weight: 700; color: #0F172A; margin: 0; }
