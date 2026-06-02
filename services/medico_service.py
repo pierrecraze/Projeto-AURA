@@ -4,6 +4,7 @@ from datetime import datetime
 from schemas.log import LogCreate
 from schemas.medico import MedicoCreate, Medico
 from models.medico import MedicoModel
+from core.audit import registrar_auditoria
 from services import log_service
 
 class MedicoDatabaseMock:
@@ -40,6 +41,7 @@ class MedicoDatabaseMock:
 
 db = MedicoDatabaseMock()
 
+@registrar_auditoria(entidade="Médico", acao="Criação")
 async def criar_medico_mock(medico_in: MedicoCreate):
     await asyncio.sleep(0.5)
 
@@ -55,14 +57,6 @@ async def criar_medico_mock(medico_in: MedicoCreate):
     )
     db.adicionar(novo_medico)
     db.commit()
-
-    # O backend registra o que ele acabou de fazer
-    novo_log = LogCreate(
-        entidade="Médico",
-        acao="Criação",
-        detalhes=f"O médico {novo_medico.nome} (ID: {novo_medico.id}) foi criado."
-    )
-    await log_service.criar_log_mock(novo_log)
 
     return novo_medico
 
