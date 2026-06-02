@@ -15,14 +15,14 @@ async def obter_resumo_mock():
 
     # Função auxiliar para verificar se o cadastro ocorreu no mês atual
     def eh_deste_mes(data_iso: str):
-        if not data_iso: 
+        if not data_iso: # Se a data for None ou vazia, consideramos que não é deste mês
             return False
-        data_obj = datetime.fromisoformat(data_iso)
+        data_obj = datetime.fromisoformat(data_iso) # Converte a string ISO para um objeto datetime
         return data_obj.month == mes_atual and data_obj.year == ano_atual
 
     # Calcula quantos foram criados apenas no mês atual
     medicos_mes = sum(
-        1 for m in medicos 
+        1 for m in medicos  
         if eh_deste_mes(m.data_cadastro))
     
     pacientes_mes = sum(

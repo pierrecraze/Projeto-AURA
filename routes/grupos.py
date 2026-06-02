@@ -35,3 +35,15 @@ async def inativar_grupo(id_grupo: int):
         )
         
     return grupo_inativado
+
+@router.patch("/{id_grupo}/reativar", response_model=Grupo)
+async def reativar_grupo(id_grupo: int):
+    grupo_reativado = await grupo_service.reativar_grupo_mock(id_grupo)
+
+    if not grupo_reativado:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Grupo não encontrado."
+        )
+        
+    return grupo_reativado

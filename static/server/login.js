@@ -37,7 +37,7 @@ function hideAlert() {
 emailEl.addEventListener('input',    () => setInvalid('grpEmail', false));
 senhaInput.addEventListener('input', () => setInvalid('grpSenha', false));
 
-// 4. A Lógica Real de Autenticação (A comunicação com o Python)
+// 4. A Lógica Real de Autenticação (A comunicação com o Python — Padrão OAuth2)
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   hideAlert();
@@ -62,13 +62,18 @@ form.addEventListener('submit', async (e) => {
   btn.classList.add('loading');
 
   try {
+      // CORREÇÃO: Cria os dados no formato application/x-www-form-urlencoded
+      const corpoFormulario = new URLSearchParams();
+      corpoFormulario.append('username', email); // O FastAPI agora espera 'username'
+      corpoFormulario.append('password', senha); // O FastAPI agora espera 'password'
+
       // Bate na porta do FastAPI
       const response = await fetch('http://localhost:8000/api/auth/login', {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/x-www-form-urlencoded' // CORREÇÃO: Header alterado para aceitar form data
           },
-          body: JSON.stringify({ email: email, senha: senha })
+          body: corpoFormulario // CORREÇÃO: Passando o objeto de formulário em vez de string JSON
       });
 
       // Se o Python devolver 200 OK
@@ -81,13 +86,13 @@ form.addEventListener('submit', async (e) => {
           
           showAlert('Login realizado com sucesso! Redirecionando...', 'success');
           
-          // Redireciona para o Dashboard (Ajuste a URL se precisar)
+          // Redireciona para o Dashboard
           setTimeout(() => {
               window.location.href = '/static/admin/dashboard/index.html'; 
           }, 1000);
 
       } else {
-          // Se o Python devolver 401 (Erro de credencial)
+          // Se o Python devolver 401 (Erro de credencial) ou 422 (Erro de formato)
           const errorData = await response.json();
           showAlert(errorData.detail || 'Credenciais inválidas. Verifique e tente novamente.', 'error');
           senhaInput.value = ''; // Limpa a senha

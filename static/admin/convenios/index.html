@@ -111,12 +111,22 @@
         <!-- ════ VIEW: DETALHES DO CONVÊNIO ════ -->
         <div id="view-detalhes" class="hidden">
 
-          <div class="breadcrumb">
-            <span onclick="goBackToConvenios()">
-              <i data-lucide="arrow-left"></i> Convênios
-            </span>
-            <i data-lucide="chevron-right" class="div"></i>
-            <strong id="detalhe-nome-convenio">—</strong>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div class="breadcrumb" style="margin-bottom: 0;">
+              <span onclick="goBackToConvenios()" style="cursor: pointer;">
+                <i data-lucide="arrow-left"></i> Convênios
+              </span>
+              <i data-lucide="chevron-right" class="div"></i>
+              <strong id="detalhe-nome-convenio">—</strong>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-outline-small" onclick="editarConvenioAtual()">
+                <i data-lucide="edit-2"></i> Editar
+              </button>
+              <button class="btn-outline-small" id="btn-toggle-status" style="color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="toggleStatusConvenioAtual()">
+                <i data-lucide="trash-2"></i> Desativar
+              </button>
+            </div>
           </div>
 
           <!-- Hero do convênio -->

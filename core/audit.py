@@ -1,0 +1,39 @@
+import functools
+from schemas.log import LogCreate
+from services import log_service
+
+def registrar_auditoria(entidade: str, acao: str):
+    """
+    Decorador assíncrono para registrar logs de auditoria automaticamente.
+    Espera que a função decorada retorne um objeto com os atributos 'id' e 'nome'.
+    """
+
+    
+    def decorator(func): #Decorator é um padrão de programação onde você adiciona um comportamento a uma função existente sem precisar modificar o código original dela.
+        @functools.wraps(func)
+        # A função wrapper é a função que realmente envolve a função original (func) e adiciona a funcionalidade de auditoria.
+        async def wrapper(*args, **kwargs): # *args e **kwargs são usados para passar um número variável de argumentos para a função decorada, permitindo flexibilidade na assinatura da função.
+            # 1. Executa a função do serviço (CRUD)
+            resultado = await func(*args, **kwargs)
+            
+            # 2. Verifica se a operação foi bem-sucedida e gerou um resultado
+            if resultado is not None:
+                # getattr ou Get Attribute é uma função embutida do Python que tenta obter um atributo de um objeto. 
+                # Se o atributo não existir, ele retorna um valor padrão (neste caso, 'Desconecido' para o ID e uma string vazia para o nome).
+                item_id = getattr(resultado, 'id', 'Desconhecido') 
+                item_nome = getattr(resultado, 'nome', '')
+                
+                # Formata o nome na frase caso ele exista
+                nome_formatado = f" {item_nome}" if item_nome else ""
+                detalhes = f"Operação de '{acao}' executada com sucesso. Entidade: {entidade}{nome_formatado} (ID: {item_id})."
+                
+                novo_log = LogCreate(
+                    entidade=entidade,
+                    acao=acao,
+                    detalhes=detalhes.strip()
+                )
+                await log_service.criar_log_mock(novo_log)
+                
+            return resultado
+        return wrapper
+    return decorator

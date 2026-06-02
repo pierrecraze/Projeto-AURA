@@ -9,11 +9,11 @@ class MedicoBase(BaseModel):
     status: str
     grupos: list[str]
 
-# Usado para RECEBER dados (POST)
+# Usado para RECEBER dados (POST) 
 class MedicoCreate(MedicoBase):
     senha: str
 
-# Usado para DEVOLVER dados (Tem o ID do banco)
+# Usado para DEVOLVER dados (Tem o ID do banco) e não tem a senha
 class Medico(MedicoBase):
     id: int
     data_cadastro: str

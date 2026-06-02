@@ -2,29 +2,28 @@ import asyncio
 from datetime import datetime
 
 from schemas.paciente import PacienteCreate
-from models.paciente import PacienteModel  # Importação corrigida
+from models.paciente import PacienteModel
+from core.audit import registrar_auditoria # 1. Importamos o decorador aqui em cima
 
-from schemas.log import LogCreate
-from services import log_service
-
-# Banco temporário simulado com instâncias do Modelo
 banco_de_pacientes = [
+   PacienteModel(
+
+        id=1, nome="Lucas Souza", cpf="111.222.333-44", status="Ativo",
+        responsavel=["Ana Souza"], grupos=["Unimed"],
+        data_cadastro="2026-05-01T09:00:00"),
+
     PacienteModel(
-        id=1, nome="Lucas Souza", cpf="111.222.333-44", status="Ativo", 
-        responsavel=["Ana Souza"], grupos=["Unimed"], 
-        data_cadastro="2026-05-01T09:00:00" 
-    ),
-    PacienteModel(
-        id=2, nome="Beatriz Lima", cpf="555.666.777-88", status="Ativo", 
-        responsavel=["Carlos Lima"], grupos=["Bradesco Saúde", "Amil"], 
-        data_cadastro="2026-05-05T15:00:00" 
-    )
+        id=2, nome="Beatriz Lima", cpf="555.666.777-88", status="Ativo",
+        responsavel=["Carlos Lima"], grupos=["Bradesco Saúde", "Amil"],
+        data_cadastro="2026-05-05T15:00:00")
 ]
 
+# 2. Colocamos o decorador avisando o que essa função faz
+@registrar_auditoria(entidade="Paciente", acao="Criação")
 async def criar_paciente_mock(paciente_in: PacienteCreate):
     await asyncio.sleep(0.5) 
     
-    # Mudado para instanciar o PacienteModel correto
+    # 3. A função faz EXCLUSIVAMENTE o trabalho dela (lidar com os dados)
     novo_paciente = PacienteModel(
         id=len(banco_de_pacientes) + 1,
         nome=paciente_in.nome,
@@ -36,53 +35,6 @@ async def criar_paciente_mock(paciente_in: PacienteCreate):
     )
     banco_de_pacientes.append(novo_paciente)
 
-    novo_log = LogCreate(
-        entidade="Paciente",
-        acao="Criação",
-        detalhes=f"O paciente {novo_paciente.nome} (ID: {novo_paciente.id}) foi cadastrado."
-    )
-    await log_service.criar_log_mock(novo_log)
+    # APAGAMOS todo o bloco do LogCreate que ficava aqui!
 
     return novo_paciente
-
-async def listar_pacientes_mock():
-    await asyncio.sleep(0.2)
-    return banco_de_pacientes
-
-async def atualizar_paciente_mock(id_paciente: int, paciente_in: PacienteCreate):
-    await asyncio.sleep(0.5)
-
-    for paciente in banco_de_pacientes:
-        if paciente.id == id_paciente:
-            paciente.nome = paciente_in.nome
-            paciente.cpf = paciente_in.cpf
-            paciente.status = paciente_in.status
-            paciente.responsavel = paciente_in.responsavel
-            paciente.grupos = paciente_in.grupos
-
-            novo_log = LogCreate(
-                entidade="Paciente",
-                acao="Atualização",
-                detalhes=f"Os dados do paciente {paciente.nome} (ID: {paciente.id}) foram atualizados."
-            )
-            await log_service.criar_log_mock(novo_log)
-
-            return paciente
-    return None
-
-async def inativar_paciente_mock(id_paciente: int):
-    await asyncio.sleep(0.5)
-
-    for paciente in banco_de_pacientes:
-        if paciente.id == id_paciente:
-            paciente.status = "Inativo"
-
-            novo_log = LogCreate(
-                entidade="Paciente",
-                acao="Inativação",
-                detalhes=f"O paciente {paciente.nome} (ID: {paciente.id}) foi inativado."
-            )
-            await log_service.criar_log_mock(novo_log)
-            
-            return paciente
-    return None

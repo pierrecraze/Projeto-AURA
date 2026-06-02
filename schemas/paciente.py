@@ -4,9 +4,9 @@ class PacienteBase(BaseModel):
     nome: str
     cpf: str
     status: str
-    responsavel: list[str]  # Corrigido o 'n'
-    grupos: list[str]       # Adicionado para vincular aos convênios
-
+    responsavel: list[str] 
+    grupos: list[str]
+    
 class PacienteCreate(PacienteBase):
     pass
 
