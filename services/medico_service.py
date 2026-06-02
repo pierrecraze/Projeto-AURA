@@ -1,11 +1,9 @@
 import asyncio
 from datetime import datetime
 
-from schemas.log import LogCreate
 from schemas.medico import MedicoCreate, Medico
 from models.medico import MedicoModel
 from core.audit import registrar_auditoria
-from services import log_service
 
 class MedicoDatabaseMock:
     """Repositório mock encapsulando o armazenamento (Preparação para SQLAlchemy)"""
@@ -64,6 +62,7 @@ async def listar_medicos_mock():
     await asyncio.sleep(0.2)
     return db.listar()
 
+@registrar_auditoria(entidade="Médico", acao="Atualização")
 async def atualizar_medico_mock(id: int, medico_in: MedicoCreate):
     
     await asyncio.sleep(0.5)
@@ -78,17 +77,10 @@ async def atualizar_medico_mock(id: int, medico_in: MedicoCreate):
         medico.grupos = medico_in.grupos
         db.commit()
 
-        # O backend registra o que ele acabou de fazer
-        novo_log = LogCreate(
-            entidade="Médico",
-            acao="Atualização",
-            detalhes=f"Os dados do médico {medico.nome} (ID: {medico.id}) foram atualizados."
-        )
-        await log_service.criar_log_mock(novo_log)
-
         return medico
     return None
 
+@registrar_auditoria(entidade="Médico", acao="Inativação")
 async def inativar_medico_mock(id_medico: int): # Inativar um médico (Soft Delete)
     
     await asyncio.sleep(0.5)
@@ -98,14 +90,6 @@ async def inativar_medico_mock(id_medico: int): # Inativar um médico (Soft Dele
         # Em vez de apagar, fazemos o Soft Delete
         medico.status = "Inativo"
         db.commit()
-
-        # O backend registra o que ele acabou de fazer
-        novo_log = LogCreate(
-            entidade="Médico",
-            acao="Inativação",
-            detalhes=f"O médico {medico.nome} (ID: {medico.id}) foi inativado."
-        )
-        await log_service.criar_log_mock(novo_log)
 
         return medico
             

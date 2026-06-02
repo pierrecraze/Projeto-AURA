@@ -2,8 +2,7 @@ import asyncio
 from schemas.grupo import Grupo, GrupoCreate
 from models.grupo import GrupoModel
 
-from schemas.log import LogCreate
-from services import log_service
+from core.audit import registrar_auditoria
 
 class GrupoDatabaseMock:
     """Repositório mock encapsulando o armazenamento (Preparação para SQLAlchemy)"""
@@ -28,6 +27,7 @@ class GrupoDatabaseMock:
 
 db = GrupoDatabaseMock()
 
+@registrar_auditoria(entidade="Grupo", acao="Criação")
 async def criar_grupo_mock(grupo_in: GrupoCreate):
     # Simula a demora de uma rede ou banco de dados real
     await asyncio.sleep(0.5) 
@@ -43,19 +43,13 @@ async def criar_grupo_mock(grupo_in: GrupoCreate):
     db.adicionar(novo_grupo)
     db.commit()
 
-    novo_log = LogCreate(
-        entidade="Grupo",
-        acao="Criação",
-        detalhes=f"O grupo/convênio {novo_grupo.nome} (ID: {novo_grupo.id}) foi criado."
-    )
-    await log_service.criar_log_mock(novo_log)
-
     return novo_grupo
 
 async def listar_grupos_mock():
     await asyncio.sleep(0.2)
     return db.listar()
 
+@registrar_auditoria(entidade="Grupo", acao="Atualização")
 async def atualizar_grupo_mock(id: int, grupo_in: GrupoCreate):
     
     await asyncio.sleep(0.5)
@@ -69,16 +63,10 @@ async def atualizar_grupo_mock(id: int, grupo_in: GrupoCreate):
         grupo.logo = grupo_in.logo
         db.commit()
 
-        novo_log = LogCreate(
-            entidade="Grupo",
-            acao="Atualização",
-            detalhes=f"Os dados do grupo/convênio {grupo.nome} (ID: {grupo.id}) foram atualizados."
-        )
-        await log_service.criar_log_mock(novo_log)
-
         return grupo
     return None
 
+@registrar_auditoria(entidade="Grupo", acao="Inativação")
 async def inativar_grupo_mock(id_grupo: int): # Inativar um grupo (Soft Delete)
 
     await asyncio.sleep(0.5)
@@ -89,18 +77,12 @@ async def inativar_grupo_mock(id_grupo: int): # Inativar um grupo (Soft Delete)
         grupo.status = "Inativo"
         db.commit()
 
-        novo_log = LogCreate(
-            entidade="Grupo",
-            acao="Inativação",
-            detalhes=f"O grupo/convênio {grupo.nome} (ID: {grupo.id}) foi inativado."
-        )
-        await log_service.criar_log_mock(novo_log)
-
         return grupo
             
     # Se não achar o grupo, retorna vazio
     return None
 
+@registrar_auditoria(entidade="Grupo", acao="Reativação")
 async def reativar_grupo_mock(id_grupo: int): # Reativar um grupo
 
     await asyncio.sleep(0.5)
@@ -109,13 +91,6 @@ async def reativar_grupo_mock(id_grupo: int): # Reativar um grupo
     if grupo:
         grupo.status = "Ativo"
         db.commit()
-
-        novo_log = LogCreate(
-            entidade="Grupo",
-            acao="Reativação",
-            detalhes=f"O grupo/convênio {grupo.nome} (ID: {grupo.id}) foi reativado."
-        )
-        await log_service.criar_log_mock(novo_log)
 
         return grupo
             

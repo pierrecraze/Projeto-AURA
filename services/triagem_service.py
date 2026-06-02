@@ -2,8 +2,7 @@ import asyncio
 from datetime import datetime
 from schemas.triagem import TriagemCreate
 from models.triagem import TriagemModel
-from schemas.log import LogCreate
-from services import log_service
+from core.audit import registrar_auditoria
 
 class TriagemDatabaseMock:
     """Repositório mock encapsulando o armazenamento (Preparação para SQLAlchemy)"""
@@ -37,6 +36,7 @@ class TriagemDatabaseMock:
 
 db = TriagemDatabaseMock()
 
+@registrar_auditoria(entidade="Triagem", acao="Criação")
 async def criar_triagem_mock(triagem_in: TriagemCreate):
     await asyncio.sleep(0.5)
 
@@ -50,20 +50,13 @@ async def criar_triagem_mock(triagem_in: TriagemCreate):
     db.adicionar(nova_triagem)
     db.commit()
 
-    # Registro no Log
-    novo_log = LogCreate(
-        entidade="Triagem",
-        acao="Criação",
-        detalhes=f"Triagem (ID: {nova_triagem.id}) registrada para o paciente ID {nova_triagem.paciente_id} pelo médico ID {nova_triagem.medico_id}."
-    )
-    await log_service.criar_log_mock(novo_log)
-
     return nova_triagem
 
 async def listar_triagens_mock():
     await asyncio.sleep(0.2)
     return db.listar()
 
+@registrar_auditoria(entidade="Triagem", acao="Atualização")
 async def atualizar_triagem_mock(id_triagem: int, triagem_in: TriagemCreate):
     await asyncio.sleep(0.5)
 
@@ -75,17 +68,10 @@ async def atualizar_triagem_mock(id_triagem: int, triagem_in: TriagemCreate):
         # Obs: A data_hora original da criação não é alterada
         db.commit()
 
-        # Registro no Log
-        novo_log = LogCreate(
-            entidade="Triagem",
-            acao="Atualização",
-            detalhes=f"O resultado da Triagem (ID: {triagem.id}) foi atualizado."
-        )
-        await log_service.criar_log_mock(novo_log)
-
         return triagem
     return None
 
+@registrar_auditoria(entidade="Triagem", acao="Exclusão")
 async def deletar_triagem_mock(id_triagem: int):
     # Em registros clínicos reais, geralmente não se apaga, mas incluímos para o CRUD ficar completo
     await asyncio.sleep(0.5)
@@ -94,13 +80,5 @@ async def deletar_triagem_mock(id_triagem: int):
     if triagem_removida:
         db.commit() # Simula a efetivação da exclusão no banco
         
-        # Registro no Log
-        novo_log = LogCreate(
-            entidade="Triagem",
-            acao="Exclusão",
-            detalhes=f"A Triagem (ID: {triagem_removida.id}) foi excluída do sistema."
-        )
-        await log_service.criar_log_mock(novo_log)
-
         return triagem_removida
     return None
