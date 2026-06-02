@@ -136,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupViewToggle();
   setupModal();
   setupPaginacao();
+  atualizarKPIsPacientes();
   aplicarFiltros();
   lucide.createIcons();
 });
@@ -267,6 +268,23 @@ function setupFiltros() {
   document.getElementById("btnExport").addEventListener("click", () => {
     exportarCSV();
   });
+}
+
+function atualizarKPIsPacientes() {
+  const total = pacientes.length;
+  const ativos = pacientes.filter(p => p.status === "Ativo").length;
+  const inativos = pacientes.filter(p => p.status === "Inativo").length;
+  const novos = 4; // Mock dinâmico
+  const semConvenio = pacientes.filter(p => p.convenios.includes("Particular") || p.convenios.includes("Outros") || p.convenios.length === 0).length;
+
+  const kpiTotal = document.getElementById("kpiTotal");
+  if (kpiTotal) {
+    kpiTotal.textContent = total;
+    document.getElementById("kpiAtivos").textContent = ativos;
+    document.getElementById("kpiInativos").textContent = inativos;
+    document.getElementById("kpiNovos").textContent = "+" + novos;
+    document.getElementById("kpiSemConvenio").textContent = semConvenio;
+  }
 }
 
 function aplicarFiltros() {

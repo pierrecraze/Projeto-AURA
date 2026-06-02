@@ -212,6 +212,7 @@
         <button class="modal-tab active" data-tab="info">Identificação</button>
         <button class="modal-tab" data-tab="medicos">Médicos</button>
         <button class="modal-tab" data-tab="convenios">Convênios</button>
+        <button class="modal-tab" data-tab="triagens">Triagens (LGPD)</button>
       </div>
 
       <div class="modal-body">
@@ -268,6 +269,15 @@
           <div class="detail-list" id="detalhesConvenios"></div>
         </div>
 
+        <!-- TAB: Triagens -->
+        <div class="tab-panel" id="tab-triagens">
+          <div class="detail-list" id="detalhesTriagens"></div>
+          <div class="privacy-note mt-3" style="justify-content: center; padding: 14px; background: #F8FAFC; border-radius: 8px; margin-top: 16px;">
+            <i data-lucide="shield-check" style="color: #10B981;"></i>
+            <p style="text-align: center;"><strong>Acesso Restrito:</strong> Devido ao sigilo médico e à LGPD, administradores visualizam apenas metadados. O resultado clínico é restrito.</p>
+          </div>
+        </div>
+
       </div>
 
       <div class="modal-footer">
@@ -299,6 +309,59 @@
     document.addEventListener("DOMContentLoaded", () => {
       const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
       document.getElementById("current-date").textContent = today;
+    });
+
+    // Handler para buscar triagens (LGPD) no modal
+    document.addEventListener("click", async (e) => {
+      if (e.target.classList.contains("modal-tab") && e.target.dataset.tab === "triagens") {
+        const container = document.getElementById("detalhesTriagens");
+        container.innerHTML = `<p style="text-align:center;color:#94A3B8;padding:20px;">Auditoria de triagens segura...</p>`;
+        
+        try {
+          const token = localStorage.getItem("aura_token");
+          const [resT, resM, resP] = await Promise.all([
+            fetch("http://localhost:8000/api/triagens/", { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch("http://localhost:8000/api/medicos/", { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch("http://localhost:8000/api/pacientes/", { headers: { 'Authorization': `Bearer ${token}` } })
+          ]);
+          
+          if (resT.ok && resM.ok && resP.ok) {
+            const triagens = await resT.json();
+            const medicos = await resM.json();
+            const pacientes = await resP.json();
+            
+            const pacNome = document.getElementById("dNome").textContent;
+            const pac = pacientes.find(p => p.nome === pacNome);
+            
+            if (pac) {
+              const triagensPaciente = triagens.filter(t => t.paciente_id === pac.id).sort((a,b) => new Date(b.data_hora) - new Date(a.data_hora));
+              if (triagensPaciente.length === 0) {
+                container.innerHTML = `<p style="text-align:center;color:#94A3B8;padding:20px;">Nenhuma triagem registrada para este paciente.</p>`;
+              } else {
+                container.innerHTML = triagensPaciente.map(t => {
+                  const m = medicos.find(med => med.id === t.medico_id) || { nome: "Desconhecido" };
+                  const d = new Date(t.data_hora);
+                  const dataStr = d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", {hour: '2-digit', minute:'2-digit'});
+                  return `
+                  <div class="detail-card">
+                    <div class="detail-card-icon"><i data-lucide="clipboard-list"></i></div>
+                    <div class="detail-card-info">
+                      <p class="detail-card-name">Triagem Realizada — ${dataStr}</p>
+                      <p class="detail-card-sub">Responsável: ${m.nome}</p>
+                    </div>
+                    <span class="detail-card-badge" style="background:#ECFDF5;color:#10B981;display:flex;align-items:center;gap:4px;">
+                      <i data-lucide="lock" style="width:10px;height:10px;"></i> Confidencial
+                    </span>
+                  </div>`;
+                }).join("");
+                lucide.createIcons();
+              }
+            }
+          }
+        } catch (err) {
+          container.innerHTML = `<p style="text-align:center;color:#EF4444;padding:20px;">Erro ao carregar histórico.</p>`;
+        }
+      }
     });
   </script>
 </body>

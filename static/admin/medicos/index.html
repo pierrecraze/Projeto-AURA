@@ -232,23 +232,19 @@
               <div class="card mt-4">
                 <div class="card-header">
                   <div class="tabs">
-                    <button class="tab active">
-                      Pacientes Vinculados <span class="tab-badge" id="badge-pf-pacientes">0</span>
+                  <button class="tab active" id="tab-pf-pacientes" onclick="switchPfTab('pacientes')">
+                    Pacientes <span class="tab-badge" id="badge-pf-pacientes">0</span>
+                  </button>
+                  <button class="tab" id="tab-pf-triagens" onclick="switchPfTab('triagens')">
+                    Últimas Triagens <span class="tab-badge" id="badge-pf-triagens">0</span>
                     </button>
                   </div>
                   <button class="btn-outline-small"><i data-lucide="download"></i> Exportar</button>
                 </div>
                 <div class="table-container">
                   <table>
-                    <thead>
-                      <tr>
-                        <th>Paciente</th>
-                        <th>CPF</th>
-                        <th>Convênio</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody id="pf-pacientes-tbody"></tbody>
+                  <thead id="pf-dynamic-thead"></thead>
+                  <tbody id="pf-dynamic-tbody"></tbody>
                   </table>
                 </div>
               </div>

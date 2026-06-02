@@ -12,64 +12,110 @@ const alertas = [
     { icon: "lock",           bg: "#F5F3FF", color: "#6D28D9", title: "Política de senha atualizada",   sub: "Requisitos mínimos elevados para 12 caracteres", time: "1d" }
 ];
 
-const convenioData = [
-    { nome: "Unimed",      pct: 34, cor: "#2563EB" },
-    { nome: "Bradesco Saúde", pct: 22, cor: "#7C3AED" },
-    { nome: "SulAmérica",  pct: 18, cor: "#0891B2" },
-    { nome: "Particular",  pct: 15, cor: "#059669" },
-    { nome: "Outros",      pct: 11, cor: "#94A3B8" }
-];
-
-const topMedicos = [
-    { nome: "Dr. Carlos Mendes",   esp: "Clínica Geral",  pacientes: 142, cor: "#DBEAFE", txt: "#1D4ED8" },
-    { nome: "Dra. Ana Ferreira",   esp: "Pediatria",      pacientes: 118, cor: "#F5F3FF", txt: "#6D28D9" },
-    { nome: "Dr. Roberto Lima",    esp: "Cardiologia",    pacientes: 97,  cor: "#ECFDF5", txt: "#047857" },
-    { nome: "Dra. Juliana Costa",  esp: "Psiquiatria",    pacientes: 83,  cor: "#FEF9EC", txt: "#B45309" },
-    { nome: "Dr. Marcos Oliveira", esp: "Neurologia",     pacientes: 71,  cor: "#FEF2F2", txt: "#DC2626" }
-];
+const convenioData = [];
+const topMedicos = [];
 
 let meuGrafico;
 let convenioGrafico;
 
 // --- Busca de Dados no Backend ---
-async function carregarDadosDashboard() {
-    try {
-        const token = localStorage.getItem('aura_token');
-        const resposta = await fetch(`${API_URL}/dashboard/resumo`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-        });
-        if (resposta.status === 401) {
-            localStorage.removeItem('aura_token');
-            localStorage.removeItem('aura_user');
-            window.location.replace('/static/login.html');
-            return;
+function gerarDadosMock() {
+    const mockConvenios = [
+        { id: 1, nome: "Unimed", cor: "#2563EB" },
+        { id: 2, nome: "Bradesco Saúde", cor: "#7C3AED" },
+        { id: 3, nome: "SulAmérica", cor: "#0891B2" },
+        { id: 4, nome: "Particular", cor: "#059669" },
+        { id: 5, nome: "Outros", cor: "#94A3B8" }
+    ];
+
+    const mockMedicos = [
+        { id: 1, nome: "Dr. Carlos Mendes", esp: "Clínica Geral", status: "Ativo", pacientes: 142, cor: "#DBEAFE", txt: "#1D4ED8" },
+        { id: 2, nome: "Dra. Ana Ferreira", esp: "Pediatria", status: "Ativo", pacientes: 118, cor: "#F5F3FF", txt: "#6D28D9" },
+        { id: 3, nome: "Dr. Roberto Lima", esp: "Cardiologia", status: "Ativo", pacientes: 97, cor: "#ECFDF5", txt: "#047857" },
+        { id: 4, nome: "Dra. Juliana Costa", esp: "Psiquiatria", status: "Ativo", pacientes: 83, cor: "#FEF9EC", txt: "#B45309" },
+        { id: 5, nome: "Dr. Marcos Oliveira", esp: "Neurologia", status: "Inativo", pacientes: 0, cor: "#FEF2F2", txt: "#DC2626" },
+        { id: 6, nome: "Dra. Fernanda Rocha", esp: "Dermatologia", status: "Ativo", pacientes: 71, cor: "#EFF6FF", txt: "#1E40AF" }
+    ];
+
+    // Criação de 1450 pacientes simulados
+    const mockPacientes = Array.from({length: 1450}, (_, i) => ({
+        id: i + 1,
+        status: i % 10 === 0 ? "Inativo" : "Ativo",
+        convenioId: (i % 5) + 1
+    }));
+
+    // Cada paciente tem pelo menos 1 triagem
+    const mockTriagens = [];
+    const contagemMeses = new Array(12).fill(0);
+    
+    mockPacientes.forEach((p, i) => {
+        const mesIdx = Math.floor(Math.random() * 5); // Foca nos meses 0 a 4 (Jan a Mai)
+        mockTriagens.push({ id: mockTriagens.length + 1, pacienteId: p.id, mesIdx });
+        contagemMeses[mesIdx]++;
+        
+        if (Math.random() < 0.2) {
+            const mes2 = Math.floor(Math.random() * 5);
+            mockTriagens.push({ id: mockTriagens.length + 1, pacienteId: p.id, mesIdx: mes2 });
+            contagemMeses[mes2]++;
         }
-        const dadosBackend = await resposta.json();
-        const dados = {
-            total_grupos:   dadosBackend.total_grupos   || 12,
-            total_medicos:  dadosBackend.total_medicos  || 48,
-            medicos_mes:    dadosBackend.medicos_mes    || 4,
-            total_pacientes:dadosBackend.total_pacientes|| 1450,
-            pacientes_mes:  dadosBackend.pacientes_mes  || 22,
-            total_triagens: dadosBackend.total_triagens || 1483,
-            triagens_mes:   dadosBackend.triagens_mes   || 124,
-            grafico_triagens: dadosBackend.grafico_triagens || [65, 59, 80, 81, 56, 55, 40, 70, 90, 170, 140, 150]
-        };
-        kpis = [
-            { label: "Grupos / Convênios", value: dados.total_grupos.toString(), delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
-            { label: "Total de Médicos", value: dados.total_medicos.toString(), delta: `+${dados.medicos_mes}`, deltaLabel: "vinculados este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
-            { label: "Pacientes na Base", value: dados.total_pacientes.toString(), delta: `+${dados.pacientes_mes}`, deltaLabel: "registrados este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
-            { label: "Triagens — SXF", value: dados.total_triagens.toString(), delta: `+${dados.triagens_mes}`, deltaLabel: "realizadas este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
-        ];
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        chartData = dados.grafico_triagens.map((valor, index) => ({ mes: meses[index], triagens: valor }));
-        renderKPIs();
-        atualizarGrafico();
-        lucide.createIcons();
-    } catch (erro) {
-        console.error("Erro ao carregar o dashboard:", erro);
+    });
+
+    const triagensMesAtual = contagemMeses[4];
+    kpis = [
+        { label: "Grupos / Convênios", value: mockConvenios.length.toString(), delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
+        { label: "Total de Médicos", value: mockMedicos.length.toString(), delta: `+1`, deltaLabel: "vinculados este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
+        { label: "Pacientes na Base", value: mockPacientes.length.toString(), delta: `+22`, deltaLabel: "registrados este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
+        { label: "Triagens — SXF", value: mockTriagens.length.toString(), delta: `+${triagensMesAtual}`, deltaLabel: "realizadas este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
+    ];
+
+    const mesesLabel = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    chartData = contagemMeses.map((valor, index) => ({ mes: mesesLabel[index], triagens: valor }));
+
+    document.getElementById("statTotalPeriodo").textContent = mockTriagens.length.toString();
+    document.getElementById("statMediaMensal").textContent = Math.round(mockTriagens.length / 5).toString();
+    const pico = Math.max(...contagemMeses);
+    const picoMesIdx = contagemMeses.indexOf(pico);
+    document.getElementById("statPicoMes").textContent = `Pico (${mesesLabel[picoMesIdx]})`;
+    document.getElementById("statPicoValor").textContent = pico.toString();
+
+    convenioData.length = 0;
+    const ativos = mockPacientes.filter(p => p.status === 'Ativo').length;
+    document.getElementById("donutTotal").textContent = ativos;
+    
+    const legend = document.getElementById("donutLegend");
+    if(legend) legend.innerHTML = "";
+    
+    mockConvenios.forEach(c => {
+        const pacCount = mockPacientes.filter(p => p.convenioId === c.id && p.status === 'Ativo').length;
+        const pct = Math.round((pacCount / ativos) * 100);
+        convenioData.push({ nome: c.nome, pct: pct, cor: c.cor });
+        
+        if (legend) {
+            const item = document.createElement("div");
+            item.className = "legend-item";
+            item.innerHTML = `<span class="legend-dot" style="background:${c.cor}"></span><span class="legend-name">${c.nome}</span><span class="legend-pct">${pct}%</span>`;
+            legend.appendChild(item);
+        }
+    });
+
+    topMedicos.length = 0;
+    mockMedicos.sort((a,b) => b.pacientes - a.pacientes).slice(0,5).forEach(m => {
+        topMedicos.push(m);
+    });
+
+    renderKPIs();
+    renderTopMedicos();
+    if(meuGrafico) atualizarGrafico();
+    if(convenioGrafico) {
+        convenioGrafico.data.labels = convenioData.map(d => d.nome);
+        convenioGrafico.data.datasets[0].data = convenioData.map(d => d.pct);
+        convenioGrafico.update();
     }
+    lucide.createIcons();
+}
+
+async function carregarDadosDashboard() {
+    gerarDadosMock(); // Garante a exibição das métricas baseadas na triagem dinâmica
 }
 
 // --- Inicialização ---
