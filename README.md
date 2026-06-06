@@ -19,7 +19,7 @@
 
 ### BackEnd e Banco de Dados:
 - Python
-- MySQL
+- PostGres
 
 <br>
 
