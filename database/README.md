@@ -1,8 +1,8 @@
-# 🗄️ Banco de Dados — Projeto AURA
+# Projeto AURA
 
 Este diretório contém a infraestrutura de banco de dados do **Ambiente Unificado de Rastreio e Avaliação (AURA)**. A modelagem foi construída no PostgreSQL e desenhada não apenas para armazenar dados, mas para atuar como a camada primária de segurança (AppSec) e governança clínica do sistema.
 
-## 🚀 Como Inicializar o Banco Localmente
+## Como Inicializar o Banco Localmente
 
 Para rodar a API localmente, você precisará inicializar este banco de dados na sua máquina:
 1. Certifique-se de ter o PostgreSQL rodando localmente (ou via Docker).
@@ -13,7 +13,7 @@ Para rodar a API localmente, você precisará inicializar este banco de dados na
 
 ---
 
-## ⚙️ Fluxos e Mecânicas Explícitas do Sistema
+## Fluxos e Mecânicas Explícitas do Sistema
 
 O banco de dados gerencia as relações do sistema impondo regras estritas de integridade. O fluxo opera da seguinte forma:
 
@@ -24,7 +24,7 @@ O banco de dados gerencia as relações do sistema impondo regras estritas de in
 
 ---
 
-## 🛡️ Regras de Negócio Nativas (Triggers e Functions)
+## Regras de Negócio Nativas (Triggers e Functions)
 
 Para garantir que falhas no backend não corrompam os dados ou violem normas de saúde, a inteligência central de segurança reside diretamente no banco via PL/pgSQL:
 
@@ -46,7 +46,7 @@ O sistema não utiliza hard deletes (deleção física do disco) para entidades 
 
 ---
 
-## 🏗️ Decisões de Modelagem e Tipagem de Dados
+## Decisões de Modelagem e Tipagem de Dados
 
 | Tabela / Coluna | Tipo Escolhido | Justificativa Arquitetural e AppSec |
 | :--- | :--- | :--- |
@@ -60,7 +60,7 @@ O sistema não utiliza hard deletes (deleção física do disco) para entidades 
 
 ---
 
-## 🔍 Estratégia de Índices (Performance)
+## Estratégia de Índices (Performance)
 
 A arquitetura já prevê índices para evitar *Table Scans* (varredura completa do banco) que degradam o tempo de resposta da API:
 * **Índices Parciais:** `idx_paciente_deletado` escaneia e armazena em memória apenas os pacientes onde `deletado_em IS NULL`, acelerando absurdamente as buscas da rotina diária da clínica e ignorando os registros antigos.
