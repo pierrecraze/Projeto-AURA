@@ -1,6 +1,6 @@
 # Projeto AURA
 
-Este diretório contém a infraestrutura de banco de dados do **Ambiente Unificado de Rastreio e Avaliação (AURA)**. A modelagem foi construída no PostgreSQL e desenhada não apenas para armazenar dados, mas para atuar como a camada primária de segurança (AppSec) e governança clínica do sistema.
+Este diretório contém a infraestrutura de banco de dados do **Ambiente Unificado de Rastreio e Avaliação (AURA)**. A modelagem foi construída no PostgreSQL e desenhada não apenas para armazenar dados, mas para atuar como a camada primária de segurança e governança clínica do sistema.
 
 ## Como Inicializar o Banco Localmente
 
