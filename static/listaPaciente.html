@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AURA | Pacientes</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
+      rel="stylesheet"/>
+
+    <link rel="stylesheet" href="css/styles.css" />         <!-- CSS global do projeto -->
+    <link rel="stylesheet" href="css/listaPaciente.css" />  <!-- CSS específico desta página -->
+
+    <link rel="icon" href="favicon.ico">
+  </head>
+  <body>
+    <!-- HEADER (mesmo padrão do global) -->
+    <header>
+      <div class="header-brand">
+        <div class="logo-mark">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="#fff"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </div>
+        <div>
+          <div class="logo-text">ClinicaPro</div>
+          <div class="header-sub">Plataforma de Assistência Clínica</div>
+        </div>
+      </div>
+      <div class="header-user">
+        <div class="user-avatar">DR</div>
+        <span class="user-name">Dr. Rafael</span>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main>
+      <div class="page-wrapper">
+        <!-- Topo da seção -->
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Lista de Pacientes</h2>
+            <p class="section-sub">
+              Gerencie e acompanhe todos os seus pacientes
+            </p>
+          </div>
+          <button class="btn-primary" onclick="abrirModal()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Novo Paciente
+          </button>
+        </div>
+
+        <!-- Barra de busca + filtro -->
+        <div class="search-bar">
+          <div class="search-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+              />
+            </svg>
+            <input
+              class="search-input"
+              type="text"
+              id="searchInput"
+              placeholder="Buscar por nome, CPF ou convênio..."
+              oninput="filtrar()"
+            />
+          </div>
+          <select class="filter-select" id="filterStatus" onchange="filtrar()">
+            <option value="">Todos os status</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>CPF</th>
+                <th>Idade</th>
+                <th>Convênio</th>
+                <th>Última Consulta</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaBody"></tbody>
+          </table>
+
+          <!-- Estado vazio -->
+          <div id="emptyState" class="empty-state" style="display: none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M17 20h5v-1a4 4 0 0 0-5.5-3.7M9 20H4v-1a4 4 0 0 1 5.5-3.7M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm6 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+              />
+            </svg>
+            <p>Nenhum paciente encontrado.</p>
+          </div>
+
+          <!-- Paginação -->
+          <div class="pagination">
+            <span class="pagination-info" id="paginacaoInfo"></span>
+            <div class="pagination-btns" id="paginacaoBtns"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL NOVO / EDITAR PACIENTE -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <button class="modal-close" onclick="fecharModal()">✕</button>
+        <h2 id="modalTitulo">Novo Paciente</h2>
+
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="fNome" placeholder="Ex: Ana Paula Souza" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>CPF</label>
+            <input
+              type="text"
+              id="fCpf"
+              placeholder="000.000.000-00"
+              maxlength="14"
+              oninput="mascaraCpf(this)"
+            />
+          </div>
+          <div class="form-group">
+            <label>Idade</label>
+            <input
+              type="number"
+              id="fIdade"
+              placeholder="Ex: 32"
+              min="0"
+              max="130"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Convênio</label>
+            <input type="text" id="fConvenio" placeholder="Ex: Unimed" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="fStatus">
+              <option value="Ativo">Ativo</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="fecharModal()">
+            Cancelar
+          </button>
+          <button class="btn-primary" onclick="salvarPaciente()">
+            Salvar Paciente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast de notificação -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/static/server/listaPaciente.js"></script>
+  </body>
+</html>

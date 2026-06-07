@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AURA | Formulário</title>
+
+    <link rel="stylesheet" href="css/formulario.css" />
+    <link rel="icon" href="favicon.ico">
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <h1 class="header-title">AURA | FORMULÁRIO CLÍNICO</h1>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- TELA: FORMULÁRIO -->
+      <div id="tela-formulario" class="tela ativa">
+        <div class="card">
+          <h2 class="card-title">FORMULÁRIO CLÍNICO</h2>
+          <div class="grid-campos">
+            <!-- coluna esquerda -->
+            <div class="campo">
+              <span class="campo-label">DEFICIÊNCIA INTELECTUAL</span>
+              <div class="opcoes">
+                <label
+                  ><input
+                    type="radio"
+                    name="deficiencia_intelectual"
+                    value="sim"
+                  />
+                  SIM</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="deficiencia_intelectual"
+                    value="nao"
+                  />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">MACROORQUIDISMO</span>
+              <div class="opcoes">
+                <input type="radio" name="macroorquidismo" value="sim" /> SIM
+                <input type="radio" name="macroorquidismo" value="nao" /> NÃO
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">DIFICULDADES DE APRENDIZAGEM</span>
+              <div class="opcoes">
+                <label
+                  ><input
+                    type="radio"
+                    name="dificuldades_aprendizagem"
+                    value="sim"
+                  />
+                  SIM</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="dificuldades_aprendizagem"
+                    value="nao"
+                  />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">Movimentos repetitivos</span>
+              <div class="opcoes">
+                <label
+                  ><input
+                    type="radio"
+                    name="movimentos_repetitivos"
+                    value="sim"
+                  />
+                  SIM</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="movimentos_repetitivos"
+                    value="nao"
+                  />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">HIPERATIVIDADE</span>
+              <div class="opcoes">
+                <label
+                  ><input type="radio" name="hiperatividade" value="sim" />
+                  SIM</label
+                >
+                <label
+                  ><input type="radio" name="hiperatividade" value="nao" />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">EVITA CONTATO FÍSICO</span>
+              <div class="opcoes">
+                <label
+                  ><input
+                    type="radio"
+                    name="evita_contato_fisico"
+                    value="sim"
+                  />
+                  SIM</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="evita_contato_fisico"
+                    value="nao"
+                  />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <!-- coluna direita -->
+            <div class="campo">
+              <span class="campo-label">FACE ALONGADA/ORELHAS</span>
+              <div class="opcoes">
+                <label
+                  ><input type="radio" name="face_alongada" value="sim" />
+                  SIM</label
+                >
+                <label
+                  ><input type="radio" name="face_alongada" value="nao" />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">HIPERMOBILIDADE ARTICULAR</span>
+              <div class="opcoes">
+                <label
+                  ><input type="radio" name="hipermobilidade" value="sim" />
+                  SIM</label
+                >
+                <label
+                  ><input type="radio" name="hipermobilidade" value="nao" />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">DÉFICIT DE ATENÇÃO</span>
+              <div class="opcoes">
+                <label
+                  ><input type="radio" name="deficit_atencao" value="sim" />
+                  SIM</label
+                >
+                <label
+                  ><input type="radio" name="deficit_atencao" value="nao" />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">ATRASO NA FALA</span>
+              <div class="opcoes">
+                <label
+                  ><input type="radio" name="atraso_fala" value="sim" />
+                  SIM</label
+                >
+                <label
+                  ><input type="radio" name="atraso_fala" value="nao" />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">EVITA CONTATO VISUAL</span>
+              <div class="opcoes">
+                <label
+                  ><input
+                    type="radio"
+                    name="evita_contato_visual"
+                    value="sim"
+                  />
+                  SIM</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="evita_contato_visual"
+                    value="nao"
+                  />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">AGRESSIVIDADE</span>
+              <div class="opcoes">
+                <label
+                  ><input type="radio" name="agressividade" value="sim" />
+                  SIM</label
+                >
+                <label
+                  ><input type="radio" name="agressividade" value="nao" />
+                  NÃO</label
+                >
+              </div>
+            </div>
+          </div>
+          <!-- /grid-campos -->
+
+          <div id="erro-formulario" class="erro-msg" style="display: none">
+            ⚠️ Por favor, responda todos os campos antes de confirmar.
+          </div>
+
+          <div class="botoes">
+            <button class="btn btn-cancelar" onclick="cancelarFormulario()">
+              CANCELAR
+            </button>
+            <button class="btn btn-confirmar" onclick="confirmarDados()">
+              CONFIRMAR<br />DADOS
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- /tela-formulario -->
+
+      <!-- TELA: RESULTADO -->
+      <div id="tela-resultado" class="tela">
+        <div class="card card-resultado">
+          <h2 class="card-title">RESULTADO DO PACIENTE</h2>
+
+          <div class="resultado-corpo">
+            <div class="score-bloco">
+              <span class="score-label">SCORE</span>
+              <div id="score-box" class="score-box">0.00</div>
+            </div>
+
+            <div class="indicacao-bloco">
+              <span class="indicacao-label">INDICAÇÃO</span>
+              <div id="indicacao-texto" class="indicacao-texto"></div>
+            </div>
+          </div>
+
+          <!-- MÉTRICA DE PONTOS -->
+          <div class="metrica-bloco">
+            <div class="metrica-header">
+              <span class="metrica-titulo">MÉTRICA DE SINTOMAS</span>
+              <span id="metrica-contagem" class="metrica-contagem"
+                >0 / 12 SIM</span
+              >
+            </div>
+
+            <!-- Barra de progresso segmentada -->
+            <div class="metrica-barra-wrap">
+              <div id="metrica-barra" class="metrica-barra"></div>
+              <!-- marcadores das faixas -->
+              <div class="metrica-marcadores">
+                <span class="marcador" style="left: 0%">0</span>
+                <span class="marcador" style="left: 33.3%">4</span>
+                <span class="marcador" style="left: 58.3%">7</span>
+                <span
+                  class="marcador"
+                  style="left: 100%; transform: translateX(-100%)"
+                  >12</span
+                >
+              </div>
+            </div>
+
+            <!-- Legenda das faixas -->
+            <div class="metrica-legenda">
+              <span class="legenda-item legenda-baixo">■ 0–4 Baixa</span>
+              <span class="legenda-item legenda-medio">■ 5–6 Média</span>
+              <span class="legenda-item legenda-alto">■ 7–12 Alta</span>
+            </div>
+
+            <!-- Bolinhas individuais por sintoma -->
+            <div id="metrica-pontos" class="metrica-pontos"></div>
+          </div>
+
+          <div
+            id="asterisco-info"
+            class="asterisco-info"
+            style="display: none"
+          ></div>
+
+          <div id="botoes-resultado" class="botoes-resultado"></div>
+        </div>
+      </div>
+      <!-- /tela-resultado -->
+    </main>
+
+    <script src="/static/server/formulario.js"></script>
+  </body>
+</html>
