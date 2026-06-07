@@ -71,10 +71,12 @@ CREATE TABLE IF NOT EXISTS Profissional_Instituicao (
 CREATE TABLE IF NOT EXISTS Paciente (
     id                      UUID            DEFAULT gen_random_uuid() PRIMARY KEY,
     nome                    VARCHAR(150)    NOT NULL,
+    cpf                     CHAR(11)        UNIQUE NULL,
     data_nascimento         DATE            NOT NULL,
     sexo_biologico          CHAR(1)         NOT NULL CHECK (sexo_biologico IN ('M', 'F')),
     instituicao_id          INTEGER         NOT NULL REFERENCES Instituicao(id),
     cadastrado_por_id       INTEGER         NOT NULL REFERENCES Profissional_Saude(id),
+    data_cadastro           TIMESTAMP       NOT NULL DEFAULT NOW(), -- <-- Adicione esta linha
     deletado_em             TIMESTAMP       NULL
 );
 

@@ -25,92 +25,9 @@ const AVATAR_COLORS = [
 
 function avatarColor(i) { return AVATAR_COLORS[i % AVATAR_COLORS.length]; }
 
-const pacientes = [
-  {
-    id: "PAC-0001", nome: "Ana Paula Ferreira", cpf: "***.***.***-01",
-    nasc: "12/03/1985", sexo: "Feminino", tel: "(41) 99812-3456", email: "ana.ferreira@email.com",
-    end: "Rua das Flores, 142 – Batel, Curitiba/PR", status: "Ativo", cadastro: "10/01/2023",
-    medicos: [{ nome: "Dr. Carlos Mendes", esp: "Clínica Geral" }, { nome: "Dra. Juliana Costa", esp: "Psiquiatria" }],
-    convenios: ["Unimed", "Bradesco Saúde"],
-  },
-  {
-    id: "PAC-0002", nome: "Bruno Henrique Lima", cpf: "***.***.***-02",
-    nasc: "07/08/1990", sexo: "Masculino", tel: "(41) 98765-4321", email: "bruno.lima@email.com",
-    end: "Av. Sete de Setembro, 300 – Centro, Curitiba/PR", status: "Ativo", cadastro: "15/02/2023",
-    medicos: [{ nome: "Dr. Roberto Lima", esp: "Cardiologia" }],
-    convenios: ["SulAmérica"],
-  },
-  {
-    id: "PAC-0003", nome: "Carla Souza Mendes", cpf: "***.***.***-03",
-    nasc: "22/11/1978", sexo: "Feminino", tel: "(41) 97654-3210", email: "carla.mendes@email.com",
-    end: "Rua Voluntários da Pátria, 55 – Juvevê, Curitiba/PR", status: "Inativo", cadastro: "20/03/2023",
-    medicos: [{ nome: "Dra. Ana Ferreira", esp: "Pediatria" }],
-    convenios: ["Particular"],
-  },
-  {
-    id: "PAC-0004", nome: "Diego Alves Costa", cpf: "***.***.***-04",
-    nasc: "14/06/1995", sexo: "Masculino", tel: "(41) 96543-2109", email: "diego.costa@email.com",
-    end: "Rua Marechal Floriano, 800 – Portão, Curitiba/PR", status: "Ativo", cadastro: "02/04/2023",
-    medicos: [{ nome: "Dr. Marcos Oliveira", esp: "Neurologia" }, { nome: "Dr. Carlos Mendes", esp: "Clínica Geral" }],
-    convenios: ["Bradesco Saúde"],
-  },
-  {
-    id: "PAC-0005", nome: "Elaine Rodrigues Silva", cpf: "***.***.***-05",
-    nasc: "30/01/1982", sexo: "Feminino", tel: "(41) 95432-1098", email: "elaine.silva@email.com",
-    end: "Rua Ébano Pereira, 21 – Centro, Curitiba/PR", status: "Ativo", cadastro: "18/04/2023",
-    medicos: [{ nome: "Dra. Juliana Costa", esp: "Psiquiatria" }],
-    convenios: ["Unimed"],
-  },
-  {
-    id: "PAC-0006", nome: "Fábio Nascimento Pereira", cpf: "***.***.***-06",
-    nasc: "09/09/1988", sexo: "Masculino", tel: "(41) 94321-0987", email: "fabio.pereira@email.com",
-    end: "Rua Visconde do Rio Branco, 44 – Mercês, Curitiba/PR", status: "Ativo", cadastro: "01/05/2023",
-    medicos: [{ nome: "Dr. Roberto Lima", esp: "Cardiologia" }, { nome: "Dra. Ana Ferreira", esp: "Pediatria" }],
-    convenios: ["SulAmérica", "Unimed"],
-  },
-  {
-    id: "PAC-0007", nome: "Gabriela Torres Nunes", cpf: "***.***.***-07",
-    nasc: "17/04/1993", sexo: "Feminino", tel: "(41) 93210-9876", email: "gabriela.nunes@email.com",
-    end: "Av. Água Verde, 1200 – Água Verde, Curitiba/PR", status: "Ativo", cadastro: "14/05/2023",
-    medicos: [{ nome: "Dr. Carlos Mendes", esp: "Clínica Geral" }],
-    convenios: ["Particular"],
-  },
-  {
-    id: "PAC-0008", nome: "Henrique Campos Ribeiro", cpf: "***.***.***-08",
-    nasc: "03/12/1975", sexo: "Masculino", tel: "(41) 92109-8765", email: "henrique.ribeiro@email.com",
-    end: "Rua Comendador Araújo, 88 – Centro, Curitiba/PR", status: "Inativo", cadastro: "28/05/2023",
-    medicos: [{ nome: "Dr. Marcos Oliveira", esp: "Neurologia" }],
-    convenios: ["Bradesco Saúde"],
-  },
-  {
-    id: "PAC-0009", nome: "Isabela Gonçalves Martins", cpf: "***.***.***-09",
-    nasc: "25/07/1997", sexo: "Feminino", tel: "(41) 91098-7654", email: "isabela.martins@email.com",
-    end: "Rua João Negrão, 105 – Centro Cívico, Curitiba/PR", status: "Ativo", cadastro: "10/06/2023",
-    medicos: [{ nome: "Dra. Ana Ferreira", esp: "Pediatria" }, { nome: "Dra. Juliana Costa", esp: "Psiquiatria" }],
-    convenios: ["Unimed", "Particular"],
-  },
-  {
-    id: "PAC-0010", nome: "João Pedro Almeida", cpf: "***.***.***-10",
-    nasc: "11/02/1980", sexo: "Masculino", tel: "(41) 90987-6543", email: "joao.almeida@email.com",
-    end: "Rua Cruz Machado, 310 – São Francisco, Curitiba/PR", status: "Ativo", cadastro: "22/06/2023",
-    medicos: [{ nome: "Dr. Carlos Mendes", esp: "Clínica Geral" }],
-    convenios: ["SulAmérica"],
-  },
-  {
-    id: "PAC-0011", nome: "Karen Lopes Vieira", cpf: "***.***.***-11",
-    nasc: "06/10/1991", sexo: "Feminino", tel: "(41) 99111-2233", email: "karen.vieira@email.com",
-    end: "Rua Imaculada Conceição, 1155 – Prado Velho, Curitiba/PR", status: "Ativo", cadastro: "05/07/2023",
-    medicos: [{ nome: "Dra. Juliana Costa", esp: "Psiquiatria" }],
-    convenios: ["Bradesco Saúde"],
-  },
-  {
-    id: "PAC-0012", nome: "Lucas Martins de Oliveira", cpf: "***.***.***-12",
-    nasc: "28/03/1986", sexo: "Masculino", tel: "(41) 98222-3344", email: "lucas.oliveira@email.com",
-    end: "Av. Iguaçu, 420 – Rebouças, Curitiba/PR", status: "Inativo", cadastro: "19/07/2023",
-    medicos: [{ nome: "Dr. Roberto Lima", esp: "Cardiologia" }],
-    convenios: ["Particular"],
-  },
-];
+let pacientes = [];
+let medicos = [];
+let grupos = [];
 
 const notificacoes = [
   { id: 1, tipo: "alert", icon: "alert-triangle", bg: "#FEF9EC", cor: "#D97706", texto: "Backup automático com atenção — verificar logs", time: "Há 30 min", lida: false },
@@ -125,6 +42,80 @@ let estadoFiltro = { busca: "", status: "", convenio: "" };
 let paginaAtual = 1;
 let viewAtual = "table";
 let pacientesFiltrados = [];
+let editPacienteId = null;
+
+// ---------- CARGA DA API ----------
+async function carregarDados() {
+  try {
+    const token = localStorage.getItem('aura_token');
+    const opts = { headers: { 'Authorization': `Bearer ${token}` } };
+    
+    const [resPac, resMed, resGrupos] = await Promise.all([
+      fetch(`${API_URL}/pacientes/`, opts),
+      fetch(`${API_URL}/medicos/`, opts),
+      fetch(`${API_URL}/grupos/`, opts)
+    ]);
+
+    if (resPac.status === 401) {
+      localStorage.removeItem('aura_token');
+      localStorage.removeItem('aura_user');
+      window.location.replace('/static/login.html');
+      return;
+    }
+
+    const dbPac = await resPac.json();
+    medicos = resMed.ok ? await resMed.json() : [];
+    grupos = resGrupos.ok ? await resGrupos.json() : [];
+
+    pacientes = dbPac.map(p => {
+      const medico = medicos.find(m => m.id === p.cadastrado_por_id);
+      const inst = grupos.find(g => g.id === p.instituicao_id);
+      
+      let cpfMascara = p.cpf || "Não informado";
+      if (p.cpf && p.cpf.length === 11) {
+        cpfMascara = p.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      }
+
+      return {
+        id: p.id,
+        instituicao_id: p.instituicao_id,
+        cadastrado_por_id: p.cadastrado_por_id,
+        idCurto: p.id.split('-')[0].toUpperCase(),
+        nome: p.nome,
+        cpf: cpfMascara,
+        nasc: p.data_nascimento ? p.data_nascimento.split('-').reverse().join('/') : "Não informado",
+        sexo: p.sexo_biologico === 'M' ? "Masculino" : (p.sexo_biologico === 'F' ? "Feminino" : "Outro"),
+        tel: "—",
+        email: "—",
+        end: "—",
+        status: p.deletado_em ? "Inativo" : "Ativo",
+        cadastro: p.data_cadastro ? new Date(p.data_cadastro).toLocaleDateString('pt-BR') : "—",
+        medicos: medico ? [{ nome: medico.nome, esp: "Cadastrador" }] : [],
+        convenios: inst ? [inst.nome_fantasia] : [],
+      };
+    });
+
+    atualizarKPIsPacientes();
+    aplicarFiltros();
+    popularSelectsModal();
+  } catch (error) {
+    console.error("Erro ao carregar dados:", error);
+  }
+}
+
+function popularSelectsModal() {
+  const selConv = document.getElementById("novoPacConvenio");
+  const selMed = document.getElementById("novoPacMedico");
+  
+  if (selConv) {
+      selConv.innerHTML = '<option value="">Selecione um convênio</option>' + 
+                          grupos.map(g => `<option value="${g.id}">${g.nome_fantasia}</option>`).join('');
+  }
+  if (selMed) {
+      selMed.innerHTML = '<option value="">Selecione um médico</option>' + 
+                         medicos.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+  }
+}
 
 // ---------- INIT ----------
 document.addEventListener("DOMContentLoaded", () => {
@@ -135,9 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFiltros();
   setupViewToggle();
   setupModal();
+  setupModalNovo();
   setupPaginacao();
-  atualizarKPIsPacientes();
-  aplicarFiltros();
+  setupMascarasNovoPaciente();
+  carregarDados();
   lucide.createIcons();
 });
 
@@ -263,7 +255,7 @@ function setupFiltros() {
   });
 
   document.getElementById("btnNovo").addEventListener("click", () => {
-    alert("Funcionalidade de cadastro em desenvolvimento.");
+    abrirModalNovo();
   });
   document.getElementById("btnExport").addEventListener("click", () => {
     exportarCSV();
@@ -274,7 +266,20 @@ function atualizarKPIsPacientes() {
   const total = pacientes.length;
   const ativos = pacientes.filter(p => p.status === "Ativo").length;
   const inativos = pacientes.filter(p => p.status === "Inativo").length;
-  const novos = 4; // Mock dinâmico
+  
+  const hoje = new Date();
+  const mesAtual = hoje.getMonth() + 1; // De 1 a 12
+  const anoAtual = hoje.getFullYear();
+  const novos = pacientes.filter(p => {
+    if (p.cadastro && p.cadastro !== "—") {
+      const parts = p.cadastro.split('/'); // Ex: DD/MM/YYYY
+      if (parts.length === 3) {
+        return parseInt(parts[1]) === mesAtual && parseInt(parts[2]) === anoAtual;
+      }
+    }
+    return false;
+  }).length;
+
   const semConvenio = pacientes.filter(p => p.convenios.includes("Particular") || p.convenios.includes("Outros") || p.convenios.length === 0).length;
 
   const kpiTotal = document.getElementById("kpiTotal");
@@ -293,7 +298,8 @@ function aplicarFiltros() {
       p.nome.toLowerCase().includes(estadoFiltro.busca) ||
       p.cpf.includes(estadoFiltro.busca) ||
       p.email.toLowerCase().includes(estadoFiltro.busca) ||
-      p.id.toLowerCase().includes(estadoFiltro.busca);
+      p.id.toLowerCase().includes(estadoFiltro.busca) ||
+      p.idCurto.toLowerCase().includes(estadoFiltro.busca);
     const matchStatus = !estadoFiltro.status || p.status === estadoFiltro.status;
     const matchConvenio = !estadoFiltro.convenio || p.convenios.includes(estadoFiltro.convenio);
     return matchBusca && matchStatus && matchConvenio;
@@ -360,7 +366,7 @@ function renderTabela() {
           <div class="pac-avatar" style="background:${cor.bg};color:${cor.txt}">${iniciais}</div>
           <div class="pac-name-info">
             <p class="pac-name">${p.nome}</p>
-            <p class="pac-id">${p.id}</p>
+            <p class="pac-id">#${p.idCurto}</p>
           </div>
         </div>
       </td>
@@ -419,7 +425,7 @@ function renderCards() {
         <div class="pac-card-avatar" style="background:${cor.bg};color:${cor.txt}">${iniciais}</div>
         <div>
           <p class="pac-card-name">${p.nome}</p>
-          <p class="pac-card-id">${p.id}</p>
+          <p class="pac-card-id">#${p.idCurto}</p>
         </div>
         <div class="pac-card-status">${statusHtml}</div>
       </div>
@@ -472,8 +478,12 @@ function setupModal() {
     if (e.target === document.getElementById("modalOverlay")) fecharModal();
   });
   document.getElementById("modalEditar").addEventListener("click", () => {
-    alert("Edição em desenvolvimento.");
+    const id = document.getElementById("modalPaciente").dataset.id;
+    fecharModal();
+    abrirModalNovo(id);
   });
+  document.getElementById("modalToggleStatus").addEventListener("click", alternarStatusPaciente);
+
   document.querySelectorAll(".modal-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".modal-tab").forEach(t => t.classList.remove("active"));
@@ -488,6 +498,9 @@ function abrirModal(id) {
   const p = pacientes.find(x => x.id === id);
   if (!p) return;
 
+  // Salva o UUID do paciente de forma oculta no HTML do modal para os scripts de navegação.
+  document.getElementById("modalPaciente").dataset.id = id;
+
   const cor = avatarColor(pacientes.indexOf(p));
   const iniciais = p.nome.split(" ").filter(w => w.length > 2).slice(0, 2).map(w => w[0]).join("");
 
@@ -497,7 +510,7 @@ function abrirModal(id) {
   av.style.color = cor.txt;
 
   document.getElementById("modalNome").textContent = p.nome;
-  document.getElementById("modalSubtitle").textContent = `${p.id} · Cadastrado em ${p.cadastro}`;
+  document.getElementById("modalSubtitle").textContent = `#${p.idCurto} · Cadastrado em ${p.cadastro}`;
 
   // Tab identificação
   document.getElementById("dNome").textContent   = p.nome;
@@ -510,6 +523,13 @@ function abrirModal(id) {
   document.getElementById("dCadastro").textContent = p.cadastro;
   const dStatus = document.getElementById("dStatus");
   dStatus.innerHTML = `<span class="status-badge-table ${p.status === "Ativo" ? "ativo" : "inativo"}"><span class="status-dot-sm"></span>${p.status}</span>`;
+
+  const btnStatus = document.getElementById("modalToggleStatus");
+  if (p.status === "Inativo") {
+    btnStatus.style.display = "none";
+  } else {
+    btnStatus.style.display = "inline-flex";
+  }
 
   // Tab médicos
   const medList = document.getElementById("detalhesMedicos");
@@ -566,7 +586,7 @@ function fecharModal() {
 function exportarCSV() {
   const header = ["ID", "Nome", "CPF", "Nascimento", "Sexo", "Telefone", "Email", "Médicos", "Convênios", "Status", "Cadastro"];
   const rows = pacientesFiltrados.map(p => [
-    p.id, p.nome, p.cpf, p.nasc, p.sexo, p.tel, p.email,
+    p.idCurto, p.nome, p.cpf, p.nasc, p.sexo, p.tel, p.email,
     p.medicos.map(m => m.nome).join(" | "),
     p.convenios.join(" | "),
     p.status, p.cadastro
@@ -577,4 +597,248 @@ function exportarCSV() {
   const a = document.createElement("a");
   a.href = url; a.download = "pacientes_aura.csv"; a.click();
   URL.revokeObjectURL(url);
+}
+
+// ---------- MODAL NOVO PACIENTE ----------
+function setupModalNovo() {
+  const btnSalvar = document.getElementById("btnSalvarNovo");
+  if(btnSalvar) btnSalvar.addEventListener("click", salvarNovoPaciente);
+  
+  const btnCancelar = document.getElementById("btnCancelarNovo");
+  if(btnCancelar) btnCancelar.addEventListener("click", fecharModalNovo);
+  
+  const overlay = document.getElementById("modalNovoOverlay");
+  if(overlay) overlay.addEventListener("click", e => {
+      if (e.target === overlay) fecharModalNovo();
+  });
+  
+  const btnClose = document.getElementById("modalNovoClose");
+  if(btnClose) btnClose.addEventListener("click", fecharModalNovo);
+
+  const selectParentesco = document.getElementById("novoPacRespParentesco");
+  if(selectParentesco) {
+    selectParentesco.addEventListener("change", (e) => {
+      const boxOutro = document.getElementById("boxParentescoOutro");
+      if(e.target.value === "Outro") {
+        boxOutro.style.display = "block";
+      } else {
+        boxOutro.style.display = "none";
+      }
+    });
+  }
+}
+
+function abrirModalNovo(id = null) {
+  const overlay = document.getElementById("modalNovoOverlay");
+  if (!overlay) {
+    showToast("O HTML do modal 'Novo Paciente' não foi encontrado na página.", "error");
+    return;
+  }
+  
+  editPacienteId = id && typeof id === 'string' ? id : null;
+  const titulo = document.querySelector("#modalNovoOverlay .modal-title");
+  if (titulo) titulo.textContent = editPacienteId ? "Editar Paciente" : "Novo Paciente";
+  
+  // Limpa os campos corrigindo o bug do map e inserindo os novos
+  ['novoPacNome', 'novoPacCpf', 'novoPacNasc', 'novoPacConvenio', 'novoPacMedico', 'novoPacRespNome', 'novoPacRespTel', 'novoPacRespParentesco', 'novoPacRespParentescoOutro'].forEach(campoId => {
+    const el = document.getElementById(campoId);
+    if (el) el.value = '';
+  });
+  const elSexo = document.getElementById('novoPacSexo');
+  if(elSexo) elSexo.value = 'M';
+
+  const boxOutro = document.getElementById("boxParentescoOutro");
+  if(boxOutro) boxOutro.style.display = "none";
+
+  if (editPacienteId) {
+    const p = pacientes.find(x => x.id === editPacienteId);
+    if (p) {
+      document.getElementById("novoPacNome").value = p.nome;
+      if (p.cpf && p.cpf !== "Não informado") document.getElementById("novoPacCpf").value = p.cpf.replace(/\D/g, "");
+      if (p.nasc !== "Não informado") {
+        document.getElementById("novoPacNasc").value = p.nasc.split('/').reverse().join('-');
+      }
+      if (elSexo) elSexo.value = p.sexo === "Masculino" ? "M" : "F";
+      
+      const elConv = document.getElementById("novoPacConvenio");
+      if (elConv && p.instituicao_id) elConv.value = p.instituicao_id;
+      
+      const elMed = document.getElementById("novoPacMedico");
+      if (elMed && p.cadastrado_por_id) elMed.value = p.cadastrado_por_id;
+    }
+  }
+
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function fecharModalNovo() {
+  const overlay = document.getElementById("modalNovoOverlay");
+  if(overlay) overlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function setupMascarasNovoPaciente() {
+  const cpfInput = document.getElementById("novoPacCpf");
+  const telInput = document.getElementById("novoPacRespTel");
+
+  if(cpfInput) {
+      cpfInput.addEventListener("input", (e) => {
+          let v = e.target.value.replace(/\D/g, "");
+          if (v.length > 11) v = v.substring(0, 11);
+          v = v.replace(/(\d{3})(\d)/, "$1.$2");
+          v = v.replace(/(\d{3})(\d)/, "$1.$2");
+          v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+          e.target.value = v;
+      });
+  }
+
+  if(telInput) {
+      telInput.addEventListener("input", (e) => {
+          let v = e.target.value.replace(/\D/g, "");
+          if (v.length > 11) v = v.substring(0, 11);
+          v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+          v = v.replace(/(\d{4,5})(\d{4})$/, "$1-$2");
+          e.target.value = v;
+      });
+  }
+}
+
+async function salvarNovoPaciente() {
+  const nome = document.getElementById("novoPacNome").value.trim();
+  const cpf = document.getElementById("novoPacCpf").value.replace(/\D/g, "");
+  const nasc = document.getElementById("novoPacNasc").value;
+  const sexo = document.getElementById("novoPacSexo").value;
+  
+  const respNome = document.getElementById("novoPacRespNome") ? document.getElementById("novoPacRespNome").value.trim() : "";
+  const respTel = document.getElementById("novoPacRespTel") ? document.getElementById("novoPacRespTel").value.replace(/\D/g, "") : "";
+  let respParentesco = document.getElementById("novoPacRespParentesco") ? document.getElementById("novoPacRespParentesco").value : "Não informado";
+  
+  if (respParentesco === "Outro") {
+    const txtOutro = document.getElementById("novoPacRespParentescoOutro");
+    respParentesco = txtOutro && txtOutro.value.trim() !== "" ? txtOutro.value.trim() : "Outro";
+  }
+
+  if (!nome || !cpf || !nasc || !sexo) {
+    showToast("Preencha todos os campos obrigatórios básicos.", "error");
+    return;
+  }
+
+  // Validação de Idade (menor de 18 precisa de responsável)
+  const hoje = new Date();
+  const dataNascimento = new Date(nasc);
+  let idade = hoje.getFullYear() - dataNascimento.getFullYear();
+  const mes = hoje.getMonth() - dataNascimento.getMonth();
+  if (mes < 0 || (mes === 0 && hoje.getDate() < dataNascimento.getDate())) {
+      idade--;
+  }
+
+  if (idade < 18) {
+      if (!respNome || !respTel || respParentesco === "Não informado") {
+          showToast("Para menores de 18 anos, os dados do responsável são estritamente obrigatórios.", "error");
+          return;
+      }
+  }
+
+  const instituicao_id = parseInt(document.getElementById("novoPacConvenio").value);
+  const cadastrado_por_id = parseInt(document.getElementById("novoPacMedico").value);
+
+  if (isNaN(instituicao_id) || isNaN(cadastrado_por_id)) {
+      showToast("Selecione um convênio e um médico responsável.", "error");
+      return;
+  }
+
+  let responsaveis = null;
+  if (respNome) {
+    responsaveis = [{ nome: respNome, telefone: respTel || null, parentesco: respParentesco }];
+  }
+
+  const payload = {
+    nome, cpf: cpf || null, data_nascimento: nasc, sexo_biologico: sexo,
+    instituicao_id, cadastrado_por_id, responsaveis
+  };
+
+  try {
+    const token = localStorage.getItem("aura_token");
+    const url = editPacienteId ? `${API_URL}/pacientes/${editPacienteId}` : `${API_URL}/pacientes/`;
+    const method = editPacienteId ? "PUT" : "POST";
+    
+    const res = await fetch(url, {
+      method: method,
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      fecharModalNovo();
+      await carregarDados(); // Atualiza a tabela imediatamente e aguarda finalizar
+      showToast(editPacienteId ? "Paciente atualizado com sucesso." : "Paciente salvo com sucesso!");
+    } else {
+      let errorMsg = "Erro no servidor. Verifique os logs (Terminal do Python).";
+      try {
+        const err = await res.json();
+        errorMsg = JSON.stringify(err.detail || err);
+      } catch(e) {
+        errorMsg = await res.text(); // Lê o erro bruto caso o FastAPI tenha crashado feio
+      }
+      showToast("Erro retornado: " + errorMsg.substring(0, 150), "error");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Erro de conexão ao tentar salvar o paciente.", "error");
+  }
+}
+
+function showToast(msg, type = "success") {
+  const toast = document.getElementById("toast");
+  const msgEl = document.getElementById("toast-msg");
+  const icon = document.getElementById("toast-icon");
+  
+  if (msgEl) msgEl.textContent = msg;
+  toast.className = `toast ${type}`;
+  
+  if (icon) {
+      if (type === "success") {
+          icon.setAttribute("data-lucide", "check-circle");
+          toast.style.background = ""; toast.style.color = ""; toast.style.borderColor = "";
+      } else {
+          icon.setAttribute("data-lucide", "alert-circle");
+          toast.style.background = "#FEF2F2"; toast.style.color = "#DC2626"; toast.style.borderColor = "#FECACA";
+      }
+      lucide.createIcons();
+  }
+  
+  toast.classList.remove("hidden");
+  setTimeout(() => toast.classList.add("hidden"), 3500);
+}
+
+// ---------- INATIVAR PACIENTE ----------
+async function alternarStatusPaciente() {
+  const id = document.getElementById("modalPaciente").dataset.id;
+  if (!id) return;
+
+  const p = pacientes.find(x => x.id === id);
+  if (!p) return;
+
+  if (!confirm(`Deseja realmente desativar o paciente ${p.nome}?`)) return;
+
+  try {
+    const token = localStorage.getItem("aura_token");
+    const res = await fetch(`${API_URL}/pacientes/${id}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      fecharModal();
+      await carregarDados();
+      showToast("Paciente inativado com sucesso.");
+    } else {
+      const err = await res.json();
+      showToast("Erro ao inativar paciente: " + JSON.stringify(err.detail), "error");
+    }
+  } catch (e) {
+    console.error(e);
+    showToast("Erro de conexão ao tentar inativar o paciente.", "error");
+  }
 }

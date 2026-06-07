@@ -283,9 +283,105 @@
       <div class="modal-footer">
         <span class="modal-lgpd"><i data-lucide="shield-check"></i> CPF mascarado conforme LGPD</span>
         <div class="modal-footer-actions">
+          <button class="btn-secondary" id="modalToggleStatus" style="color: #DC2626; border-color: #FECACA; background: #FEF2F2;"><i data-lucide="power"></i> <span>Desativar</span></button>
           <button class="btn-secondary" id="modalCancelar">Fechar</button>
           <button class="btn-primary" id="modalEditar"><i data-lucide="pencil"></i> Editar</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Novo Paciente -->
+  <div class="modal-overlay" id="modalNovoOverlay">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div>
+            <h2 class="modal-title">Novo Paciente</h2>
+            <p class="modal-subtitle">Preencha as informações clínicas e de contato.</p>
+          </div>
+        </div>
+        <button class="modal-close" id="modalNovoClose"><i data-lucide="x"></i></button>
+      </div>
+      
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #0F172A; display: flex; align-items: center;"><i data-lucide="user" style="width: 18px; margin-right: 6px;"></i> Dados Pessoais</h3>
+        
+        <div class="info-grid" style="grid-template-columns: repeat(6, 1fr); gap: 16px;">
+          <div class="info-field" style="grid-column: 1 / -1;">
+            <label>Nome Completo <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="novoPacNome" class="pac-search" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;" placeholder="Nome do paciente">
+          </div>
+          
+          <div class="info-field" style="grid-column: span 2;">
+            <label>CPF <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="novoPacCpf" class="pac-search" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;" placeholder="000.000.000-00">
+          </div>
+
+          <div class="info-field" style="grid-column: span 2;">
+            <label>Data de Nascimento <span style="color: #DC2626;">*</span></label>
+            <input type="date" id="novoPacNasc" class="pac-search" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;">
+          </div>
+
+          <div class="info-field" style="grid-column: span 2;">
+            <label>Sexo Biológico <span style="color: #DC2626;">*</span></label>
+            <select id="novoPacSexo" class="pac-select" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;">
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+            </select>
+          </div>
+          
+          <div class="info-field" style="grid-column: span 3;">
+            <label>Convênio <span style="color: #DC2626;">*</span></label>
+            <select id="novoPacConvenio" class="pac-select" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;">
+              <!-- Preenchido via JS -->
+            </select>
+          </div>
+
+          <div class="info-field" style="grid-column: span 3;">
+            <label>Médico Responsável <span style="color: #DC2626;">*</span></label>
+            <select id="novoPacMedico" class="pac-select" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;">
+              <!-- Preenchido via JS -->
+            </select>
+          </div>
+        </div>
+
+        <div style="height: 1px; background: #E2E8F0; margin: 24px 0;"></div>
+        
+        <h3 style="font-size: 16px; margin-bottom: 4px; color: #0F172A; display: flex; align-items: center;"><i data-lucide="users" style="width: 18px; margin-right: 6px;"></i> Responsável (Opcional)</h3>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 16px;">Necessário para pacientes menores de idade.</p>
+
+        <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="info-field info-field-full" style="grid-column: 1 / -1;">
+            <label>Nome do Responsável</label>
+            <input type="text" id="novoPacRespNome" class="pac-search" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;" placeholder="Nome completo">
+          </div>
+          
+          <div class="info-field">
+            <label>Grau de Parentesco</label>
+            <select id="novoPacRespParentesco" class="pac-select" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;">
+              <option value="Mãe">Mãe</option>
+              <option value="Pai">Pai</option>
+              <option value="Responsável Legal">Responsável Legal</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+
+          <div class="info-field" id="boxParentescoOutro" style="display: none;">
+            <label>Especifique o Vínculo</label>
+            <input type="text" id="novoPacRespParentescoOutro" class="pac-search" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;" placeholder="Ex: Avó, Tio...">
+          </div>
+
+          <div class="info-field" id="boxParentescoTel">
+            <label>Telefone do Responsável</label>
+            <input type="text" id="novoPacRespTel" class="pac-search" style="width: 100%; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 6px;" placeholder="(00) 00000-0000">
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+        <button class="btn-secondary" id="btnCancelarNovo">Cancelar</button>
+        <button class="btn-primary" id="btnSalvarNovo"><i data-lucide="save"></i> Salvar Paciente</button>
       </div>
     </div>
   </div>
@@ -302,6 +398,12 @@
     </div>
   </div>
   <div class="notif-backdrop" id="notifBackdrop"></div>
+
+  <!-- Toast de Notificações -->
+  <div id="toast" class="toast hidden">
+    <i data-lucide="check-circle" id="toast-icon"></i>
+    <span id="toast-msg"></span>
+  </div>
 
   <script src="pacientes.js"></script>
   <script>
@@ -330,11 +432,10 @@
             const medicos = await resM.json();
             const pacientes = await resP.json();
             
-            const pacNome = document.getElementById("dNome").textContent;
-            const pac = pacientes.find(p => p.nome === pacNome);
+            const pacId = document.getElementById("modalPaciente").dataset.id;
             
-            if (pac) {
-              const triagensPaciente = triagens.filter(t => t.paciente_id === pac.id).sort((a,b) => new Date(b.data_hora) - new Date(a.data_hora));
+            if (pacId) {
+              const triagensPaciente = triagens.filter(t => t.paciente_id === pacId).sort((a,b) => new Date(b.data_hora) - new Date(a.data_hora));
               if (triagensPaciente.length === 0) {
                 container.innerHTML = `<p style="text-align:center;color:#94A3B8;padding:20px;">Nenhuma triagem registrada para este paciente.</p>`;
               } else {
