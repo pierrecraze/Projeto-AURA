@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS Profissional_Saude (
     nome                VARCHAR(150)    NOT NULL,
     email               VARCHAR(255)    NOT NULL UNIQUE,
     cpf                 CHAR(11)        NOT NULL UNIQUE,
+    crm                 VARCHAR(20)     NOT NULL UNIQUE,
+    telefone            VARCHAR(20)     NULL,
+    cidade              VARCHAR(100)    NULL,
+    uf                  CHAR(2)         NULL,
     data_nascimento     DATE            NOT NULL,
     senha_hash          VARCHAR(255)    NOT NULL,
     tentativas_login    SMALLINT        NOT NULL DEFAULT 0,
@@ -43,6 +47,7 @@ CREATE TABLE IF NOT EXISTS Instituicao (
     id              SERIAL          PRIMARY KEY,
     nome_fantasia   VARCHAR(200)    NOT NULL,
     cnpj            CHAR(14)        NOT NULL UNIQUE,
+    cor             VARCHAR(7)      NULL,
     criado_em       TIMESTAMP       NOT NULL DEFAULT NOW(),
     deletado_em     TIMESTAMP       NULL
 );

@@ -91,7 +91,7 @@
           <div class="medicos-toolbar">
             <div class="search-wrap">
               <i data-lucide="search" class="search-icon"></i>
-              <input type="text" id="search-input" class="search-input" placeholder="Buscar médico por nome, CRM ou especialidade...">
+              <input type="text" id="search-input" class="search-input" placeholder="Buscar médico por nome, CPF ou CRM...">
               <span class="search-shortcut">Ctrl K</span>
             </div>
             <div class="toolbar-right">
@@ -127,7 +127,6 @@
                   <tr>
                     <th>Médico</th>
                     <th>CRM</th>
-                    <th>Especialidade</th>
                     <th>Convênios</th>
                     <th>Pacientes</th>
                     <th>Status</th>
@@ -167,7 +166,6 @@
               </div>
               <h2 class="perfil-nome" id="pf-nome">—</h2>
               <p class="perfil-crm" id="pf-crm">—</p>
-              <span class="perfil-esp-badge" id="pf-esp">—</span>
 
               <div class="perfil-info-list">
                 <div class="perfil-info-row">
@@ -280,29 +278,39 @@
         <div class="form-grid">
           <div class="form-group" style="grid-column:1/-1">
             <label>Nome Completo <span class="required">*</span></label>
-            <input type="text" id="m-nome" class="form-input" placeholder="Dr. Nome Completo">
+            <input type="text" id="medico-nome" class="form-input" placeholder="Dr. Nome Completo">
           </div>
           <div class="form-group">
-            <label>CRM <span class="required">*</span></label>
-            <input type="text" id="m-crm" class="form-input" placeholder="CRM/UF 000000">
+            <label>CPF <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="medico-cpf" class="form-input" placeholder="000.000.000-00">
           </div>
           <div class="form-group">
-            <label>Especialidade <span class="required">*</span></label>
-            <input type="text" id="m-especialidade" class="form-input" placeholder="ex: Cardiologia">
+            <label>CRM <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="medico-crm" class="form-input" placeholder="CRM e Estado">
+          </div>
+          <div class="form-group">
+            <label>Data de Nascimento <span style="color: #DC2626;">*</span></label>
+            <input type="date" id="medico-data-nascimento" class="form-input">
           </div>
           <div class="form-group">
             <label>Telefone</label>
-            <input type="text" id="m-telefone" class="form-input" placeholder="(41) 99999-9999">
+            <input type="text" id="medico-telefone" class="form-input" placeholder="(41) 99999-9999">
           </div>
           <div class="form-group">
-            <label>E-mail</label>
-            <input type="email" id="m-email" class="form-input" placeholder="medico@email.com">
+            <label>E-mail <span style="color: #DC2626;">*</span></label>
+            <input type="email" id="medico-email" class="form-input" placeholder="medico@email.com">
           </div>
           <div class="form-group">
-            <label>Cidade / UF</label>
-            <input type="text" id="m-cidade" class="form-input" placeholder="Curitiba / PR">
+            <label>UF</label>
+            <input list="lista-ufs" id="medico-uf" class="form-input" placeholder="Ex: SP" maxlength="2" style="text-transform: uppercase;">
+            <datalist id="lista-ufs"></datalist>
           </div>
           <div class="form-group">
+            <label>Cidade</label>
+            <input list="lista-cidades" id="medico-cidade" class="form-input" placeholder="Digite a cidade...">
+            <datalist id="lista-cidades"></datalist>
+          </div>
+          <div class="form-group" id="grupo-status-medico" style="display: none;">
             <label>Status</label>
             <select id="m-status" class="form-input">
               <option value="Ativo">Ativo</option>

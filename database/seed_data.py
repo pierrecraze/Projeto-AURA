@@ -5,27 +5,24 @@ import asyncio
 GRUPOS_SEED = [
     {
         "id": 1,
-        "nome": "Unimed",
-        "cnpj": "12.345.678/0001-90",
-        "status": "Ativo",
+        "nome_fantasia": "Unimed",
+        "cnpj": "12345678000190",
         "cor": "#00995D",
-        "logo": "url_logo_unimed.jpg"
+        "criado_em": "2026-05-10T08:00:00"
     },
     {
         "id": 2,
-        "nome": "Bradesco",
-        "cnpj": "98.765.432/0001-10",
-        "status": "Ativo",
+        "nome_fantasia": "Bradesco",
+        "cnpj": "98765432000110",
         "cor": "#CC092F",
-        "logo": "url_logo_bradesco.jpg"
+        "criado_em": "2026-05-10T08:00:00"
     },
     {
         "id": 3,
-        "nome": "Amil",
-        "cnpj": "45.678.901/0001-23",
-        "status": "Ativo",
+        "nome_fantasia": "Amil",
+        "cnpj": "45678901000123",
         "cor": "#0055A5",
-        "logo": "url_logo_amil.jpg"
+        "criado_em": "2026-05-10T08:00:00"
     }
 ]
 
@@ -33,22 +30,26 @@ MEDICOS_SEED = [
     {
         "id": 1, 
         "nome": "Dr. João Silva", 
-        "crm": "12345", 
         "email": "joao.silva@hospital.com", 
-        "status": "Ativo", 
-        "senha": "senha123", 
-        "grupos": ["Unimed"], 
-        "data_cadastro": "2026-05-10T08:00:00"
+        "cpf": "11122233344",
+        "crm": "12345",
+        "telefone": "41999999999",
+        "cidade": "Curitiba",
+        "uf": "PR",
+        "data_nascimento": "1980-05-10",
+        "senha_hash": "senha123"
     },
     {
         "id": 2, 
         "nome": "Dra. Maria Oliveira", 
-        "crm": "67890", 
         "email": "maria.oliveira@hospital.com", 
-        "status": "Ativo", 
-        "senha": "senha456", 
-        "grupos": ["Bradesco", "Amil"], 
-        "data_cadastro": "2026-05-12T14:30:00"
+        "cpf": "55566677788",
+        "crm": "67890",
+        "telefone": "11988888888",
+        "cidade": "São Paulo",
+        "uf": "SP",
+        "data_nascimento": "1985-08-20",
+        "senha_hash": "senha456"
     }
 ]
 

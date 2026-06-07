@@ -6,6 +6,8 @@ let medicos    = [];
 let convenios  = [];
 let pacientes  = [];
 let triagens   = [];
+let allCities  = [];
+let allStates  = [];
 
 /* ─── Estado da UI ─────────────────────────────────────────── */
 let state = {
@@ -52,11 +54,13 @@ async function carregarDados() {
         medicos = dbMed.map(m => ({
             id:           m.id,
             nome:         m.nome,
-            crm:          `CRM ${m.crm}`,
-            especialidade: m.especialidade || "—",
+            cpf:          m.cpf        || "—",
+            crm:          m.crm        || "—",
+            data_nascimento: m.data_nascimento || "—",
             telefone:     m.telefone   || "—",
             email:        m.email      || "—",
             cidade:       m.cidade     || "—",
+            uf:           m.uf         || "—",
             ingresso:     m.ingresso   || "—",
             status:       m.status     || "Ativo",
             convenios:    (m.grupos || []).map(nome => {
@@ -100,14 +104,14 @@ function usarDadosDemostracao() {
         { id: 4, nome: "Particular",     cnpj: "00.000.004/0001-00", status: "Ativo" },
     ];
     medicos = [
-        { id: 1, nome: "Dr. Carlos Mendes",   crm: "CRM/PR 12345", especialidade: "Clínica Geral",  telefone: "(41) 99100-0001", email: "carlos.mendes@ibk.med.br",   cidade: "Curitiba / PR", ingresso: "Mar 2021", status: "Ativo",   convenios: [1, 2] },
-        { id: 2, nome: "Dra. Ana Ferreira",   crm: "CRM/PR 22890", especialidade: "Pediatria",      telefone: "(41) 99100-0002", email: "ana.ferreira@ibk.med.br",    cidade: "Curitiba / PR", ingresso: "Jun 2020", status: "Ativo",   convenios: [1, 3] },
-        { id: 3, nome: "Dr. Roberto Lima",    crm: "CRM/PR 33401", especialidade: "Cardiologia",    telefone: "(41) 99100-0003", email: "roberto.lima@ibk.med.br",    cidade: "São José / SC", ingresso: "Jan 2022", status: "Ativo",   convenios: [2]    },
-        { id: 4, nome: "Dra. Juliana Costa",  crm: "CRM/PR 44102", especialidade: "Psiquiatria",    telefone: "(41) 99100-0004", email: "juliana.costa@ibk.med.br",   cidade: "Curitiba / PR", ingresso: "Set 2019", status: "Ativo",   convenios: [1, 4] },
-        { id: 5, nome: "Dr. Marcos Oliveira", crm: "CRM/SP 55230", especialidade: "Neurologia",     telefone: "(11) 99100-0005", email: "marcos.oliveira@ibk.med.br", cidade: "São Paulo / SP", ingresso: "Fev 2023", status: "Inativo", convenios: [3]    },
-        { id: 6, nome: "Dra. Fernanda Rocha", crm: "CRM/PR 66781", especialidade: "Dermatologia",   telefone: "(41) 99100-0006", email: "fernanda.rocha@ibk.med.br",  cidade: "Curitiba / PR", ingresso: "Out 2022", status: "Ativo",   convenios: [1, 2, 3] },
-        { id: 7, nome: "Dr. Paulo Souza",     crm: "CRM/PR 77002", especialidade: "Ortopedia",      telefone: "(41) 99100-0007", email: "paulo.souza@ibk.med.br",     cidade: "Londrina / PR", ingresso: "Jul 2021", status: "Ativo",   convenios: [2, 4] },
-        { id: 8, nome: "Dra. Camila Nunes",   crm: "CRM/RS 88543", especialidade: "Endocrinologia", telefone: "(51) 99100-0008", email: "camila.nunes@ibk.med.br",    cidade: "Porto Alegre / RS", ingresso: "Abr 2020", status: "Ativo", convenios: [1]  },
+        { id: 1, nome: "Dr. Carlos Mendes",   crm: "12345", cpf: "111.222.333-44", data_nascimento: "1980-05-10", telefone: "(41) 99100-0001", email: "carlos.mendes@ibk.med.br",   cidade: "Curitiba", uf: "PR", ingresso: "Mar 2021", status: "Ativo",   convenios: [1, 2] },
+        { id: 2, nome: "Dra. Ana Ferreira",   crm: "22890", cpf: "222.333.444-55", data_nascimento: "1982-07-15", telefone: "(41) 99100-0002", email: "ana.ferreira@ibk.med.br",    cidade: "Curitiba", uf: "PR", ingresso: "Jun 2020", status: "Ativo",   convenios: [1, 3] },
+        { id: 3, nome: "Dr. Roberto Lima",    crm: "33401", cpf: "333.444.555-66", data_nascimento: "1975-01-20", telefone: "(41) 99100-0003", email: "roberto.lima@ibk.med.br",    cidade: "São José", uf: "SC", ingresso: "Jan 2022", status: "Ativo",   convenios: [2]    },
+        { id: 4, nome: "Dra. Juliana Costa",  crm: "44102", cpf: "444.555.666-77", data_nascimento: "1988-11-05", telefone: "(41) 99100-0004", email: "juliana.costa@ibk.med.br",   cidade: "Curitiba", uf: "PR", ingresso: "Set 2019", status: "Ativo",   convenios: [1, 4] },
+        { id: 5, nome: "Dr. Marcos Oliveira", crm: "55230", cpf: "555.666.777-88", data_nascimento: "1979-02-28", telefone: "(11) 99100-0005", email: "marcos.oliveira@ibk.med.br", cidade: "São Paulo", uf: "SP", ingresso: "Fev 2023", status: "Inativo", convenios: [3]    },
+        { id: 6, nome: "Dra. Fernanda Rocha", crm: "66781", cpf: "666.777.888-99", data_nascimento: "1990-09-12", telefone: "(41) 99100-0006", email: "fernanda.rocha@ibk.med.br",  cidade: "Curitiba", uf: "PR", ingresso: "Out 2022", status: "Ativo",   convenios: [1, 2, 3] },
+        { id: 7, nome: "Dr. Paulo Souza",     crm: "77002", cpf: "777.888.999-00", data_nascimento: "1985-04-16", telefone: "(41) 99100-0007", email: "paulo.souza@ibk.med.br",     cidade: "Londrina", uf: "PR", ingresso: "Jul 2021", status: "Ativo",   convenios: [2, 4] },
+        { id: 8, nome: "Dra. Camila Nunes",   crm: "88543", cpf: "888.999.000-11", data_nascimento: "1992-12-01", telefone: "(51) 99100-0008", email: "camila.nunes@ibk.med.br",    cidade: "Porto Alegre", uf: "RS", ingresso: "Abr 2020", status: "Ativo", convenios: [1]  },
     ];
     pacientes = [
         { id: 101, nome: "João Silva",       doc: "CPF 111.222.333-44", status: "Ativo",   convenios: [1],    medicoId: 1 },
@@ -152,6 +156,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    carregarLocalidades();
+    setupLocalidadesEvents();
+    setupMascarasMedicos();
+
     carregarDados();
 });
 
@@ -183,8 +191,8 @@ function renderLista() {
     if (state.searchQuery) {
         lista = lista.filter(m =>
             m.nome.toLowerCase().includes(state.searchQuery) ||
-            m.crm.toLowerCase().includes(state.searchQuery) ||
-            m.especialidade.toLowerCase().includes(state.searchQuery)
+            (m.crm && m.crm.toLowerCase().includes(state.searchQuery)) ||
+            (m.cpf && m.cpf.toLowerCase().includes(state.searchQuery))
         );
     }
 
@@ -231,8 +239,7 @@ function renderTabela(lista) {
                     </div>
                 </div>
             </td>
-            <td><code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;">${m.crm}</code></td>
-            <td style="font-size:12px;color:#374151;">${m.especialidade}</td>
+            <td><code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px;">CRM ${m.crm}</code></td>
             <td><div class="convenio-tags">${cvTags || '<span style="color:#94A3B8;font-size:12px;">—</span>'}</div></td>
             <td style="font-size:13px;font-weight:600;color:#0F172A;">${pacCount}</td>
             <td>${getBadge(m.status)}</td>
@@ -268,8 +275,7 @@ function renderCards(lista) {
         card.innerHTML = `
             <div class="mc-avatar" style="background:${avatarBg(m.id)}">${initials(m.nome)}</div>
             <p class="mc-nome">${m.nome}</p>
-            <p class="mc-crm">${m.crm}</p>
-            <span class="mc-esp">${m.especialidade}</span>
+            <p class="mc-crm">CRM ${m.crm}</p>
             ${getBadge(m.status)}
             <div class="mc-stats">
                 <div class="mc-stat">
@@ -318,11 +324,10 @@ function renderPerfil() {
     statusDot.className = `perfil-avatar-status ${m.status.toLowerCase()}`;
 
     document.getElementById("pf-nome").textContent     = m.nome;
-    document.getElementById("pf-crm").textContent      = m.crm;
-    document.getElementById("pf-esp").textContent       = m.especialidade;
+    document.getElementById("pf-crm").textContent      = `CRM ${m.crm}`;
     document.getElementById("pf-telefone").textContent = m.telefone;
     document.getElementById("pf-email").textContent    = m.email;
-    document.getElementById("pf-cidade").textContent   = m.cidade;
+    document.getElementById("pf-cidade").textContent   = m.cidade && m.uf ? `${m.cidade} / ${m.uf}` : m.cidade || "—";
     document.getElementById("pf-ingresso").textContent = `Ingresso: ${m.ingresso}`;
 
     const toggleBtn = document.getElementById("btn-toggle-status-label");
@@ -419,8 +424,14 @@ window.openModalAdd = function() {
     state.editingId = null;
     document.getElementById("modal-medico-title").textContent = "Novo Médico";
     document.getElementById("modal-medico-sub").textContent   = "Preencha os dados e selecione os convênios vinculados";
-    ["m-nome","m-crm","m-especialidade","m-telefone","m-email","m-cidade"].forEach(id => document.getElementById(id).value = "");
-    document.getElementById("m-status").value = "Ativo";
+    ["medico-nome","medico-cpf","medico-crm","medico-data-nascimento","medico-telefone","medico-email","medico-uf","medico-cidade"].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = "";
+    });
+
+    const statusGroup = document.getElementById("grupo-status-medico");
+    if (statusGroup) statusGroup.style.display = "none";
+
     populateModalConvenios([]);
     document.getElementById("modal-medico").classList.remove("hidden");
     lucide.createIcons();
@@ -433,13 +444,21 @@ window.openModalEdit = function(id) {
     state.editingId = m.id;
     document.getElementById("modal-medico-title").textContent = "Editar Médico";
     document.getElementById("modal-medico-sub").textContent   = `Editando: ${m.nome}`;
-    document.getElementById("m-nome").value          = m.nome;
-    document.getElementById("m-crm").value           = m.crm;
-    document.getElementById("m-especialidade").value = m.especialidade;
-    document.getElementById("m-telefone").value      = m.telefone;
-    document.getElementById("m-email").value         = m.email;
-    document.getElementById("m-cidade").value        = m.cidade;
-    document.getElementById("m-status").value        = m.status;
+    
+    document.getElementById("medico-nome").value            = m.nome;
+    document.getElementById("medico-cpf").value             = m.cpf || "";
+    document.getElementById("medico-crm").value             = (m.crm || "").replace('CRM ', '');
+    document.getElementById("medico-data-nascimento").value = m.data_nascimento || "";
+    document.getElementById("medico-telefone").value        = m.telefone || "";
+    document.getElementById("medico-email").value           = m.email || "";
+    document.getElementById("medico-uf").value              = m.uf || "";
+    document.getElementById("medico-cidade").value          = m.cidade || "";
+
+    const statusGroup = document.getElementById("grupo-status-medico");
+    if (statusGroup) statusGroup.style.display = "block";
+    const statusInput = document.getElementById("m-status");
+    if (statusInput) statusInput.value = m.status || "Ativo";
+
     populateModalConvenios(m.convenios);
     document.getElementById("modal-medico").classList.remove("hidden");
     lucide.createIcons();
@@ -450,47 +469,64 @@ window.closeModalMedico = function() {
     state.editingId = null;
 };
 
-window.saveMedico = function() {
-    const nome          = document.getElementById("m-nome").value.trim();
-    const crm           = document.getElementById("m-crm").value.trim();
-    const especialidade = document.getElementById("m-especialidade").value.trim();
+window.saveMedico = async function() {
+    const nome = document.getElementById("medico-nome").value.trim();
+    const email = document.getElementById("medico-email").value.trim();
+    const cpf = document.getElementById("medico-cpf").value.replace(/\D/g, "");
+    const crm = document.getElementById("medico-crm").value.trim();
+    const telefone = document.getElementById("medico-telefone").value.trim();
+    const cidade = document.getElementById("medico-cidade").value.trim();
+    const uf = document.getElementById("medico-uf").value.toUpperCase().trim();
+    const dataNascimento = document.getElementById("medico-data-nascimento").value;
 
-    if (!nome || !crm || !especialidade) {
-        showToast("Preencha os campos obrigatórios (*).", "error");
+    if (!nome || !email || !cpf || !dataNascimento) {
+        showToast("Preencha todos os campos obrigatórios básicos.", "error");
+        return;
+    }
+
+    if (!crm || crm.length < 4) {
+        showToast("O CRM é obrigatório e deve possuir no mínimo 4 caracteres.", "error");
         return;
     }
 
     const cbs = Array.from(document.querySelectorAll('#m-convenios-list input[type="checkbox"]:checked')).map(cb => parseInt(cb.value));
 
-    if (state.editingId) {
-        const idx = medicos.findIndex(x => x.id === state.editingId);
-        if (idx !== -1) {
-            medicos[idx] = { ...medicos[idx],
-                nome, crm, especialidade,
-                telefone:     document.getElementById("m-telefone").value,
-                email:        document.getElementById("m-email").value,
-                cidade:       document.getElementById("m-cidade").value,
-                status:       document.getElementById("m-status").value,
-                convenios:    cbs
-            };
-        }
-        showToast(`Perfil de ${nome} atualizado com sucesso.`);
-    } else {
-        const novoId = Math.max(...medicos.map(m => m.id), 0) + 1;
-        medicos.push({
-            id: novoId, nome, crm, especialidade,
-            telefone:  document.getElementById("m-telefone").value,
-            email:     document.getElementById("m-email").value,
-            cidade:    document.getElementById("m-cidade").value,
-            ingresso:  new Date().toLocaleDateString("pt-BR", { month: "short", year: "numeric" }),
-            status:    document.getElementById("m-status").value,
-            convenios: cbs
-        });
-        showToast(`Médico ${nome} cadastrado com sucesso.`);
-    }
+    const payload = {
+        nome: nome,
+        email: email,
+        cpf: cpf,
+        crm: crm,
+        telefone: telefone || null,
+        cidade: cidade || null,
+        uf: uf || null,
+        data_nascimento: dataNascimento,
+        senha: "senha_padrao_123" // Senha exigida na criação (pode ser enviada do input futuramente)
+    };
 
-    closeModalMedico();
-    renderApp();
+    try {
+        const token = localStorage.getItem("aura_token");
+        const isEditing = !!state.editingId;
+        const url = isEditing ? `${API_URL}/medicos/${state.editingId}` : `${API_URL}/medicos/`;
+        const method = isEditing ? "PUT" : "POST";
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            showToast(isEditing ? `Perfil de ${nome} atualizado com sucesso.` : `Médico ${nome} cadastrado com sucesso.`);
+            closeModalMedico();
+            await carregarDados(); // Recarrega os dados fresquinhos do banco de dados (A API)
+        } else {
+            const errData = await response.json();
+            showToast(`Erro ao salvar: ${errData.detail || 'Verifique os dados'}`, "error");
+        }
+    } catch (err) {
+        console.error("Erro ao salvar médico:", err);
+        showToast("Erro de conexão.", "error");
+    }
 };
 
 /* ─── Modal Gerenciar Convênios (perfil) ────────────────────── */
@@ -534,8 +570,23 @@ window.toggleChk = function(input) {
 
 function showToast(msg, type = "success") {
     const toast = document.getElementById("toast");
-    document.getElementById("toast-msg").textContent = msg;
+    const msgEl = document.getElementById("toast-msg");
+    const icon = document.getElementById("toast-icon");
+    
+    if (msgEl) msgEl.textContent = msg;
     toast.className = `toast ${type}`;
+    
+    if (icon) {
+        if (type === "success") {
+            icon.setAttribute("data-lucide", "check-circle");
+            toast.style.background = ""; toast.style.color = ""; toast.style.borderColor = "";
+        } else {
+            icon.setAttribute("data-lucide", "alert-circle");
+            toast.style.background = "#FEF2F2"; toast.style.color = "#DC2626"; toast.style.borderColor = "#FECACA";
+        }
+        lucide.createIcons();
+    }
+    
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 3500);
 }
@@ -563,5 +614,94 @@ if (btnLogout) {
         localStorage.removeItem('aura_token');
         localStorage.removeItem('aura_user');
         window.location.replace('/static/login.html');
+    });
+}
+
+// ==========================================
+// LÓGICA DE IBGE, MÁSCARAS E VALIDAÇÕES (NOVO)
+// ==========================================
+
+function setupMascarasMedicos() {
+    const inputCpf = document.getElementById("medico-cpf");
+    const inputTelefone = document.getElementById("medico-telefone");
+
+    if(inputCpf) {
+        inputCpf.addEventListener("input", (e) => {
+            let v = e.target.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            e.target.value = v;
+        });
+    }
+
+    if(inputTelefone) {
+        inputTelefone.addEventListener("input", (e) => {
+            let v = e.target.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+            v = v.replace(/(\d{4,5})(\d{4})$/, "$1-$2");
+            e.target.value = v;
+        });
+    }
+}
+
+async function carregarLocalidades() {
+    try {
+        const resUf = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados");
+        allStates = await resUf.json();
+        const resMun = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/municipios");
+        allCities = await resMun.json();
+        
+        popularDatalistUf();
+        popularDatalistCidades(allCities);
+    } catch (err) {
+        console.error("Erro ao carregar dados do IBGE", err);
+    }
+}
+
+function popularDatalistUf() {
+    const datalist = document.getElementById("lista-ufs");
+    if(!datalist) return;
+    datalist.innerHTML = "";
+    allStates.sort((a, b) => a.sigla.localeCompare(b.sigla)).forEach(uf => {
+        const option = document.createElement("option");
+        option.value = uf.sigla; option.textContent = uf.nome;
+        datalist.appendChild(option);
+    });
+}
+
+function popularDatalistCidades(cidades) {
+    const datalist = document.getElementById("lista-cidades");
+    if(!datalist) return;
+    datalist.innerHTML = "";
+    cidades.forEach(c => {
+        const option = document.createElement("option"); option.value = c.nome;
+        datalist.appendChild(option);
+    });
+}
+
+function setupLocalidadesEvents() {
+    const inputUf = document.getElementById("medico-uf");
+    const inputCidade = document.getElementById("medico-cidade");
+    if(!inputUf || !inputCidade) return;
+
+    inputUf.addEventListener("change", (e) => {
+        const ufSelecionada = e.target.value.toUpperCase();
+        if (ufSelecionada) {
+            popularDatalistCidades(allCities.filter(c => c.microrregiao.mesorregiao.UF.sigla === ufSelecionada));
+        } else {
+            popularDatalistCidades(allCities);
+        }
+    });
+
+    inputCidade.addEventListener("change", (e) => {
+        const cidadeObj = allCities.find(c => c.nome.toLowerCase() === e.target.value.toLowerCase());
+        if (cidadeObj) {
+            const ufDaCidade = cidadeObj.microrregiao.mesorregiao.UF.sigla;
+            inputUf.value = ufDaCidade;
+            popularDatalistCidades(allCities.filter(c => c.microrregiao.mesorregiao.UF.sigla === ufDaCidade));
+        }
     });
 }

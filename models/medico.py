@@ -1,11 +1,19 @@
+from sqlalchemy import Column, Integer, String, Date, DateTime, SmallInteger
+from database.db import Base
 
-class MedicoModel:
-    def __init__(self, id: int, nome: str, crm: str, email: str, status: str, senha: str, grupos: list[str], data_cadastro: str):
-        self.id = id
-        self.nome = nome
-        self.crm = crm
-        self.email = email
-        self.status = status
-        self.senha = senha
-        self.grupos = grupos
-        self.data_cadastro = data_cadastro
+class MedicoModel(Base):
+    __tablename__ = "profissional_saude"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String(150), nullable=False)
+    email = Column(String(255), nullable=False, unique=True)
+    cpf = Column(String(11), nullable=False, unique=True)
+    crm = Column(String(20), nullable=False, unique=True)
+    telefone = Column(String(20), nullable=True)
+    cidade = Column(String(100), nullable=True)
+    uf = Column(String(2), nullable=True)
+    data_nascimento = Column(Date, nullable=False)
+    senha_hash = Column(String(255), nullable=False)
+    tentativas_login = Column(SmallInteger, nullable=False, default=0)
+    bloqueado_ate = Column(DateTime, nullable=True)
+    deletado_em = Column(DateTime, nullable=True)

@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSidebar();
     setupProfile();
     setupNotificacoes();
+    setupCnpjMask();
     carregarConvenios();
 });
 
@@ -54,10 +55,12 @@ function renderConvenios() {
     grid.innerHTML = "";
 
     let filteredData = conveniosData;
+    
+    // Filtro atualizado para usar o 'deletado_em' do banco de dados
     if (currentFilter === 'Ativos') {
-        filteredData = conveniosData.filter(c => c.status === "Ativo");
+        filteredData = conveniosData.filter(c => c.deletado_em === null);
     } else if (currentFilter === 'Inativos') {
-        filteredData = conveniosData.filter(c => c.status === "Inativo");
+        filteredData = conveniosData.filter(c => c.deletado_em !== null);
     }
 
     if (filteredData.length === 0) {
@@ -70,14 +73,15 @@ function renderConvenios() {
         return;
     }
 
-    filteredData.forEach((conv, idx) => {
-        const cor = conv.cor || '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+    filteredData.forEach((conv) => {
+        // Tradução do campo deletado_em para o status visual
+        const statusAtual = conv.deletado_em ? "Inativo" : "Ativo";
         
+        const cor = conv.cor || '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
         const corDestaque = `background: ${cor};`;
         const corIcone = `color: ${cor}; background: ${cor}22;`;
-        const logoHtml = conv.logo 
-            ? `<img src="${conv.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`
-            : `<i data-lucide="building-2"></i>`;
+        
+        const logoHtml = `<i data-lucide="building-2"></i>`;
 
         const numMedicos = conv.medicos ? conv.medicos.length : 0;
         const numPacientes = conv.pacientes ? conv.pacientes.length : 0;
@@ -93,12 +97,12 @@ function renderConvenios() {
                     <div class="cv-icon-wrap" style="${corIcone}">
                         ${logoHtml}
                     </div>
-                    <div class="status-badge ${conv.status.toLowerCase()}">
-                        <div class="dot"></div> ${conv.status}
+                    <div class="status-badge ${statusAtual.toLowerCase()}">
+                        <div class="dot"></div> ${statusAtual}
                     </div>
                 </div>
-                <h3 class="cv-title">${conv.nome}</h3>
-                <p class="cv-cnpj">${conv.cnpj || 'CNPJ não informado'}</p>
+                <h3 class="cv-title">${conv.nome_fantasia}</h3>
+                <p class="cv-cnpj">${applyCnpjMask(conv.cnpj) || 'CNPJ não informado'}</p>
                 <div class="cv-stats">
                     <div class="cv-stat">
                         <span class="cv-stat-val">${numMedicos}</span>
@@ -118,8 +122,9 @@ function renderConvenios() {
 }
 
 function updateStats() {
-    const ativos = conveniosData.filter(c => c.status === "Ativo").length;
-    const inativos = conveniosData.filter(c => c.status === "Inativo").length;
+    // Estatísticas calculadas baseadas no 'deletado_em'
+    const ativos = conveniosData.filter(c => c.deletado_em === null).length;
+    const inativos = conveniosData.filter(c => c.deletado_em !== null).length;
     document.getElementById("stats-convenios").textContent = `${conveniosData.length} convênio(s) cadastrado(s)`;
     
     const statsBar = document.getElementById("stats-bar");
@@ -154,7 +159,7 @@ function updateStats() {
 function setFilter(filter) {
     currentFilter = filter;
     renderConvenios();
-    updateStats(); // Atualizamos os status novamente para reposicionar o "outline" (contorno) de marcação no bloco escolhido
+    updateStats(); 
 }
 
 // ==========================================
@@ -167,13 +172,13 @@ function openConvenioDetails(id) {
     document.getElementById("view-convenios").classList.add("hidden");
     document.getElementById("view-detalhes").classList.remove("hidden");
 
-    document.getElementById("detalhe-nome-convenio").textContent = activeConvenio.nome;
-    document.getElementById("detalhe-titulo").textContent = activeConvenio.nome;
-    document.getElementById("detalhe-cnpj").textContent = activeConvenio.cnpj || "00.000.000/0000-00";
+    document.getElementById("detalhe-nome-convenio").textContent = activeConvenio.nome_fantasia;
+    document.getElementById("detalhe-titulo").textContent = activeConvenio.nome_fantasia;
+    document.getElementById("detalhe-cnpj").textContent = applyCnpjMask(activeConvenio.cnpj) || "00.000.000/0000-00";
 
     const btnToggleStatus = document.getElementById("btn-toggle-status");
     if (btnToggleStatus) {
-        if (activeConvenio.status === "Inativo") {
+        if (activeConvenio.deletado_em !== null) {
             btnToggleStatus.innerHTML = `<i data-lucide="check-circle"></i> Reativar`;
             btnToggleStatus.style.cssText = "color: #15803D; border-color: #BBF7D0; background: #F0FDF4;";
         } else {
@@ -182,7 +187,6 @@ function openConvenioDetails(id) {
         }
     }
 
-    // KPIs reais baseados na lista de médicos e pacientes do convênio
     document.getElementById("hero-count-medicos").textContent = activeConvenio.medicos ? activeConvenio.medicos.length : 0;
     document.getElementById("hero-count-pacientes").textContent = activeConvenio.pacientes ? activeConvenio.pacientes.length : 0;
 
@@ -236,8 +240,6 @@ function openModalAddConvenio() {
     const hexSpan = document.getElementById("convenio-cor-hex");
     if (hexSpan) hexSpan.textContent = randomColor;
 
-    document.getElementById("convenio-logo").value = "";
-    
     document.getElementById("modal-convenio").classList.remove("hidden");
 }
 
@@ -247,16 +249,14 @@ function openModalEditConvenio(id) {
     
     editId = id;
     document.getElementById("modal-convenio-title").textContent = "Editar Convênio";
-    document.getElementById("convenio-nome").value = activeConvenio.nome;
-    document.getElementById("convenio-cnpj").value = activeConvenio.cnpj || "";
-    document.getElementById("convenio-status").value = activeConvenio.status || "Ativo";
+    document.getElementById("convenio-nome").value = activeConvenio.nome_fantasia;
+    document.getElementById("convenio-cnpj").value = applyCnpjMask(activeConvenio.cnpj || "");
+    document.getElementById("convenio-status").value = activeConvenio.deletado_em !== null ? "Inativo" : "Ativo";
     
     const cor = activeConvenio.cor || '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
     document.getElementById("convenio-cor").value = cor;
     const hexSpan = document.getElementById("convenio-cor-hex");
     if (hexSpan) hexSpan.textContent = cor;
-    
-    document.getElementById("convenio-logo").value = "";
     
     document.getElementById("modal-convenio").classList.remove("hidden");
 }
@@ -266,23 +266,31 @@ function closeModalConvenio() {
 }
 
 async function saveConvenio() {
-    const nome = document.getElementById("convenio-nome").value.trim();
-    const cnpj = document.getElementById("convenio-cnpj").value.trim();
-    const status = document.getElementById("convenio-status").value;
-    const cor = document.getElementById("convenio-cor").value || '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-    const logoInput = document.getElementById("convenio-logo");
+    const nomeFantasia = document.getElementById("convenio-nome").value.trim();
+    const cnpjInput = document.getElementById("convenio-cnpj").value.trim();
+    const cnpj = cnpjInput.replace(/\D/g, ""); // Remove a máscara antes de enviar pra API
+    const cor = document.getElementById("convenio-cor").value;
 
-    if (!nome) {
+    if (!nomeFantasia) {
         showToast("O nome do convênio é obrigatório.", "error");
         return;
     }
-
-    let logoBase64 = null;
-    if (logoInput.files && logoInput.files[0]) {
-        logoBase64 = await toBase64(logoInput.files[0]);
+    
+    if (!cnpj) {
+        showToast("O CNPJ é obrigatório.", "error");
+        return;
     }
 
-    const payload = { nome, cnpj, status, cor, logo: logoBase64 };
+    if (cnpj.length !== 14) {
+        showToast("O CNPJ deve conter 14 dígitos.", "error");
+        return;
+    }
+
+    const payload = { 
+        nome_fantasia: nomeFantasia, 
+        cnpj: cnpj,
+        cor: cor
+    };
 
     try {
         const token = localStorage.getItem("aura_token");
@@ -307,15 +315,6 @@ async function saveConvenio() {
     }
 }
 
-function toBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-}
-
 // ==========================================
 // 5. AÇÕES DE DETALHES DO CONVÊNIO
 // ==========================================
@@ -328,12 +327,14 @@ function editarConvenioAtual() {
 async function toggleStatusConvenioAtual() {
     if (!activeConvenio) return;
     
-    const isAtivo = activeConvenio.status === "Ativo";
+    const isAtivo = activeConvenio.deletado_em === null;
     const acao = isAtivo ? "desativar" : "reativar";
+    
+    // Alinha com os endpoints padrões de inativar/reativar do backend
     const method = isAtivo ? "DELETE" : "PATCH";
     const url = isAtivo ? `${API_URL}${activeConvenio.id}` : `${API_URL}${activeConvenio.id}/reativar`;
 
-    if (!confirm(`Deseja realmente ${acao} o convênio ${activeConvenio.nome}?`)) return;
+    if (!confirm(`Deseja realmente ${acao} o convênio ${activeConvenio.nome_fantasia}?`)) return;
 
     try {
         const token = localStorage.getItem("aura_token");
@@ -414,6 +415,33 @@ function setupNotificacoes() {
             }
         });
     }
+}
+
+function setupCnpjMask() {
+    const cnpjInput = document.getElementById("convenio-cnpj");
+    if (cnpjInput) {
+        cnpjInput.addEventListener("input", function (e) {
+            e.target.value = applyCnpjMask(e.target.value);
+        });
+        
+        // Adiciona dinamicamente o asterisco vermelho ao label do CNPJ
+        const cnpjLabel = document.querySelector('label[for="convenio-cnpj"]');
+        if (cnpjLabel && !cnpjLabel.innerHTML.includes('*')) {
+            cnpjLabel.innerHTML += ' <span style="color: #DC2626;">*</span>';
+        }
+    }
+}
+
+function applyCnpjMask(value) {
+    if (!value) return "";
+    let v = value.replace(/\D/g, ""); // Mantém apenas números
+    if (v.length > 14) v = v.substring(0, 14);
+    
+    v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+    v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+    v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+    v = v.replace(/(\d{4})(\d)/, "$1-$2");
+    return v;
 }
 
 function showToast(msg, type = "success") {

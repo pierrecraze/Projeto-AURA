@@ -38,3 +38,32 @@ async def criar_paciente_mock(paciente_in: PacienteCreate):
     # APAGAMOS todo o bloco do LogCreate que ficava aqui!
 
     return novo_paciente
+
+@registrar_auditoria(entidade="Paciente", acao="Listar")
+async def listar_pacientes_mock():
+    await asyncio.sleep(0.2)
+    return banco_de_pacientes
+
+@registrar_auditoria(entidade="Paciente", acao="Atualização")
+async def atualizar_paciente_mock(id_paciente: int, paciente_in: PacienteCreate):
+    await asyncio.sleep(0.5)
+    
+    paciente = next((p for p in banco_de_pacientes if p.id == id_paciente), None)
+    if paciente:
+        paciente.nome = paciente_in.nome
+        paciente.cpf = paciente_in.cpf
+        paciente.status = paciente_in.status
+        paciente.responsavel = paciente_in.responsavel
+        paciente.grupos = paciente_in.grupos
+        return paciente
+    return None
+
+@registrar_auditoria(entidade="Paciente", acao="Inativação")
+async def inativar_paciente_mock(id_paciente: int):
+    await asyncio.sleep(0.5)
+    
+    paciente = next((p for p in banco_de_pacientes if p.id == id_paciente), None)
+    if paciente:
+        paciente.status = "Inativo"
+        return paciente
+    return None
