@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS Instituicao (
     id              SERIAL          PRIMARY KEY,
     nome_fantasia   VARCHAR(200)    NOT NULL,
     cnpj            CHAR(14)        NOT NULL UNIQUE,
+    cor             VARCHAR(7)      NULL,
     criado_em       TIMESTAMP       NOT NULL DEFAULT NOW(),
     deletado_em     TIMESTAMP       NULL
 );

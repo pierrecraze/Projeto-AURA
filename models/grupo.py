@@ -1,7 +1,13 @@
+from sqlalchemy import Column, Integer, String, DateTime
+from datetime import datetime
+from database.db import Base
 
-class GrupoModel:
-    def __init__(self, id: int, nome: str, cnpj: str, status: str):
-        self.id = id
-        self.nome = nome
-        self.cnpj = cnpj
-        self.status = status
+class GrupoModel(Base):
+    __tablename__ = "instituicao"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nome_fantasia = Column(String, nullable=False)
+    cnpj = Column(String(14), nullable=False)
+    cor = Column(String(7), nullable=True) # HEX code de 7 caracteres (ex: #FFFFFF)
+    criado_em = Column(DateTime, default=datetime.now)
+    deletado_em = Column(DateTime, nullable=True)
