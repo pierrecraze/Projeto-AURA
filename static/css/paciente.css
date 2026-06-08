@@ -1,0 +1,692 @@
+/* ========================================================
+   paciente.css
+   Página de detalhes do paciente.
+   Depende das variáveis definidas em styles.css.
+   ======================================================== */
+
+.patient-layout {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 28px 16px;
+}
+
+.patient-card {
+  width: 100%;
+  max-width: 1120px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 26px;
+  max-height: calc(100vh - 64px - 56px);
+  overflow: auto;
+}
+
+.patient-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.patient-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.patient-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary, #4A90C4), var(--primary-mid, #3a9bd5));
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.patient-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.patient-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.patient-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.patient-two-col {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+/* Polimento dos Controles de Formulário */
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: var(--radius-sm, 6px);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text, #1f2937);
+  background: var(--surface, #ffffff);
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary, #4A90C4);
+  box-shadow: 0 0 0 3px rgba(74, 144, 196, 0.15);
+}
+
+.patient-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+
+.patient-photos {
+  align-self: start;
+}
+
+/* Grid dos campos (não dependemos do cadastroPaciente.css aqui) */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-grid .form-group {
+  margin-bottom: 0;
+}
+
+.section-block {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 18px;
+}
+
+.section-h {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.section-h h3 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--primary);
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.photo-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.photo-item img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.03);
+  display: block;
+  cursor: zoom-in;
+}
+
+.photo-meta {
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.photo-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.btn-delete-photo {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-delete-photo:hover {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.empty-photos {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  padding: 6px 0;
+}
+
+/* =========================
+   Formulário clínico embutido
+   (escopado para não afetar a página standalone)
+========================= */
+.clinical-embed {
+  width: 100%;
+}
+
+.clinical-embed .tela {
+  display: none;
+}
+
+.clinical-embed .tela.ativa {
+  display: block;
+}
+
+.clinical-embed .card {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 22px;
+}
+
+.btn-save-corner {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: var(--primary-light, #eaf5fc);
+  color: var(--primary, #1a6fb5);
+  border: 1px solid var(--border, #b8d9ef);
+  border-radius: var(--radius-sm, 8px);
+  height: 36px;
+  width: max-content;
+  white-space: nowrap;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-save-corner:hover {
+  background: var(--primary, #1a6fb5);
+  color: #fff;
+  border-color: var(--primary, #1a6fb5);
+  transform: translateY(-1px);
+}
+
+.btn-save-corner svg {
+  flex-shrink: 0;
+  display: block;
+  margin-top: -1px;
+}
+
+.clinical-embed .card-title {
+  font-family: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-align: left;
+  margin-bottom: 16px;
+  padding-right: 100px;
+}
+
+.clinical-embed .grid-campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 22px;
+  margin-bottom: 14px;
+}
+
+.clinical-embed .campo {
+  display: flex;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.clinical-embed .campo-checkbox {
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.clinical-embed .campo-checkbox:hover {
+  background: var(--surface);
+  border-color: var(--primary, #4A90C4);
+  box-shadow: 0 2px 8px rgba(74, 144, 196, 0.1);
+}
+
+.clinical-embed .campo-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.clinical-embed .campo-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  transition: color 0.2s ease;
+}
+
+.clinical-embed .campo-checkbox input[type="checkbox"]:checked ~ .campo-label {
+  color: var(--primary, #4A90C4);
+}
+
+.clinical-embed .custom-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.clinical-embed .campo-checkbox input[type="checkbox"]:checked ~ .custom-check {
+  background: var(--primary, #4A90C4);
+  border-color: var(--primary, #4A90C4);
+}
+
+.clinical-embed .campo-checkbox input[type="checkbox"]:checked ~ .custom-check::after {
+  content: "";
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.clinical-embed .erro-msg {
+  background: rgba(255, 193, 7, 0.16);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 12px;
+  margin: 14px 0;
+}
+
+.clinical-embed .botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.clinical-embed .btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.clinical-embed .btn-cancelar {
+  background: transparent;
+}
+
+.clinical-embed .btn-confirmar {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.clinical-embed .resultado-corpo {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.clinical-embed .score-label,
+.clinical-embed .indicacao-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.clinical-embed .score-box {
+  font-size: 1.6rem;
+  font-weight: 800;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  padding: 10px 14px;
+  background: var(--surface);
+  width: fit-content;
+  min-width: 120px;
+  text-align: center;
+}
+
+.clinical-embed .score-box.alto {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.clinical-embed .score-box.medio {
+  border-color: #f0a500;
+  color: #f0a500;
+}
+
+.clinical-embed .score-box.baixo {
+  border-color: #27ae60;
+  color: #27ae60;
+}
+
+.clinical-embed .indicacao-texto {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  line-height: 1.55;
+}
+
+.clinical-embed .indicacao-texto .destaque-alto {
+  color: #e74c3c;
+  font-weight: 800;
+}
+
+.clinical-embed .indicacao-texto .destaque-medio {
+  color: #f0a500;
+  font-weight: 800;
+}
+
+.clinical-embed .indicacao-texto .destaque-baixo {
+  color: #27ae60;
+  font-weight: 800;
+}
+
+.clinical-embed .asterisco-info {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.clinical-embed .botoes-resultado {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.clinical-embed .btn-acao {
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+  max-width: 280px;
+}
+
+.clinical-embed .btn-acao.primario {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.clinical-embed .btn-voltar {
+  display: inline-block;
+  margin-top: 14px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+  font-weight: 600;
+}
+
+/* Métrica (markup já existe no formulário) */
+.clinical-embed .metrica-bloco {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  margin: 12px 0;
+}
+
+.clinical-embed .metrica-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.clinical-embed .metrica-titulo {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.clinical-embed .metrica-contagem {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.clinical-embed .metrica-barra-wrap {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 18px;
+}
+
+.clinical-embed .metrica-barra {
+  height: 100%;
+  width: 0%;
+  background: var(--primary);
+}
+
+.clinical-embed .metrica-marcadores {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12px;
+  height: 18px;
+}
+
+.clinical-embed .metrica-marcadores .marcador {
+  position: absolute;
+  top: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.clinical-embed .metrica-legenda {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.clinical-embed .metrica-pontos {
+  margin-top: 12px;
+}
+
+.row-click {
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .patient-card {
+    padding: 18px;
+    max-height: calc(100vh - 64px - 36px);
+  }
+
+  .patient-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .clinical-embed .grid-campos {
+    grid-template-columns: 1fr;
+  }
+
+  .clinical-embed .resultado-corpo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Modal de Foto em Tela Cheia */
+.photo-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.photo-modal[hidden] {
+  display: none;
+}
+
+.photo-modal-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.photo-modal-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.photo-modal img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  object-fit: contain;
+  animation: zoomIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

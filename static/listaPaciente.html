@@ -16,25 +16,33 @@
   <body>
     <!-- HEADER (mesmo padrão do global) -->
     <header>
-      <div class="header-brand">
-        <div class="logo-mark">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="#fff"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 4v16m8-8H4"
-            />
+      <div class="header-left">
+        <button type="button" class="btn-back-header" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Dashboard" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
-        </div>
-        <div>
-          <div class="logo-text">ClinicaPro</div>
-          <div class="header-sub">Plataforma de Assistência Clínica</div>
+        </button>
+        <div class="header-brand">
+          <div class="logo-mark">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#fff"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="logo-text">ClinicaPro</div>
+            <div class="header-sub">Plataforma de Assistência Clínica</div>
+          </div>
         </div>
       </div>
       <div class="header-user">
@@ -48,13 +56,15 @@
       <div class="page-wrapper">
         <!-- Topo da seção -->
         <div class="section-header">
-          <div>
-            <h2 class="section-title">Lista de Pacientes</h2>
-            <p class="section-sub">
-              Gerencie e acompanhe todos os seus pacientes
-            </p>
+          <div class="section-title-wrap">
+            <div>
+              <h2 class="section-title">Lista de Pacientes</h2>
+              <p class="section-sub">
+                Gerencie e acompanhe todos os seus pacientes
+              </p>
+            </div>
           </div>
-          <button class="btn-primary" onclick="novoPaciente()">
+        <button class="btn-primary" onclick="window.location.href='cadastroPaciente.html'">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -146,6 +156,6 @@
     <!-- Toast de notificação -->
     <div class="toast" id="toast"></div>
 
-    <script src="/static/server/listaPaciente.js"></script>
+    <script src="server/listaPaciente.js"></script>
   </body>
 </html>

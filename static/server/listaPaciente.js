@@ -118,7 +118,7 @@ function renderizar() {
     tbody.innerHTML = pagina
       .map(
         (p, i) => `
-      <tr style="animation-delay:${i * 0.045}s">
+      <tr class="row-click" style="animation-delay:${i * 0.045}s" onclick="verPaciente('${p.id}')">
         <td>
           <span class="patient-name">
             <span class="patient-initials">${iniciais(p.nome)}</span>
@@ -131,8 +131,8 @@ function renderizar() {
         <td>${[p.cidade, p.estado].filter(Boolean).join(" / ") || "-"}</td>
         <td>
           <div class="actions-cell">
-            <button class="btn-acao" onclick="editarPaciente('${p.id}')">Editar</button>
-            <button class="btn-acao" onclick="excluirPaciente('${p.id}')">Excluir</button>
+            <button class="btn-acao" onclick="event.stopPropagation(); editarPaciente('${p.id}')">Editar</button>
+            <button class="btn-acao" onclick="event.stopPropagation(); excluirPaciente('${p.id}')">Excluir</button>
           </div>
         </td>
       </tr>`,
@@ -180,6 +180,11 @@ function irPara(p) {
 function novoPaciente() {
   const ret = encodeURIComponent(getReturnPage());
   window.location.href = `cadastroPaciente.html?return=${ret}`;
+}
+
+function verPaciente(id) {
+  const ret = encodeURIComponent(getReturnPage());
+  window.location.href = `paciente.html?id=${encodeURIComponent(id)}&return=${ret}`;
 }
 
 function editarPaciente(id) {

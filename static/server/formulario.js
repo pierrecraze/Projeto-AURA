@@ -32,12 +32,14 @@ const PESOS = {
 // ─────────────────────────────────────────────
 
 function getRespostaCampo(nome) {
-  const selecionado = document.querySelector(`input[name="${nome}"]:checked`);
-  return selecionado ? selecionado.value : null;
+  // Agora que é checkbox, se estiver checado é "sim", senão é "nao".
+  const cb = document.querySelector(`input[name="${nome}"]`);
+  return cb && cb.checked ? "sim" : "nao";
 }
 
 function todosRespondidos() {
-  return Object.keys(PESOS).every((nome) => getRespostaCampo(nome) !== null);
+  // Checkboxes dispensam validação de campos vazios (unchecked = "nao")
+  return true;
 }
 
 function calcularScore() {
@@ -67,10 +69,10 @@ function mostrarTela(id) {
 // ─────────────────────────────────────────────
 
 function cancelarFormulario() {
-  // Limpa todos os rádios
+  // Limpa todos os checkboxes
   document
-    .querySelectorAll('input[type="radio"]')
-    .forEach((r) => (r.checked = false));
+    .querySelectorAll('input[type="checkbox"]')
+    .forEach((c) => (c.checked = false));
   document.getElementById("erro-formulario").style.display = "none";
 }
 
@@ -101,6 +103,13 @@ function exibirResultado(score) {
   const indicacaoTexto = document.getElementById("indicacao-texto");
   const asteriscoInfo = document.getElementById("asterisco-info");
   const botoesRes = document.getElementById("botoes-resultado");
+
+  // 🌟 BONUS: Atualiza automaticamente a interface de contagem "x / 12 SIM" e a barra!
+  const count = document.querySelectorAll('input[type="checkbox"]:checked').length;
+  const countEl = document.getElementById("metrica-contagem");
+  if (countEl) countEl.textContent = `${count} / 12 SIM`;
+  const metricaBarra = document.getElementById("metrica-barra");
+  if (metricaBarra) metricaBarra.style.width = `${(count / 12) * 100}%`;
 
   // Exibe score
   scoreBox.textContent = score.toFixed(2);
