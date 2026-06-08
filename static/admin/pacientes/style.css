@@ -25,6 +25,7 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; background: var(--slat
   transition: width var(--sidebar-transition);
   overflow: hidden;
   position: relative;
+  height: 100vh;
   z-index: 20;
 }
 .sidebar.collapsed { width: var(--sidebar-collapsed); }
@@ -949,3 +950,31 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; background: var(--slat
   z-index: 199;
 }
 .notif-backdrop.open { display: block; }
+
+/* ====== TOAST DE NOTIFICAÇÃO ====== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15,27,53,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0F172A;
+  border-left: 4px solid #10B981;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.toast.hidden {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  pointer-events: none;
+}
+.toast.success { border-left-color: #10B981; }
+.toast.error { border-left-color: #DC2626; color: #DC2626; background: #FEF2F2; }
+.toast svg { width: 20px; height: 20px; }

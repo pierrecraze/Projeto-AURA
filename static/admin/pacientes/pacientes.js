@@ -735,7 +735,7 @@ async function salvarNovoPaciente() {
 
   if (idade < 18) {
       if (!respNome || !respTel || respParentesco === "Não informado") {
-          showToast("Para menores de 18 anos, os dados do responsável são estritamente obrigatórios.", "error");
+          showToast("Para pacientes menores de 18 anos, os dados do responsável são obrigatórios.", "error");
           return;
       }
   }
