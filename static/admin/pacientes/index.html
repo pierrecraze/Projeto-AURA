@@ -77,35 +77,35 @@
 
         <!-- KPIs -->
         <div class="pac-kpi-grid">
-          <div class="pac-kpi">
+          <div class="pac-kpi active" onclick="setKpiFilter('Todos', this)">
             <div class="pac-kpi-icon" style="background:#EFF6FF"><i data-lucide="users" style="color:#1D4ED8"></i></div>
             <div>
               <p class="pac-kpi-label">Total de Pacientes</p>
               <p class="pac-kpi-value" id="kpiTotal">—</p>
             </div>
           </div>
-          <div class="pac-kpi">
+          <div class="pac-kpi" onclick="setKpiFilter('Ativo', this)">
             <div class="pac-kpi-icon" style="background:#ECFDF5"><i data-lucide="user-check" style="color:#059669"></i></div>
             <div>
               <p class="pac-kpi-label">Ativos</p>
               <p class="pac-kpi-value" id="kpiAtivos">—</p>
             </div>
           </div>
-          <div class="pac-kpi">
+          <div class="pac-kpi" onclick="setKpiFilter('Inativo', this)">
             <div class="pac-kpi-icon" style="background:#FEF9EC"><i data-lucide="user-x" style="color:#D97706"></i></div>
             <div>
               <p class="pac-kpi-label">Inativos</p>
               <p class="pac-kpi-value" id="kpiInativos">—</p>
             </div>
           </div>
-          <div class="pac-kpi">
+          <div class="pac-kpi" onclick="setKpiFilter('Novos', this)">
             <div class="pac-kpi-icon" style="background:#F5F3FF"><i data-lucide="user-plus" style="color:#6D28D9"></i></div>
             <div>
               <p class="pac-kpi-label">Novos este mês</p>
               <p class="pac-kpi-value" id="kpiNovos">—</p>
             </div>
           </div>
-          <div class="pac-kpi">
+          <div class="pac-kpi" onclick="setKpiFilter('SemConvenio', this)">
             <div class="pac-kpi-icon" style="background:#FEF2F2"><i data-lucide="alert-circle" style="color:#DC2626"></i></div>
             <div>
               <p class="pac-kpi-label">Sem convênio</p>
