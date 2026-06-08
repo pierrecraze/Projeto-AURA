@@ -4,7 +4,7 @@
    Persistência: localStorage (aura_pacientes_v1)
    ======================================================== */
 
-const STORAGE_KEY = "aura_pacientes_v1";
+const API_URL = "http://localhost:8000/api/pacientes/";
 
 function $(id) {
   return document.getElementById(id);
@@ -21,21 +21,6 @@ function getQueryParams() {
     id: params.get("id"),
     ret: params.get("return") || "todosPacientes.html",
   };
-}
-
-function loadPacientes() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function savePacientes(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
 function mostrarToast(msg) {
@@ -122,8 +107,8 @@ function readForm(current) {
 
 function fillForm(p) {
   $("nomePaciente").value = p.nome || "";
-  $("dataNascimento").value = p.dataNascimento || "";
-  $("sexoBiologico").value = p.sexoBiologico || "";
+  $("dataNascimento").value = p.dataNascimento || p.data_nascimento || "";
+  $("sexoBiologico").value = p.sexoBiologico || p.sexo_biologico || "";
   $("nomeMae").value = p.nomeMae || "";
   $("nomePai").value = p.nomePai || "";
   $("responsavel").value = p.responsavel || "";
@@ -134,8 +119,9 @@ function fillForm(p) {
   $("pais").value = p.pais || "";
 
   $("titleName").textContent = p.nome ? p.nome : "Paciente";
-  $("subtitleLine").textContent = p.dataNascimento
-    ? `Nascimento: ${isoToBR(p.dataNascimento)} • ${p.cidade || ""}${p.estado ? " / " + p.estado : ""}`.trim()
+  const nascimento = p.dataNascimento || p.data_nascimento;
+  $("subtitleLine").textContent = nascimento
+    ? `Nascimento: ${isoToBR(nascimento)} • ${p.cidade || ""}${p.estado ? " / " + p.estado : ""}`.trim()
     : "";
     
   const partes = (p.nome || "").trim().split(/\s+/).filter(Boolean);
@@ -184,8 +170,22 @@ function renderPhotos(photos) {
     .join("");
 }
 
-(function init() {
+(async function init() {
   const { id, ret } = getQueryParams();
+
+  let current = null;
+  
+  if (id) {
+    try {
+      const token = localStorage.getItem('aura_token');
+      const res = await fetch(`${API_URL}${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        current = await res.json();
+      }
+    } catch(err) { console.error("Erro ao buscar paciente:", err); }
+  }
 
   $("btnBack").addEventListener("click", () => {
     window.location.href = ret;
@@ -198,10 +198,7 @@ function renderPhotos(photos) {
 
   $("cpfResponsavel").addEventListener("input", (e) => mascaraCpf(e.target));
 
-  const pacientes = loadPacientes();
-  const found = pacientes.find((p) => p.id === id);
-
-  if (!id || !found) {
+  if (!id || !current) {
     $("titleName").textContent = "Paciente não encontrado";
     $("subtitleLine").textContent = "";
     $("formWrap").hidden = true;
@@ -211,7 +208,6 @@ function renderPhotos(photos) {
     return;
   }
 
-  let current = { ...found };
   if (!Array.isArray(current.fotos)) current.fotos = [];
 
   fillForm(current);
@@ -238,18 +234,25 @@ function renderPhotos(photos) {
     });
   }
 
-  window.deletePhoto = function(photoId) {
+  window.deletePhoto = async function(photoId) {
     if (!confirm("Tem certeza que deseja excluir esta foto?")) return;
     
     current.fotos = current.fotos.filter(p => p.id !== photoId);
     renderPhotos(current.fotos);
     
-    const all = loadPacientes();
-    const idx = all.findIndex((p) => p.id === id);
-    if (idx >= 0) {
-      all[idx].fotos = current.fotos;
-      savePacientes(all);
-      mostrarToast("Foto excluída com sucesso.");
+    try {
+      const token = localStorage.getItem('aura_token');
+      const res = await fetch(`${API_URL}${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(current)
+      });
+      if (res.ok) {
+        mostrarToast("Foto excluída com sucesso.");
+      }
+    } catch (err) {
+      mostrarToast("Erro ao excluir foto.");
+      console.error(err);
     }
   };
 
@@ -313,23 +316,19 @@ function renderPhotos(photos) {
         renderPhotos(current.fotos);
 
         // Persiste imediatamente
-        const allNow = loadPacientes();
-        const idxNow = allNow.findIndex((p) => p.id === id);
-        if (idxNow >= 0) {
-          allNow[idxNow] = {
-            ...allNow[idxNow],
-            fotos: current.fotos,
-            updatedAt: new Date().toISOString(),
-          };
-          try {
-            savePacientes(allNow);
-            mostrarToast("Foto adicionada.");
-          } catch (err) {
-            mostrarToast("Não foi possível salvar a foto (espaço insuficiente).");
-            console.error(err);
-          }
-        } else {
-          mostrarToast("Foto adicionada.");
+        try {
+          const token = localStorage.getItem('aura_token');
+          fetch(`${API_URL}${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(current)
+          }).then(res => {
+            if (res.ok) mostrarToast("Foto adicionada.");
+            else mostrarToast("Erro ao salvar foto no servidor.");
+          });
+        } catch (err) {
+          mostrarToast("Erro de conexão ao salvar foto.");
+          console.error(err);
         }
       };
       img.src = e.target.result;

@@ -5,29 +5,30 @@
    responsável, parentesco, CPF do responsável, cidade/estado/país.
    ======================================================== */
 
-const STORAGE_KEY = "aura_pacientes_v1";
+const API_URL = "http://localhost:8000/api/pacientes/";
 const POR_PAGINA = 8;
 
 let paginaAtual = 1;
-let pacientes = loadPacientes();
+let pacientes = [];
 
 // ─────────────────────────────────────────────
 // Storage
 // ─────────────────────────────────────────────
 
-function loadPacientes() {
+async function loadPacientes() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+    const token = localStorage.getItem('aura_token');
+    const res = await fetch(API_URL, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.filter(p => !p.deletado_em);
+    }
+  } catch (err) {
+    console.error("Erro ao carregar pacientes da API:", err);
   }
-}
-
-function savePacientes(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  return [];
 }
 
 // ─────────────────────────────────────────────
@@ -125,8 +126,8 @@ function renderizar() {
             ${p.nome ?? ""}
           </span>
         </td>
-        <td>${isoToBR(p.dataNascimento)}</td>
-        <td>${p.sexoBiologico ?? "-"}</td>
+        <td>${isoToBR(p.dataNascimento || p.data_nascimento)}</td>
+        <td>${p.sexoBiologico || p.sexo_biologico || "-"}</td>
         <td>${p.responsavel ?? "-"}</td>
         <td>${[p.cidade, p.estado].filter(Boolean).join(" / ") || "-"}</td>
         <td>
@@ -192,18 +193,32 @@ function editarPaciente(id) {
   window.location.href = `cadastroPaciente.html?id=${encodeURIComponent(id)}&return=${ret}`;
 }
 
-function excluirPaciente(id) {
+async function excluirPaciente(id) {
   if (!confirm("Deseja excluir este paciente?")) return;
-  pacientes = pacientes.filter((p) => p.id !== id);
-  savePacientes(pacientes);
-  renderizar();
+  
+  try {
+    const token = localStorage.getItem('aura_token');
+    const res = await fetch(`${API_URL}${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (res.ok) {
+      pacientes = pacientes.filter((p) => p.id !== id);
+      renderizar();
+    } else {
+      alert("Erro ao excluir o paciente.");
+    }
+  } catch (err) {
+    console.error("Erro ao deletar:", err);
+  }
 }
 
 // ─────────────────────────────────────────────
 // Init
 // ─────────────────────────────────────────────
 
-(function init() {
+(async function init() {
   // Se não houver nada salvo ainda, mantém lista vazia.
   // (Sem seed para não confundir com dados reais.)
 
@@ -213,5 +228,6 @@ function excluirPaciente(id) {
     searchEl.addEventListener("input", () => filtrar());
   }
 
+  pacientes = await loadPacientes();
   renderizar();
 })();
