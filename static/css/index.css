@@ -1,0 +1,85 @@
+/* ---------- index.css ---------- */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap");
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background-image: url("/static/image/BackX.jpeg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#text {
+  position: relative;
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 11%;
+  height: 500px;
+  width: 600px;
+}
+
+.title {
+  font-family: "Playfair Display", serif; /* mesma fonte do logo */
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+
+.description {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+.description span {
+  color: var(--primary); /* remove o style inline do HTML */
+}
+
+.paragraph {
+  margin-top: 10%;
+  line-height: 1.6;
+  text-align: justify;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.paragraph p + p {
+  margin-top: 1rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+
+.button {
+  padding: 10px 24px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  transition: background-color var(--transition);
+}
+
+.button:hover {
+  background-color: var(--primary-hover);
+}
