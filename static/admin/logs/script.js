@@ -40,17 +40,17 @@ async function carregarLogsDaAPI() {
         // Traduzindo o padrão do Python para o visual do Front-end
         LOGS_RAW = dbLogs.map(log => {
             let categoria = "SISTEMA";
-            if (log.acao === "Criação") categoria = "ACAO";
-            else if (log.acao === "Atualização") categoria = "INFO";
-            else if (log.acao === "Exclusão") categoria = "ALERTA";
+            if (log.acao_realizada === "Criação") categoria = "ACAO";
+            else if (log.acao_realizada === "Atualização") categoria = "INFO";
+            else if (log.acao_realizada === "Inativação" || log.acao_realizada === "Exclusão") categoria = "ALERTA";
 
             return {
                 id: log.id,
                 ts: log.data_hora,
-                usuario: "Sistema", 
-                entidade: log.entidade, 
-                acao: `${log.acao} — ${log.detalhes}`, 
-                ip: "127.0.0.1",
+                usuario: log.tipo_ator === "admin_sistema" ? "Admin" : "Sistema", 
+                entidade: log.tabela_afetada || "Desconhecida", 
+                acao: `${log.acao_realizada} — ${log.detalhe}`, 
+                ip: log.ip_origem || "127.0.0.1",
                 cat: categoria
             };
         });
