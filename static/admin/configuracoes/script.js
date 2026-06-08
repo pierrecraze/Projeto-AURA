@@ -1,15 +1,19 @@
 const API_URL = "http://localhost:8000/api/auth";
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Carrega os ícones primeiro para garantir a renderização visual da tela
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
     const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-    document.getElementById("current-date").textContent = today;
+    const dateEl = document.getElementById("current-date");
+    if (dateEl) dateEl.textContent = today;
 
     setupSidebar();
     setupTabs();
     loadProfileData();
     setupForms();
-    setupAvatarUpload();
-    lucide.createIcons();
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
 function setupSidebar() {
@@ -35,24 +39,43 @@ function setupSidebar() {
 }
 
 function loadProfileData() {
-    const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
-    const nome = user.nome || "Admin Principal";
-    const email = user.email || "";
-    const iniciais = nome.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase() || "AD";
-    const avatarUrl = user.avatar || null;
-
-    document.getElementById("profileName").textContent = nome;
-    
-    if (avatarUrl) {
-        document.getElementById("profileAvatar").innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-        document.getElementById("avatarPreview").innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-    } else {
-        document.getElementById("profileAvatar").textContent = iniciais;
-        document.getElementById("avatarPreview").textContent = iniciais;
+    let user = {};
+    try {
+        const stored = localStorage.getItem("aura_user");
+        // Previne o erro fatal se o navegador tiver salvado "undefined" acidentalmente
+        if (stored && stored !== "undefined") {
+            user = JSON.parse(stored);
+        }
+    } catch (e) {
+        console.error("Erro no cache do usuário:", e);
     }
 
-    document.getElementById("inputNome").value = nome;
-    document.getElementById("inputEmail").value = email;
+    const nomeFull = user.nome || "Admin Principal";
+    const email = user.email || "admin@admin.com";
+    
+    const nameParts = nomeFull.trim().split(" ");
+    const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
+    const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
+
+    const pName = document.getElementById("profileName");
+    if (pName) pName.textContent = nomeExibicao;
+    
+    const pAvatar = document.getElementById("profileAvatar");
+    const aPreview = document.getElementById("avatarPreview");
+    
+    [pAvatar, aPreview].forEach(el => {
+        if (el) {
+            el.textContent = iniciais;
+            el.style.backgroundColor = "#1E40AF";
+            el.style.color = "#ffffff";
+        }
+    });
+
+    const iNome = document.getElementById("inputNome");
+    if (iNome) iNome.value = nomeFull;
+
+    const iEmail = document.getElementById("inputEmail");
+    if (iEmail) iEmail.value = email;
 }
 
 function setupTabs() {
@@ -142,34 +165,3 @@ function showToast(msg, type = "success") {
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 3500);
 }
-
-function setupAvatarUpload() {
-    const input = document.getElementById("inputAvatar");
-    if (input) {
-        input.addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                if (file.size > 2 * 1024 * 1024) {
-                    return showToast("A imagem deve ter no máximo 2MB.", "error");
-                }
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
-                    user.avatar = event.target.result;
-                    localStorage.setItem("aura_user", JSON.stringify(user));
-                    loadProfileData();
-                    showToast("Foto de perfil atualizada!");
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-
-window.removerFoto = function() {
-    const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
-    delete user.avatar;
-    localStorage.setItem("aura_user", JSON.stringify(user));
-    loadProfileData();
-    showToast("Foto removida!");
-};

@@ -141,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     document.getElementById("current-date").textContent = today;
 
+    setupProfile();
     setupNotificacoes();
 
     // Busca live
@@ -638,6 +639,23 @@ function setupNotificacoes() {
             }
         });
     }
+}
+
+function setupProfile() {
+    const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
+    const nomeFull = user.nome || "Admin Principal";
+    const nameParts = nomeFull.trim().split(" ");
+    const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
+    const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
+
+    ["profileName", "topbarName"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = nomeExibicao;
+    });
+    ["profileAvatar", "topbarAvatar"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = iniciais;
+    });
 }
 
 // Logout
