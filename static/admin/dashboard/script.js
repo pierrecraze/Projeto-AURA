@@ -136,6 +136,8 @@ async function carregarDadosDashboard() {
             convenioGrafico.data.datasets[0].backgroundColor = convenioData.map(d => d.cor);
             convenioGrafico.update();
         }
+        
+        lucide.createIcons();
 
     } catch (err) {
         console.error("Erro ao carregar dados do Dashboard:", err);
