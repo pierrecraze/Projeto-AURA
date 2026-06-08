@@ -28,11 +28,14 @@ def registrar_auditoria(entidade: str, acao: str):
                 detalhes = f"Operação de '{acao}' executada com sucesso. Entidade: {entidade}{nome_formatado} (ID: {item_id})."
                 
                 novo_log = LogCreate(
-                    entidade=entidade,
-                    acao=acao,
-                    detalhes=detalhes.strip()
+                    tabela_afetada=entidade,
+                    acao_realizada=acao,
+                    detalhe=detalhes.strip(),
+                    tipo_ator="admin_sistema",
+                    ator_id=1,
+                    ip_origem="127.0.0.1"
                 )
-                await log_service.criar_log_mock(novo_log)
+                await log_service.criar_log(novo_log)
                 
             return resultado
         return wrapper

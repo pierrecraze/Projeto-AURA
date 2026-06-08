@@ -98,28 +98,28 @@
         </div>
 
         <div class="kpi-grid">
-          <div class="kpi-card">
+          <div class="kpi-card active" onclick="setKpiFilter('TODOS', this)">
             <div class="kpi-header">
               <span class="kpi-label">Total de Eventos</span>
               <div class="kpi-icon icon-slate"><i data-lucide="file-text"></i></div>
             </div>
             <p class="kpi-value" id="kpi-total">—</p>
           </div>
-          <div class="kpi-card border-red">
+          <div class="kpi-card border-red" onclick="setKpiFilter('CRITICO', this)">
             <div class="kpi-header">
               <span class="kpi-label">Eventos Críticos</span>
               <div class="kpi-icon icon-red"><i data-lucide="shield-alert"></i></div>
             </div>
             <p class="kpi-value text-main" id="kpi-criticos">—</p>
           </div>
-          <div class="kpi-card border-yellow">
+          <div class="kpi-card border-yellow" onclick="setKpiFilter('ALERTA', this)">
             <div class="kpi-header">
               <span class="kpi-label">Alertas do Sistema</span>
               <div class="kpi-icon icon-yellow"><i data-lucide="alert-triangle"></i></div>
             </div>
             <p class="kpi-value text-main" id="kpi-alertas">—</p>
           </div>
-          <div class="kpi-card border-purple">
+          <div class="kpi-card border-purple" onclick="setKpiFilter('SISTEMA', this)">
             <div class="kpi-header">
               <span class="kpi-label">Eventos de Sistema</span>
               <div class="kpi-icon icon-purple"><i data-lucide="database"></i></div>
@@ -132,6 +132,14 @@
           <div class="filter-group">
             <div class="filter-label"><i data-lucide="filter"></i> Filtros</div>
             
+            <div class="search-box">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="search-input" class="input-base" placeholder="Usuário, ação ou IP…">
+              <button id="clear-search" class="clear-search hidden"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="divider"></div>
+
             <div class="date-filter">
               <i data-lucide="calendar"></i>
               <label>De</label>
@@ -142,27 +150,7 @@
               <input type="date" id="filter-date-fim" class="input-base">
             </div>
 
-            <div class="divider"></div>
-
-            <div class="category-filters" id="cat-filters">
-              <button class="cat-btn active" data-cat="TODOS">Todos</button>
-              <button class="cat-btn" data-cat="CRITICO">Crítico</button>
-              <button class="cat-btn" data-cat="ALERTA">Alerta</button>
-              <button class="cat-btn" data-cat="ACESSO">Acesso</button>
-              <button class="cat-btn" data-cat="ACAO">Ação</button>
-              <button class="cat-btn" data-cat="SISTEMA">Sistema</button>
-              <button class="cat-btn" data-cat="INFO">Info</button>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="search-box">
-              <i data-lucide="search" class="search-icon"></i>
-              <input type="text" id="search-input" class="input-base" placeholder="Usuário, ação ou IP…">
-              <button id="clear-search" class="clear-search hidden"><i data-lucide="x"></i></button>
-            </div>
-
-            <button id="clear-all-filters" class="btn-clear hidden"><i data-lucide="x"></i> Limpar</button>
+            <button id="clear-all-filters" class="btn-clear hidden"><i data-lucide="x"></i> Limpar Filtros</button>
           </div>
         </div>
 

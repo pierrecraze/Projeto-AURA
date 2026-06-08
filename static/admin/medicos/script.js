@@ -14,7 +14,8 @@ let state = {
     view: 'lista',          // 'lista' | 'perfil'
     activeMedicoId: null,
     visList: 'tabela',      // 'tabela' | 'cards'
-    filter: 'todos',        // 'todos' | 'Ativo' | 'Inativo'
+    kpiFilter: 'Todos',
+    statusFilter: '',
     searchQuery: '',
     editingId: null         // id do médico sendo editado no modal
 };
@@ -184,8 +185,15 @@ function renderApp() {
 function renderLista() {
     let lista = medicos;
 
-    // Filtro status
-    if (state.filter !== 'todos') lista = lista.filter(m => m.status === state.filter);
+    // Filtro KPI
+    if (state.kpiFilter === 'Ativo' || state.kpiFilter === 'Inativo') {
+        lista = lista.filter(m => m.status === state.kpiFilter);
+    }
+
+    // Dropdown Status Override
+    if (state.statusFilter) {
+        lista = lista.filter(m => m.status === state.statusFilter);
+    }
 
     // Busca
     if (state.searchQuery) {
@@ -196,14 +204,25 @@ function renderLista() {
         );
     }
 
-    const ativos   = medicos.filter(m => m.status === 'Ativo').length;
-    const inativos = medicos.filter(m => m.status === 'Inativo').length;
-    document.getElementById("stats-medicos").textContent =
-        `${medicos.length} médicos · ${ativos} ativos · ${inativos} inativos`;
-    document.getElementById("table-count").textContent = `${lista.length} médico${lista.length !== 1 ? 's' : ''}`;
+    updateMedicosKPIs();
+    document.getElementById("table-count").innerHTML = `Exibindo <strong>${lista.length}</strong> médico${lista.length !== 1 ? 's' : ''}`;
 
     if (state.visList === 'tabela') renderTabela(lista);
     else renderCards(lista);
+}
+
+function updateMedicosKPIs() {
+    const total = medicos.length;
+    const ativos = medicos.filter(m => m.status === 'Ativo').length;
+    const inativos = medicos.filter(m => m.status === 'Inativo').length;
+    
+    const elTotal = document.getElementById("kpiMedTotal");
+    if(elTotal) {
+        elTotal.textContent = total;
+        document.getElementById("kpiMedAtivos").textContent = ativos;
+        document.getElementById("kpiMedInativos").textContent = inativos;
+        document.getElementById("kpiMedNovos").textContent = "+0"; // Track de log futuro
+    }
 }
 
 function renderTabela(lista) {
@@ -391,10 +410,24 @@ window.toggleStatus = function() {
 };
 
 /* ─── Filtro e Visualização ─────────────────────────────────── */
-window.setFilter = function(filter, btn) {
-    state.filter = filter;
-    document.querySelectorAll(".filter-pill").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+window.setKpiFilter = function(kpi, btn) {
+    state.kpiFilter = kpi;
+    document.querySelectorAll(".med-kpi").forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+
+    const selStatus = document.getElementById("filterStatus");
+    if (kpi === 'Ativo' || kpi === 'Inativo') {
+        if(selStatus) selStatus.value = kpi;
+        state.statusFilter = kpi;
+    } else if (kpi === 'Todos') {
+        if(selStatus) selStatus.value = "";
+        state.statusFilter = "";
+    }
+    renderApp();
+};
+
+window.setStatusFilter = function(val) {
+    state.statusFilter = val;
     renderApp();
 };
 

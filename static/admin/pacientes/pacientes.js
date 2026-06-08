@@ -38,7 +38,7 @@ const notificacoes = [
 ];
 
 // ---------- ESTADO ----------
-let estadoFiltro = { busca: "", status: "", convenio: "" };
+let estadoFiltro = { busca: "", status: "", convenio: "", kpi: "Todos" };
 let paginaAtual = 1;
 let viewAtual = "table";
 let pacientesFiltrados = [];
@@ -292,6 +292,24 @@ function atualizarKPIsPacientes() {
   }
 }
 
+window.setKpiFilter = function(tipo, el) {
+  estadoFiltro.kpi = tipo;
+  document.querySelectorAll('.pac-kpi').forEach(k => k.classList.remove('active'));
+  if(el) el.classList.add('active');
+
+  const selStatus = document.getElementById("filterStatus");
+  if (tipo === 'Ativo' || tipo === 'Inativo') {
+    if(selStatus) selStatus.value = tipo;
+    estadoFiltro.status = tipo;
+  } else if (tipo === 'Todos') {
+    if(selStatus) selStatus.value = "";
+    estadoFiltro.status = "";
+  }
+
+  paginaAtual = 1;
+  aplicarFiltros();
+};
+
 function aplicarFiltros() {
   pacientesFiltrados = pacientes.filter(p => {
     const matchBusca = !estadoFiltro.busca ||
@@ -302,7 +320,25 @@ function aplicarFiltros() {
       p.idCurto.toLowerCase().includes(estadoFiltro.busca);
     const matchStatus = !estadoFiltro.status || p.status === estadoFiltro.status;
     const matchConvenio = !estadoFiltro.convenio || p.convenios.includes(estadoFiltro.convenio);
-    return matchBusca && matchStatus && matchConvenio;
+    
+    const matchKpi = (() => {
+      if (!estadoFiltro.kpi || estadoFiltro.kpi === 'Todos') return true;
+      if (estadoFiltro.kpi === 'Ativo' || estadoFiltro.kpi === 'Inativo') return true; // Já processado pelo dropdown
+      if (estadoFiltro.kpi === 'Novos') {
+        const hoje = new Date();
+        if (p.cadastro && p.cadastro !== "—") {
+          const parts = p.cadastro.split('/');
+          if (parts.length === 3) return parseInt(parts[1]) === (hoje.getMonth() + 1) && parseInt(parts[2]) === hoje.getFullYear();
+        }
+        return false;
+      }
+      if (estadoFiltro.kpi === 'SemConvenio') {
+        return p.convenios.includes("Particular") || p.convenios.includes("Outros") || p.convenios.length === 0;
+      }
+      return true;
+    })();
+    
+    return matchBusca && matchStatus && matchConvenio && matchKpi;
   });
 
   // Atualiza contador
@@ -735,7 +771,7 @@ async function salvarNovoPaciente() {
 
   if (idade < 18) {
       if (!respNome || !respTel || respParentesco === "Não informado") {
-          showToast("Para menores de 18 anos, os dados do responsável são estritamente obrigatórios.", "error");
+          showToast("Para pacientes menores de 18 anos, os dados do responsável são obrigatórios.", "error");
           return;
       }
   }

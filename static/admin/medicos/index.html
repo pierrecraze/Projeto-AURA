@@ -78,28 +78,55 @@
 
         <!-- ════ VIEW: LISTA ════ -->
         <div id="view-lista">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Médicos</h1>
-              <p class="page-subtitle" id="stats-medicos">Carregando...</p>
+          
+          <!-- KPIs -->
+          <div class="med-kpi-grid">
+            <div class="med-kpi active" onclick="setKpiFilter('Todos', this)">
+              <div class="med-kpi-icon" style="background:#EFF6FF"><i data-lucide="stethoscope" style="color:#1D4ED8"></i></div>
+              <div>
+                <p class="med-kpi-label">Total de Médicos</p>
+                <p class="med-kpi-value" id="kpiMedTotal">—</p>
+              </div>
             </div>
-            <button class="btn-primary" onclick="openModalAdd()">
-              <i data-lucide="user-plus"></i> Novo Médico
-            </button>
+            <div class="med-kpi" onclick="setKpiFilter('Ativo', this)">
+              <div class="med-kpi-icon" style="background:#ECFDF5"><i data-lucide="user-check" style="color:#059669"></i></div>
+              <div>
+                <p class="med-kpi-label">Ativos</p>
+                <p class="med-kpi-value" id="kpiMedAtivos">—</p>
+              </div>
+            </div>
+            <div class="med-kpi" onclick="setKpiFilter('Inativo', this)">
+              <div class="med-kpi-icon" style="background:#FEF9EC"><i data-lucide="user-x" style="color:#D97706"></i></div>
+              <div>
+                <p class="med-kpi-label">Inativos</p>
+                <p class="med-kpi-value" id="kpiMedInativos">—</p>
+              </div>
+            </div>
+            <div class="med-kpi" onclick="setKpiFilter('Novos', this)">
+              <div class="med-kpi-icon" style="background:#F5F3FF"><i data-lucide="user-plus" style="color:#6D28D9"></i></div>
+              <div>
+                <p class="med-kpi-label">Novos este mês</p>
+                <p class="med-kpi-value" id="kpiMedNovos">—</p>
+              </div>
+            </div>
           </div>
 
-          <div class="medicos-toolbar">
-            <div class="search-wrap">
-              <i data-lucide="search" class="search-icon"></i>
-              <input type="text" id="search-input" class="search-input" placeholder="Buscar médico por nome, CPF ou CRM...">
-              <span class="search-shortcut">Ctrl K</span>
+          <!-- Barra de ações idêntica à Pacientes -->
+          <div class="med-toolbar">
+            <div class="med-search-wrap">
+              <i data-lucide="search" class="med-search-icon"></i>
+              <input type="text" id="search-input" class="med-search" placeholder="Buscar por nome, CPF ou CRM...">
+              <span class="med-search-shortcut">Ctrl K</span>
             </div>
-            <div class="toolbar-right">
-              <div class="filter-bar">
-                <button class="filter-pill active" data-filter="todos" onclick="setFilter('todos',this)">Todos</button>
-                <button class="filter-pill" data-filter="Ativo" onclick="setFilter('Ativo',this)">Ativos</button>
-                <button class="filter-pill" data-filter="Inativo" onclick="setFilter('Inativo',this)">Inativos</button>
+            <div class="med-toolbar-right">
+              <div class="med-filter-group">
+                <select id="filterStatus" class="med-select" onchange="setStatusFilter(this.value)">
+                  <option value="">Todos os status</option>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
               </div>
+              <button class="btn-primary" onclick="openModalAdd()"><i data-lucide="user-plus"></i> Novo Médico</button>
             </div>
           </div>
 
@@ -115,7 +142,7 @@
                 </button>
               </div>
               <div style="display:flex;gap:8px;align-items:center;">
-                <span class="table-count" id="table-count">— médicos</span>
+                <span class="table-count" id="table-count">Exibindo <strong>0</strong> médicos</span>
                 <button class="btn-outline-small"><i data-lucide="download"></i> Exportar</button>
               </div>
             </div>

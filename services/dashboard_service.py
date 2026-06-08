@@ -1,40 +1,45 @@
 from datetime import datetime
-from services import medico_service, paciente_service, grupo_service, triagem_service
+from sqlalchemy.orm import Session
 from schemas.dashboard import DashboardResumo
 
-async def obter_resumo_mock():
-    # Coleta todos os dados das outras APIs
-    medicos = await medico_service.listar_medicos_mock()
-    pacientes = await paciente_service.listar_pacientes_mock()
-    grupos = await grupo_service.listar_grupos_mock()
-    triagens = await triagem_service.listar_triagens_mock()
+# Importando os services reais
+from services import medico_service, paciente_service, grupo_service, triagem_service
+
+async def obter_resumo(db: Session):
+    medicos = await medico_service.listar_medicos(db)
+    pacientes = await paciente_service.listar_pacientes(db)
+    grupos = await grupo_service.listar_grupos(db)
+    
+    triagens = await triagem_service.listar_triagens(db)
 
     agora = datetime.now()
     mes_atual = agora.month
     ano_atual = agora.year
 
-    # Função auxiliar para verificar se o cadastro ocorreu no mês atual
-    def eh_deste_mes(data_iso: str):
-        if not data_iso: # Se a data for None ou vazia, consideramos que não é deste mês
+    def eh_deste_mes(data_obj):
+        if not data_obj:
             return False
-        data_obj = datetime.fromisoformat(data_iso) # Converte a string ISO para um objeto datetime
+        if isinstance(data_obj, str):
+            try:
+                data_obj = datetime.fromisoformat(data_obj)
+            except ValueError:
+                return False
         return data_obj.month == mes_atual and data_obj.year == ano_atual
 
-    # Calcula quantos foram criados apenas no mês atual
-    medicos_mes = sum(
-        1 for m in medicos  
-        if eh_deste_mes(m.data_cadastro))
-    
-    pacientes_mes = sum(
-        1 for p in pacientes 
-        if eh_deste_mes(p.data_cadastro))
-    
-    triagens_mes = sum(
-        1 for t in triagens 
-        if eh_deste_mes(t.data_hora))
+    medicos_mes = 0 # Profissional_Saude não possui data_cadastro no SQL original
+    pacientes_mes = sum(1 for p in pacientes if eh_deste_mes(getattr(p, 'data_cadastro', None)))
+    triagens_mes = sum(1 for t in triagens if eh_deste_mes(getattr(t, 'data_hora', None)))
 
-    # Dados simulados para o gráfico (12 meses) para dar o efeito visual no Front
-    grafico = [65, 80, 92, 110, 85, 120, 140, 130, 155, 165, 145, 160]
+    grafico = [0] * 12
+    for t in triagens:
+        dt = getattr(t, 'data_hora', None)
+        if isinstance(dt, str):
+            try:
+                dt = datetime.fromisoformat(dt)
+            except:
+                pass
+        if dt and dt.year == ano_atual:
+            grafico[dt.month - 1] += 1
 
     return DashboardResumo(
         total_medicos=len(medicos),

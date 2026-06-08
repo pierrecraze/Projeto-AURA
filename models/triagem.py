@@ -1,8 +1,18 @@
+import uuid
+from sqlalchemy import Column, Integer, Boolean, String, DateTime, ForeignKey, SmallInteger
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+from database.db import Base
 
-class TriagemModel:
-    def __init__(self, id: int, medico_id: int, paciente_id: int, resultado: str, data_hora: str):
-        self.id = id
-        self.medico_id = medico_id
-        self.paciente_id = paciente_id
-        self.resultado = resultado
-        self.data_hora = data_hora
+class AvaliacaoModel(Base):
+    __tablename__ = "avaliacao"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    data_hora = Column(DateTime, default=datetime.utcnow, nullable=False)
+    score_total = Column(SmallInteger, nullable=False)
+    recomendacao_encaminhamento = Column(Boolean, nullable=False)
+    assinatura_hash = Column(String(255), nullable=True)
+    assinado_em = Column(DateTime, nullable=True)
+    
+    paciente_id = Column(UUID(as_uuid=True), ForeignKey("paciente.id"), nullable=False)
+    profissional_id = Column(Integer, ForeignKey("profissional_saude.id"), nullable=False)
