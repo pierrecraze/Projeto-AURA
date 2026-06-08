@@ -1,18 +1,13 @@
 from pydantic import BaseModel, ConfigDict
+from datetime import datetime
+from uuid import UUID
 
-# 1. A Base: O que é comum na entrada e na saída
-class TriagemBase(BaseModel):
-    medico_id: int
-    paciente_id: int
-    resultado: str
-
-# 2. A Entrada: Dados exigidos na hora de criar a triagem (POST)
-class TriagemCreate(TriagemBase):
-    pass
-
-# 3. A Saída: Como a triagem é devolvida pelo backend (com ID e Data gerados pelo sistema)
-class Triagem(TriagemBase):
-    id: int
-    data_hora: str
+# Metadados seguros que o Admin e o Dashboard podem ver (LGPD)
+# Omite dados sensíveis como o Score Total e se houve Encaminhamento.
+class TriagemMetadata(BaseModel):
+    id: UUID
+    data_hora: datetime
+    paciente_id: UUID
+    medico_id: int  # Adaptamos 'profissional_id' para 'medico_id' para compatibilidade com o front-end
 
     model_config = ConfigDict(from_attributes=True)

@@ -25,8 +25,8 @@ app.include_router(pacientes.router, prefix="/api/pacientes", tags=["Pacientes"]
 app.include_router(medicos.router, prefix="/api/medicos", tags=["Médicos"])
 app.include_router(grupos.router, prefix="/api/grupos", tags=["Grupos"])
 app.include_router(logs.router, prefix="/api/logs", tags=["Logs"])
-app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
-app.include_router(triagens.router, prefix="/api/triagens", tags=["Triagens"])
+app.include_router(dashboard.router)
+app.include_router(triagens.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
 # Servir arquivos estáticos

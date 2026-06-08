@@ -19,103 +19,127 @@ let meuGrafico;
 let convenioGrafico;
 
 // --- Busca de Dados no Backend ---
-function gerarDadosMock() {
-    const mockConvenios = [
-        { id: 1, nome: "Unimed", cor: "#2563EB" },
-        { id: 2, nome: "Bradesco Saúde", cor: "#7C3AED" },
-        { id: 3, nome: "SulAmérica", cor: "#0891B2" },
-        { id: 4, nome: "Particular", cor: "#059669" },
-        { id: 5, nome: "Outros", cor: "#94A3B8" }
-    ];
-
-    const mockMedicos = [
-        { id: 1, nome: "Dr. Carlos Mendes", esp: "Clínica Geral", status: "Ativo", pacientes: 142, cor: "#DBEAFE", txt: "#1D4ED8" },
-        { id: 2, nome: "Dra. Ana Ferreira", esp: "Pediatria", status: "Ativo", pacientes: 118, cor: "#F5F3FF", txt: "#6D28D9" },
-        { id: 3, nome: "Dr. Roberto Lima", esp: "Cardiologia", status: "Ativo", pacientes: 97, cor: "#ECFDF5", txt: "#047857" },
-        { id: 4, nome: "Dra. Juliana Costa", esp: "Psiquiatria", status: "Ativo", pacientes: 83, cor: "#FEF9EC", txt: "#B45309" },
-        { id: 5, nome: "Dr. Marcos Oliveira", esp: "Neurologia", status: "Inativo", pacientes: 0, cor: "#FEF2F2", txt: "#DC2626" },
-        { id: 6, nome: "Dra. Fernanda Rocha", esp: "Dermatologia", status: "Ativo", pacientes: 71, cor: "#EFF6FF", txt: "#1E40AF" }
-    ];
-
-    // Criação de 1450 pacientes simulados
-    const mockPacientes = Array.from({length: 1450}, (_, i) => ({
-        id: i + 1,
-        status: i % 10 === 0 ? "Inativo" : "Ativo",
-        convenioId: (i % 5) + 1
-    }));
-
-    // Cada paciente tem pelo menos 1 triagem
-    const mockTriagens = [];
-    const contagemMeses = new Array(12).fill(0);
-    
-    mockPacientes.forEach((p, i) => {
-        const mesIdx = Math.floor(Math.random() * 5); // Foca nos meses 0 a 4 (Jan a Mai)
-        mockTriagens.push({ id: mockTriagens.length + 1, pacienteId: p.id, mesIdx });
-        contagemMeses[mesIdx]++;
-        
-        if (Math.random() < 0.2) {
-            const mes2 = Math.floor(Math.random() * 5);
-            mockTriagens.push({ id: mockTriagens.length + 1, pacienteId: p.id, mesIdx: mes2 });
-            contagemMeses[mes2]++;
-        }
-    });
-
-    const triagensMesAtual = contagemMeses[4];
-    kpis = [
-        { label: "Grupos / Convênios", value: mockConvenios.length.toString(), delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
-        { label: "Total de Médicos", value: mockMedicos.length.toString(), delta: `+1`, deltaLabel: "vinculados este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
-        { label: "Pacientes na Base", value: mockPacientes.length.toString(), delta: `+22`, deltaLabel: "registrados este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
-        { label: "Triagens — SXF", value: mockTriagens.length.toString(), delta: `+${triagensMesAtual}`, deltaLabel: "realizadas este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
-    ];
-
-    const mesesLabel = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    chartData = contagemMeses.map((valor, index) => ({ mes: mesesLabel[index], triagens: valor }));
-
-    document.getElementById("statTotalPeriodo").textContent = mockTriagens.length.toString();
-    document.getElementById("statMediaMensal").textContent = Math.round(mockTriagens.length / 5).toString();
-    const pico = Math.max(...contagemMeses);
-    const picoMesIdx = contagemMeses.indexOf(pico);
-    document.getElementById("statPicoMes").textContent = `Pico (${mesesLabel[picoMesIdx]})`;
-    document.getElementById("statPicoValor").textContent = pico.toString();
-
-    convenioData.length = 0;
-    const ativos = mockPacientes.filter(p => p.status === 'Ativo').length;
-    document.getElementById("donutTotal").textContent = ativos;
-    
-    const legend = document.getElementById("donutLegend");
-    if(legend) legend.innerHTML = "";
-    
-    mockConvenios.forEach(c => {
-        const pacCount = mockPacientes.filter(p => p.convenioId === c.id && p.status === 'Ativo').length;
-        const pct = Math.round((pacCount / ativos) * 100);
-        convenioData.push({ nome: c.nome, pct: pct, cor: c.cor });
-        
-        if (legend) {
-            const item = document.createElement("div");
-            item.className = "legend-item";
-            item.innerHTML = `<span class="legend-dot" style="background:${c.cor}"></span><span class="legend-name">${c.nome}</span><span class="legend-pct">${pct}%</span>`;
-            legend.appendChild(item);
-        }
-    });
-
-    topMedicos.length = 0;
-    mockMedicos.sort((a,b) => b.pacientes - a.pacientes).slice(0,5).forEach(m => {
-        topMedicos.push(m);
-    });
-
-    renderKPIs();
-    renderTopMedicos();
-    if(meuGrafico) atualizarGrafico();
-    if(convenioGrafico) {
-        convenioGrafico.data.labels = convenioData.map(d => d.nome);
-        convenioGrafico.data.datasets[0].data = convenioData.map(d => d.pct);
-        convenioGrafico.update();
-    }
-    lucide.createIcons();
-}
-
 async function carregarDadosDashboard() {
-    gerarDadosMock(); // Garante a exibição das métricas baseadas na triagem dinâmica
+    try {
+        const token = localStorage.getItem('aura_token');
+        const opts = { headers: { 'Authorization': `Bearer ${token}` } };
+
+        // Fetch protegido contra falhas. O .catch garante que se a rota não existir, ele não trava a página inteira
+        const [resResumo, resMed, resGrupos, resPac] = await Promise.all([
+            fetch(`${API_URL}/dashboard/resumo`, opts).catch(() => null),
+            fetch(`${API_URL}/medicos/`, opts).catch(() => null),
+            fetch(`${API_URL}/grupos/`, opts).catch(() => null),
+            fetch(`${API_URL}/pacientes/`, opts).catch(() => null)
+        ]);
+
+        if (resResumo && resResumo.status === 401) {
+            localStorage.removeItem('aura_token');
+            localStorage.removeItem('aura_user');
+            window.location.replace('/static/login.html');
+            return;
+        }
+
+        // Parse seguro das respostas do banco. Se vier 404, usamos arrays/objetos vazios padrões.
+        let dashboardData = resResumo && resResumo.ok ? await resResumo.json() : {
+            total_grupos: 0, total_medicos: 0, medicos_mes: 0, total_pacientes: 0, pacientes_mes: 0, total_triagens: 0, triagens_mes: 0, grafico_triagens: [0,0,0,0,0,0,0,0,0,0,0,0]
+        };
+        
+        let dbMed = resMed && resMed.ok ? await resMed.json() : [];
+        if (!Array.isArray(dbMed)) dbMed = [];
+        
+        let dbGrupos = resGrupos && resGrupos.ok ? await resGrupos.json() : [];
+        if (!Array.isArray(dbGrupos)) dbGrupos = [];
+        
+        let dbPac = resPac && resPac.ok ? await resPac.json() : [];
+        if (!Array.isArray(dbPac)) dbPac = [];
+
+        kpis = [
+            { label: "Grupos / Convênios", value: dashboardData.total_grupos, delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
+            { label: "Total de Médicos", value: dashboardData.total_medicos, delta: `+${dashboardData.medicos_mes}`, deltaLabel: "este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
+            { label: "Pacientes na Base", value: dashboardData.total_pacientes, delta: `+${dashboardData.pacientes_mes}`, deltaLabel: "este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
+            { label: "Triagens — SXF", value: dashboardData.total_triagens, delta: `+${dashboardData.triagens_mes}`, deltaLabel: "este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
+        ];
+
+        const mesesLabel = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        chartData = (dashboardData.grafico_triagens || [0,0,0,0,0,0,0,0,0,0,0,0]).map((valor, index) => {
+            return { mes: mesesLabel[index], triagens: valor || 0 };
+        });
+
+        document.getElementById("statTotalPeriodo").textContent = dashboardData.total_triagens || 0;
+        document.getElementById("statMediaMensal").textContent = Math.round((dashboardData.total_triagens || 0) / 12);
+        
+        const graficoArray = dashboardData.grafico_triagens || [0];
+        const pico = Math.max(...graficoArray);
+        const picoMesIdx = graficoArray.indexOf(pico);
+        document.getElementById("statPicoMes").textContent = `Pico (${mesesLabel[picoMesIdx] || '-'})`;
+        document.getElementById("statPicoValor").textContent = pico;
+
+        convenioData.length = 0;
+        const ativos = dbPac.filter(p => !p.deletado_em && p.status !== 'Inativo').length;
+        document.getElementById("donutTotal").textContent = ativos;
+        
+        const legend = document.getElementById("donutLegend");
+        if(legend) legend.innerHTML = "";
+        
+        if (ativos === 0) {
+            // Estado Vazio (quando não há pacientes)
+            convenioData.push({ nome: "Sem pacientes", pct: 100, cor: "#E2E8F0" });
+            if (legend) legend.innerHTML = `<p style="color:#94A3B8; font-size:12px; margin-top:10px;">Cadastre pacientes para visualizar estatísticas de convênios.</p>`;
+        } else {
+            dbGrupos.forEach(c => {
+                const pacCount = dbPac.filter(p => p.instituicao_id === c.id && !p.deletado_em && p.status !== 'Inativo').length;
+                const pct = ativos > 0 ? Math.round((pacCount / ativos) * 100) : 0;
+                const cor = c.cor || '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+                
+                if (pct > 0) {
+                    convenioData.push({ nome: c.nome_fantasia || c.nome, pct: pct, cor: cor });
+                    if (legend) {
+                        const item = document.createElement("div");
+                        item.className = "legend-item";
+                        item.innerHTML = `<span class="legend-dot" style="background:${cor}"></span><span class="legend-name">${c.nome_fantasia || c.nome}</span><span class="legend-pct">${pct}%</span>`;
+                        legend.appendChild(item);
+                    }
+                }
+            });
+        }
+
+        topMedicos.length = 0;
+        const medicosMapped = dbMed.map(m => {
+            const pacientesDoMedico = dbPac.filter(p => p.cadastrado_por_id === m.id).length;
+            const colors = [
+                { cor: "#DBEAFE", txt: "#1D4ED8" },
+                { cor: "#F5F3FF", txt: "#6D28D9" },
+                { cor: "#ECFDF5", txt: "#047857" },
+                { cor: "#FEF9EC", txt: "#B45309" },
+                { cor: "#FEF2F2", txt: "#DC2626" }
+            ];
+            const c = colors[m.id % colors.length];
+            return {
+                nome: m.nome,
+                esp: m.crm ? `CRM ${m.crm}` : "Médico",
+                pacientes: pacientesDoMedico,
+                cor: c.cor,
+                txt: c.txt
+            };
+        });
+        
+        medicosMapped.sort((a,b) => b.pacientes - a.pacientes).slice(0,5).forEach(m => {
+            if (m.pacientes > 0 || dbMed.length > 0) topMedicos.push(m);
+        });
+
+        renderKPIs();
+        renderTopMedicos();
+        if(meuGrafico) atualizarGrafico();
+        if(convenioGrafico) {
+            convenioGrafico.data.labels = convenioData.map(d => d.nome);
+            convenioGrafico.data.datasets[0].data = convenioData.map(d => d.pct);
+            convenioGrafico.data.datasets[0].backgroundColor = convenioData.map(d => d.cor);
+            convenioGrafico.update();
+        }
+
+    } catch (err) {
+        console.error("Erro ao carregar dados do Dashboard:", err);
+    }
 }
 
 // --- Inicialização ---
@@ -257,7 +281,12 @@ function initConvenioChart() {
 // --- Top Médicos ---
 function renderTopMedicos() {
     const list = document.getElementById("topMedicosList");
+    if (!list) return;
     list.innerHTML = "";
+    if (topMedicos.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:#94A3B8; padding: 25px 0; font-size:12px;">Nenhum médico cadastrado ainda.</p>`;
+        return;
+    }
     topMedicos.forEach((m, i) => {
         const iniciais = m.nome.replace("Dr. ","").replace("Dra. ","").split(" ").slice(0,2).map(n=>n[0]).join("");
         const row = document.createElement("div");

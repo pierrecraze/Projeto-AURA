@@ -1,35 +1,33 @@
-from fastapi import APIRouter, HTTPException, status, Depends
-from schemas.triagem import Triagem, TriagemCreate
-from services import triagem_service
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from typing import List
 
+from database.db import SessionLocal
+from schemas.triagem import TriagemMetadata
+from services import triagem_service
 from core.security import obter_usuario_atual
 
-# Colocando o cadeado na porta principal do arquivo
-router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
+router = APIRouter(prefix="/api/triagens", tags=["Triagens (LGPD)"])
 
-@router.post("/", response_model=Triagem, status_code=status.HTTP_201_CREATED)
-async def registrar_triagem(triagem_in: TriagemCreate):
-    nova_triagem = await triagem_service.criar_triagem_mock(triagem_in)
-    return nova_triagem
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@router.get("/", response_model=list[Triagem])
-async def listar_triagens():
-    triagens = await triagem_service.listar_triagens_mock()
-    return triagens
-
-@router.put("/{id_triagem}", response_model=Triagem)
-async def atualizar_triagem(id_triagem: int, triagem_in: TriagemCreate):
-    triagem_atualizada = await triagem_service.atualizar_triagem_mock(id_triagem, triagem_in)
-    if triagem_atualizada:
-        return triagem_atualizada
-    raise HTTPException(status_code=404, detail="Triagem não encontrada")
-
-@router.delete("/{id_triagem}", response_model=Triagem)
-async def deletar_triagem(id_triagem: int):
-    triagem_deletada = await triagem_service.deletar_triagem_mock(id_triagem)
-    if not triagem_deletada:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Triagem não encontrada."
-        )
-    return triagem_deletada
+@router.get("/", response_model=List[TriagemMetadata], summary="Listar Metadados de Triagens (Acesso Admin)")
+async def listar_triagens(db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
+    """
+    Retorna os metadados (quem fez, quando fez, para quem) das triagens de X-Frágil.
+    """
+    avaliacoes = await triagem_service.listar_triagens(db)
+    
+    # Mapeia os dados devolvendo 'medico_id' como o front-end espera
+    resultados = []
+    for av in avaliacoes:
+        resultados.append(TriagemMetadata(
+            id=av.id, data_hora=av.data_hora, paciente_id=av.paciente_id, medico_id=av.profissional_id
+        ))
+        
+    return resultados
