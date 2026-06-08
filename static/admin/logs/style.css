@@ -282,7 +282,9 @@ th, td { display: table-cell !important; vertical-align: middle; }
 
 /* KPI Cards */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
-.kpi-card { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,35,71,0.05); }
+.kpi-card { background: white; border-radius: 10px; border: 1px solid var(--border); padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,35,71,0.05); cursor: pointer; transition: all 0.2s ease; }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15,35,71,0.08); border-color: #BFDBFE; }
+.kpi-card.active { border-color: #3B82F6; box-shadow: 0 0 0 1px #3B82F6; }
 .kpi-card.border-red { border-color: #FECACA; }
 .kpi-card.border-yellow { border-color: #FDE68A; }
 .kpi-card.border-purple { border-color: #DDD6FE; }
@@ -306,8 +308,6 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .date-filter label { font-size: 11px; color: #94A3B8; font-weight: 500; }
 .input-base { padding: 6px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; color: #1E293B; background: #F8FAFC; font-family: 'Inter', sans-serif; }
 .divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
-.category-filters { display: flex; gap: 6px; }
-.cat-btn { padding: 4px 10px; font-size: 11px; font-weight: 500; border-radius: 99px; cursor: pointer; background: transparent; color: var(--text-muted); border: 1px solid var(--border); letter-spacing: 0.04em; text-transform: uppercase; transition: all 0.2s; }
 .search-box { position: relative; flex: 1 1 200px; min-width: 180px; }
 .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: #94A3B8; }
 .search-box input { width: 100%; padding-left: 28px; padding-right: 10px; }
@@ -315,15 +315,6 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .clear-search svg { width: 12px; height: 12px; }
 .btn-clear { display: flex; align-items: center; gap: 5px; padding: 5px 10px; font-size: 12px; font-weight: 500; border-radius: 8px; border: 1px solid var(--border); background: white; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
 .btn-clear svg { width: 11px; height: 11px; }
-
-/* Cores das Categorias ativas */
-.cat-btn[data-cat="TODOS"].active { background: var(--navy); color: white; border-color: var(--navy); font-weight: 700; }
-.cat-btn[data-cat="CRITICO"].active { background: #FEF2F2; color: #991B1B; border-color: #FECACA; font-weight: 700; }
-.cat-btn[data-cat="ALERTA"].active { background: #FFFBEB; color: #92400E; border-color: #FDE68A; font-weight: 700; }
-.cat-btn[data-cat="ACESSO"].active { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; font-weight: 700; }
-.cat-btn[data-cat="ACAO"].active { background: #F0FDF4; color: #14532D; border-color: #BBF7D0; font-weight: 700; }
-.cat-btn[data-cat="SISTEMA"].active { background: #F5F3FF; color: #5B21B6; border-color: #DDD6FE; font-weight: 700; }
-.cat-btn[data-cat="INFO"].active { background: #F8FAFC; color: #475569; border-color: #E2E8F0; font-weight: 700; }
 
 /* Tabela de Logs (Dark UI) */
 .log-container { border-radius: 12px; border: 1px solid #1E3A5F; overflow: hidden; box-shadow: 0 4px 16px rgba(15,35,71,0.12); margin-top: 10px; }

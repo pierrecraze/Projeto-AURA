@@ -128,9 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("search-input").value = state.query;
     document.getElementById("filter-date-ini").value = state.dataIni;
     document.getElementById("filter-date-fim").value = state.dataFim;
-    document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
-    const activeBtn = document.querySelector(`.cat-btn[data-cat="${state.catFiltro}"]`);
-    if(activeBtn) activeBtn.classList.add("active");
+    document.querySelectorAll(".kpi-card").forEach(b => b.classList.remove("active"));
+    const activeKpi = document.querySelector(`.kpi-card[onclick*="${state.catFiltro}"]`);
+    if(activeKpi) activeKpi.classList.add("active");
 
     setupEventListeners();
     carregarLogsDaAPI();
@@ -264,6 +264,15 @@ function renderPagination(totalItems, totalPages) {
     controls.innerHTML += `<button class="btn-page" ${state.page === totalPages || totalPages === 0 ? 'disabled' : ''} onclick="changePage(${state.page + 1})"><i data-lucide="chevron-right"></i></button>`;
 }
 
+window.setKpiFilter = function(cat, el) {
+    state.catFiltro = cat;
+    document.querySelectorAll('.kpi-card').forEach(k => k.classList.remove('active'));
+    if(el) el.classList.add('active');
+    
+    state.page = 1;
+    updateApp(true);
+};
+
 function updateClearFiltersVisibility() {
     const btnClear = document.getElementById("clear-all-filters");
     const searchClear = document.getElementById("clear-search");
@@ -284,15 +293,6 @@ function fmtTs(isoString) {
 }
 
 function setupEventListeners() {
-    document.querySelectorAll(".cat-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
-            e.currentTarget.classList.add("active");
-            state.catFiltro = e.currentTarget.getAttribute("data-cat");
-            state.page = 1;
-            updateApp(true);
-        });
-    });
 
     document.getElementById("filter-date-ini").addEventListener("change", (e) => {
         state.dataIni = e.target.value; state.page = 1; updateApp(true);
@@ -315,8 +315,8 @@ function setupEventListeners() {
         document.getElementById("search-input").value = "";
         document.getElementById("filter-date-ini").value = "";
         document.getElementById("filter-date-fim").value = "";
-        document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
-        document.querySelector('.cat-btn[data-cat="TODOS"]').classList.add("active");
+        document.querySelectorAll(".kpi-card").forEach(b => b.classList.remove("active"));
+        document.querySelector('.kpi-card[onclick*="TODOS"]').classList.add("active");
         state.page = 1; updateApp(true);
     });
 }
