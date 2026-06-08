@@ -3,18 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA | Pacientes</title>
+    <title>AURA | Todos os Pacientes</title>
+
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
-      rel="stylesheet"/>
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+      rel="stylesheet"
+    />
 
-    <link rel="stylesheet" href="css/styles.css" />         <!-- CSS global do projeto -->
-    <link rel="stylesheet" href="css/listaPaciente.css" />  <!-- CSS específico desta página -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/listaPaciente.css" />
 
-    <link rel="icon" href="favicon.ico">
+    <link rel="icon" href="favicon.ico" />
   </head>
+
   <body>
-    <!-- HEADER (mesmo padrão do global) -->
     <header>
       <div class="header-left">
         <button type="button" class="btn-back-header" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Dashboard" aria-label="Voltar">
@@ -23,48 +26,84 @@
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
         </button>
-        <div class="header-brand">
-          <div class="logo-mark">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="#fff"
-              stroke-width="2"
-            >
+        <a href="index.html" class="header-brand" title="Ir para home">
+          <div class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
+                d="M6 3c0 4 12 3 12 9S6 18 6 21M18 3C18 7 6 6 6 12s12 6 12 9"
+                stroke="white"
+                stroke-width="2.2"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 4v16m8-8H4"
+                fill="none"
               />
             </svg>
           </div>
-          <div>
-            <div class="logo-text">ClinicaPro</div>
-            <div class="header-sub">Plataforma de Assistência Clínica</div>
+          <span class="logo-text">AURA</span>
+        </a>
+      </div>
+
+      <div class="header-right">
+        <span class="header-sub">Instituto Buko Kaesemodel</span>
+        <div class="header-user">
+          <div class="user-avatar" aria-hidden="true">DR</div>
+          <div class="user-info">
+            <span class="user-name">Dr. Lionel Aura</span>
+            <span class="user-role">Profissional de Saúde</span>
           </div>
         </div>
-      </div>
-      <div class="header-user">
-        <div class="user-avatar">DR</div>
-        <span class="user-name">Dr. Rafael</span>
+        <button class="btn-logout" id="btnLogout" aria-label="Encerrar sessão">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sair
+        </button>
       </div>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
+    <div
+      class="session-banner"
+      id="sessionBanner"
+      role="alert"
+      aria-live="assertive"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      <span
+        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja
+        continuar?</span
+      >
+      <button class="btn-session-keep" id="btnKeepSession">
+        Continuar sessão
+      </button>
+    </div>
+
     <main>
       <div class="page-wrapper">
-        <!-- Topo da seção -->
         <div class="section-header">
-          <div class="section-title-wrap">
-            <div>
-              <h2 class="section-title">Lista de Pacientes</h2>
-              <p class="section-sub">
-                Gerencie e acompanhe todos os seus pacientes
-              </p>
-            </div>
+          <div>
+            <h2 class="section-title">Todos os Pacientes</h2>
+            <p class="section-sub">Gerencie e acompanhe todos os pacientes</p>
           </div>
-        <button class="btn-primary" onclick="window.location.href='cadastroPaciente.html'">
+          <button class="btn-primary" onclick="window.location.href='cadastroPaciente.html'">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -82,7 +121,6 @@
           </button>
         </div>
 
-        <!-- Barra de busca + filtro -->
         <div class="search-bar">
           <div class="search-wrap">
             <svg
@@ -108,7 +146,6 @@
           </div>
         </div>
 
-        <!-- Tabela -->
         <div class="table-card">
           <table>
             <thead>
@@ -124,7 +161,6 @@
             <tbody id="tabelaBody"></tbody>
           </table>
 
-          <!-- Estado vazio -->
           <div id="emptyState" class="empty-state" style="display: none">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -144,7 +180,6 @@
             <p>Nenhum paciente encontrado.</p>
           </div>
 
-          <!-- Paginação -->
           <div class="pagination">
             <span class="pagination-info" id="paginacaoInfo"></span>
             <div class="pagination-btns" id="paginacaoBtns"></div>
@@ -153,9 +188,9 @@
       </div>
     </main>
 
-    <!-- Toast de notificação -->
     <div class="toast" id="toast"></div>
 
+    <script src="server/home.js"></script>
     <script src="server/listaPaciente.js"></script>
   </body>
 </html>

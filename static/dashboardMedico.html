@@ -13,7 +13,7 @@
 <body>
 
   <header>
-    <div class="header-brand">
+    <a href="index.html" class="header-brand" title="Ir para home">
       <div class="logo-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M6 3c0 4 12 3 12 9S6 18 6 21M18 3C18 7 6 6 6 12s12 6 12 9"
@@ -21,7 +21,7 @@
         </svg>
       </div>
       <span class="logo-text">AURA</span>
-    </div>
+    </a>
 
     <div class="header-right">
       <span class="header-sub">Instituto Buko Kaesemodel</span>
@@ -66,7 +66,7 @@
 
         <section class="metrics-grid" aria-label="Ações rápidas">
 
-          <button class="metric-card metric-card--btn" onclick="navigate('lista-pacientes')">
+          <button class="metric-card metric-card--btn" onclick="window.location.href='todosPacientes.html'">
             <div class="metric-icon metric-icon--blue" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -119,7 +119,7 @@
               </svg>
               Buscar paciente
             </button>
-            <button class="btn-action btn-primary" id="btnNewPatient">
+            <button class="btn-action btn-primary" id="btnNewPatient" onclick="window.location.href='cadastroPaciente.html'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
@@ -135,7 +135,7 @@
         <section class="panel" aria-labelledby="recent-title">
           <div class="panel-header">
             <h2 id="recent-title">Pacientes recentes</h2>
-            <a href="#" class="panel-link" onclick="navigate('lista-pacientes'); return false;">Ver todos</a>
+            <a href="todosPacientes.html" class="panel-link">Ver todos</a>
           </div>
 
           <div class="search-bar-wrap" id="searchWrap" hidden>

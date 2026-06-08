@@ -48,6 +48,12 @@
   gap: 16px;
 }
 
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .section-title {
   font-family: "Playfair Display", serif;
   font-size: 1.6rem;
@@ -215,6 +221,10 @@ tbody tr:last-child {
 }
 tbody tr:hover {
   background: #f4faff;
+}
+
+tbody tr.row-click {
+  cursor: pointer;
 }
 
 tbody td {

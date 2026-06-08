@@ -1,0 +1,126 @@
+/* ========================================================
+   cadastroPaciente.css
+   Estilos da página de cadastro por etapas.
+   Depende das variáveis definidas em styles.css.
+   ======================================================== */
+
+.form-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  padding: 22px;
+}
+
+.stepper {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0 18px;
+}
+
+.stepper-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 190px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.stepper-item:hover {
+  border-color: var(--border-focus);
+  background: var(--primary-light);
+}
+
+.stepper-item:focus {
+  outline: none;
+}
+
+.stepper-item:focus-visible {
+  box-shadow: 0 0 0 3px rgba(58, 155, 213, 0.22);
+}
+
+.stepper-item.is-active {
+  border-color: var(--border-focus);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.stepper-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.stepper-item.is-active .stepper-dot {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.stepper-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepper-title {
+  font-weight: 800;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stepper-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-grid .form-group {
+  margin-bottom: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.required {
+  color: var(--error);
+  margin-left: 4px;
+}
+
+@media (max-width: 860px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepper-item {
+    min-width: 0;
+  }
+}
