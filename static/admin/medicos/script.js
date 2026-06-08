@@ -17,7 +17,8 @@ let state = {
     kpiFilter: 'Todos',
     statusFilter: '',
     searchQuery: '',
-    editingId: null         // id do médico sendo editado no modal
+    editingId: null,        // id do médico sendo editado no modal
+    senhaSufixo: ''         // sufixo dinâmico para a senha do médico
 };
 
 /* ─── Utilitários ───────────────────────────────────────────── */
@@ -50,7 +51,7 @@ async function carregarDados() {
         const dbPac    = await resPac.json();
         const dbTriagens = await resTriagens.json();
 
-        convenios = dbGrupos.map(g => ({ id: g.id, nome: g.nome, cnpj: "00.000.000/0000-00", status: g.status || "Ativo" }));
+        convenios = dbGrupos.map(g => ({ id: g.id, nome: g.nome_fantasia || g.nome || "Sem nome", cnpj: g.cnpj || "00.000.000/0000-00", status: g.status || "Ativo" }));
 
         medicos = dbMed.map(m => ({
             id:           m.id,
@@ -161,6 +162,18 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarLocalidades();
     setupLocalidadesEvents();
     setupMascarasMedicos();
+
+    const inputNome = document.getElementById("medico-nome");
+    if (inputNome) {
+        inputNome.addEventListener("input", (e) => {
+            if (!state.editingId && state.senhaSufixo) {
+                const nameParts = e.target.value.replace(/^Dr[a]?\.?\s*/i, "").split(" ").filter(Boolean);
+                let firstName = nameParts.length > 0 ? nameParts[0] : "Medico";
+                firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+                document.getElementById("medico-senha").value = `${firstName}${state.senhaSufixo}`;
+            }
+        });
+    }
 
     carregarDados();
 });
@@ -466,6 +479,16 @@ window.openModalAdd = function() {
     const statusGroup = document.getElementById("grupo-status-medico");
     if (statusGroup) statusGroup.style.display = "none";
 
+    const senhaGroup = document.getElementById("grupo-senha-medico");
+    if (senhaGroup) {
+        senhaGroup.style.display = "flex";
+        const chars = "!@#$*";
+        const special = chars[Math.floor(Math.random() * chars.length)];
+        const randomHex = Math.random().toString(36).substring(2, 6).toUpperCase();
+        state.senhaSufixo = `${special}${randomHex}`;
+        document.getElementById("medico-senha").value = `Medico${state.senhaSufixo}`;
+    }
+
     populateModalConvenios([]);
     document.getElementById("modal-medico").classList.remove("hidden");
     lucide.createIcons();
@@ -492,6 +515,9 @@ window.openModalEdit = function(id) {
     if (statusGroup) statusGroup.style.display = "block";
     const statusInput = document.getElementById("m-status");
     if (statusInput) statusInput.value = m.status || "Ativo";
+
+    const senhaGroup = document.getElementById("grupo-senha-medico");
+    if (senhaGroup) senhaGroup.style.display = "none";
 
     populateModalConvenios(m.convenios);
     document.getElementById("modal-medico").classList.remove("hidden");
@@ -525,6 +551,8 @@ window.saveMedico = async function() {
 
     const cbs = Array.from(document.querySelectorAll('#m-convenios-list input[type="checkbox"]:checked')).map(cb => parseInt(cb.value));
 
+    const isEditing = !!state.editingId;
+
     const payload = {
         nome: nome,
         email: email,
@@ -533,13 +561,16 @@ window.saveMedico = async function() {
         telefone: telefone || null,
         cidade: cidade || null,
         uf: uf || null,
-        data_nascimento: dataNascimento,
-        senha: "senha_padrao_123" // Senha exigida na criação (pode ser enviada do input futuramente)
+        data_nascimento: dataNascimento
     };
+
+    // Inclui a senha no payload apenas se for criação de um novo médico
+    if (!isEditing) {
+        payload.senha = document.getElementById("medico-senha").value;
+    }
 
     try {
         const token = localStorage.getItem("aura_token");
-        const isEditing = !!state.editingId;
         const url = isEditing ? `${API_URL}/medicos/${state.editingId}` : `${API_URL}/medicos/`;
         const method = isEditing ? "PUT" : "POST";
 
@@ -561,6 +592,17 @@ window.saveMedico = async function() {
         console.error("Erro ao salvar médico:", err);
         showToast("Erro de conexão.", "error");
     }
+};
+
+window.copiarSenhaMedico = function() {
+    const senhaInput = document.getElementById("medico-senha");
+    navigator.clipboard.writeText(senhaInput.value).then(() => {
+        showToast("Senha provisória copiada!", "success");
+    }).catch(() => {
+        senhaInput.select();
+        document.execCommand("copy");
+        showToast("Senha provisória copiada!", "success");
+    });
 };
 
 /* ─── Modal Gerenciar Convênios (perfil) ────────────────────── */
