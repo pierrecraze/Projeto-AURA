@@ -3,7 +3,7 @@
    Cadastro/edição de paciente (3 etapas) + persistência local.
    ======================================================== */
 
-const STORAGE_KEY = "aura_pacientes_v1";
+const API_URL = "/api/pacientes/";
 
 function $(id) {
   return document.getElementById(id);
@@ -20,21 +20,6 @@ function getQueryParams() {
 function uid() {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-function loadPacientes() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function savePacientes(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
 function mostrarToast(msg) {
@@ -142,8 +127,7 @@ function mascaraCpf(input) {
 }
 
 function serializeForm(existingId = null) {
-  return {
-    id: existingId || uid(),
+  const payload = {
     nome: $("nomePaciente").value.trim(),
     dataNascimento: $("dataNascimento").value.trim(),
     sexoBiologico: $("sexoBiologico").value.trim(),
@@ -154,15 +138,16 @@ function serializeForm(existingId = null) {
     cpfResponsavel: $("cpfResponsavel").value.trim(),
     cidade: $("cidade").value.trim(),
     estado: $("estado").value.trim(),
-    pais: $("pais").value.trim(),
-    updatedAt: new Date().toISOString(),
+    pais: $("pais").value.trim()
   };
+  if (existingId) payload.id = existingId;
+  return payload;
 }
 
 function fillForm(p) {
   $("nomePaciente").value = p.nome || "";
-  $("dataNascimento").value = p.dataNascimento || "";
-  $("sexoBiologico").value = p.sexoBiologico || "";
+  $("dataNascimento").value = p.dataNascimento || p.data_nascimento || "";
+  $("sexoBiologico").value = p.sexoBiologico || p.sexo_biologico || "";
   $("nomeMae").value = p.nomeMae || "";
   $("nomePai").value = p.nomePai || "";
   $("responsavel").value = p.responsavel || "";
@@ -173,7 +158,7 @@ function fillForm(p) {
   $("pais").value = p.pais || "";
 }
 
-(function init() {
+(async function init() {
   const { id, ret } = getQueryParams();
 
   $("btnCancel").addEventListener("click", () => {
@@ -196,17 +181,24 @@ function fillForm(p) {
   // Se edição
   let editingId = null;
   if (id) {
-    const pacientes = loadPacientes();
-    const found = pacientes.find((p) => p.id === id);
-    if (found) {
-      editingId = found.id;
-      fillForm(found);
-      $("pageTitle").textContent = "Editar Paciente";
-      $("pageSubtitle").textContent = "Atualize os dados cadastrais do paciente";
+    try {
+      const token = localStorage.getItem('aura_token');
+      const res = await fetch(`${API_URL}${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const found = await res.json();
+        editingId = found.id;
+        fillForm(found);
+        $("pageTitle").textContent = "Editar Paciente";
+        $("pageSubtitle").textContent = "Atualize os dados cadastrais do paciente";
+      }
+    } catch (err) {
+      console.error("Erro ao buscar paciente:", err);
     }
   }
 
-  $("btnSave").addEventListener("click", () => {
+  $("btnSave").addEventListener("click", async () => {
     // valida todas as etapas antes de salvar
     for (const s of [1, 2, 3]) {
       if (!validateStep(s)) {
@@ -215,18 +207,29 @@ function fillForm(p) {
       }
     }
 
-    const pacientes = loadPacientes();
     const payload = serializeForm(editingId);
 
-    if (editingId) {
-      const idx = pacientes.findIndex((p) => p.id === editingId);
-      if (idx >= 0) pacientes[idx] = { ...pacientes[idx], ...payload };
-    } else {
-      pacientes.unshift({ ...payload, createdAt: new Date().toISOString() });
+    try {
+      const token = localStorage.getItem('aura_token');
+      const url = editingId ? `${API_URL}${editingId}` : API_URL;
+      const method = editingId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        mostrarToast("Paciente salvo com sucesso!");
+        setTimeout(() => window.location.href = ret, 1200);
+      } else {
+        mostrarToast("Erro ao salvar paciente no servidor.");
+      }
+    } catch (err) {
+      mostrarToast("Erro de conexão com o servidor.");
     }
-
-    savePacientes(pacientes);
-    window.location.href = ret;
   });
 
   setStep(1);

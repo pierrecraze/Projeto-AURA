@@ -11,6 +11,13 @@
 
 <br>
 
+## 🌐 Acesso ao Sistema (Produção):
+
+O sistema AURA está hospedado na nuvem via **Vercel** e o banco de dados no **Supabase**. O sistema está disponível 24/7 de forma automática (Serverless). Não é necessário configurar nada localmente para utilizar a versão final.
+👉 **Acesse aqui:** https://projeto-aura.vercel.app
+
+<br>
+
 ## 📼 Tecnologias implementadas:
 ### FrontEnd:
 - HTML
@@ -85,9 +92,9 @@ Projeto-AURA/
 -->
 
 
-# ⚙️ Guia de Configuração e Execução — Backend Projeto AURA
+# ⚙️ Guia de Desenvolvimento Local — Backend Projeto AURA
 
-> Guia passo a passo para configurar o ambiente e rodar as APIs do Projeto AURA **(Médicos, Pacientes, Grupos e Logs)** localmente na sua máquina.
+> Guia passo a passo **apenas para desenvolvedores** que desejam alterar o código, configurar o ambiente e rodar as APIs do Projeto AURA localmente para testes na própria máquina.
 
 ---
 

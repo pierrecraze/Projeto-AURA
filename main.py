@@ -1,8 +1,18 @@
+import sys
+import os
+# Força o Python a enxergar a raiz do projeto (Projeto-AURA) na hora de importar módulos
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth
+
+# --- Configuração do Banco de Dados ---
+from database.db import engine, Base
+from models.admin import AdminModel # Importa o modelo para o SQLAlchemy conhecê-lo
+Base.metadata.create_all(bind=engine) # Cria a tabela admin_sistema automaticamente se não existir
 
 # Inicialização do Aplicativo
 app = FastAPI(
