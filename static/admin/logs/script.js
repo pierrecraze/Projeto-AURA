@@ -303,4 +303,4 @@ function setupEventListeners() {
 
     document.getElementById("search-input").addEventListener("input", (e) => {
         state.query = e.target.value; state.page = 1; updateApp(true);
-    
+    });
