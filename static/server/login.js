@@ -68,7 +68,7 @@ form.addEventListener('submit', async (e) => {
       corpoFormulario.append('password', senha); // O FastAPI agora espera 'password'
 
       // Bate na porta do FastAPI
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded' // CORREÇÃO: Header alterado para aceitar form data

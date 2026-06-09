@@ -5,7 +5,7 @@
    responsável, parentesco, CPF do responsável, cidade/estado/país.
    ======================================================== */
 
-const API_URL = "http://localhost:8000/api/pacientes/";
+const API_URL = "/api/pacientes/";
 const POR_PAGINA = 8;
 
 let paginaAtual = 1;

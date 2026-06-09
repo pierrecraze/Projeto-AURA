@@ -1,5 +1,5 @@
 // --- Configuração da API ---
-const API_URL = "http://localhost:8000/api";
+const API_URL = "/api";
 
 // Array começa vazio e será preenchido pelo Python
 let LOGS_RAW = [];
@@ -303,35 +303,4 @@ function setupEventListeners() {
 
     document.getElementById("search-input").addEventListener("input", (e) => {
         state.query = e.target.value; state.page = 1; updateApp(true);
-    });
-
-    document.getElementById("clear-search").addEventListener("click", () => {
-        state.query = ""; document.getElementById("search-input").value = "";
-        state.page = 1; updateApp(true);
-    });
-
-    document.getElementById("clear-all-filters").addEventListener("click", () => {
-        state.query = ""; state.catFiltro = "TODOS"; state.dataIni = ""; state.dataFim = "";
-        document.getElementById("search-input").value = "";
-        document.getElementById("filter-date-ini").value = "";
-        document.getElementById("filter-date-fim").value = "";
-        document.querySelectorAll(".kpi-card").forEach(b => b.classList.remove("active"));
-        document.querySelector('.kpi-card[onclick*="TODOS"]').classList.add("active");
-        state.page = 1; updateApp(true);
-    });
-}
-
-window.changePage = function(newPage) {
-    state.page = newPage;
-    updateApp(true);
-};
-
-// --- Logout ---
-const btnLogout = document.querySelector('.logout');
-if (btnLogout) {
-    btnLogout.addEventListener('click', () => {
-        localStorage.removeItem('aura_token');
-        localStorage.removeItem('aura_user');
-        window.location.replace('/static/login.html'); 
-    });
-}
+    

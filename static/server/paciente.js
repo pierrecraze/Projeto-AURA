@@ -4,7 +4,7 @@
    Persistência: localStorage (aura_pacientes_v1)
    ======================================================== */
 
-const API_URL = "http://localhost:8000/api/pacientes/";
+const API_URL = "/api/pacientes/";
 
 function $(id) {
   return document.getElementById(id);

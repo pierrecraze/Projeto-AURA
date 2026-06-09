@@ -3,7 +3,7 @@
    Cadastro/edição de paciente (3 etapas) + persistência local.
    ======================================================== */
 
-const API_URL = "http://localhost:8000/api/pacientes/";
+const API_URL = "/api/pacientes/";
 
 function $(id) {
   return document.getElementById(id);

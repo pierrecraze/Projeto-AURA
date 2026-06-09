@@ -5,3 +5,4 @@ env/
 # Arquivos temporários do Python
 __pycache__/
 *.pyc
+.vercel
