@@ -2,8 +2,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Substitua [SUA_SENHA_AQUI] pela senha real do seu banco no Supabase.
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:ryvkep-7kaFpe-pedcuagor@db.bkjueyessokmhbeyxaho.supabase.co:5432/postgres")
+# Tenta ler a URL do .env. Se o terminal não carregar o .env, 
+# usa a nova URL do Pooler do Supabase como garantia.
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres.ubgmpsxgjiceoagbsiof:IUieqMtuk3qvpq04@aws-1-us-east-1.pooler.supabase.com:6543/postgres")
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

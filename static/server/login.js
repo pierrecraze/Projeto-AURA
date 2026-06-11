@@ -88,7 +88,7 @@ form.addEventListener('submit', async (e) => {
           
           // Redireciona para o Dashboard
           setTimeout(() => {
-              window.location.href = '/static/admin/dashboard/index.html'; 
+              window.location.href = 'admin/dashboard/index.html'; 
           }, 1000);
 
       } else {
