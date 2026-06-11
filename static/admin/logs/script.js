@@ -31,7 +31,7 @@ async function carregarLogsDaAPI() {
             console.error('Sessão expirada. Chutando para o Login.');
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
-            window.location.replace('/static/login.html'); 
+            window.location.replace('/login.html'); 
             return; 
         }
 
@@ -124,6 +124,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ["profileName", "topbarName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
     ["profileAvatar", "topbarAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
+
+    // Adicionado lógica do botão Sair da conta (Logout)
+    const btnLogout = document.querySelector('.logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('aura_token');
+            localStorage.removeItem('aura_user');
+            window.location.replace('/login.html');
+        });
+    }
 
     document.getElementById("search-input").value = state.query;
     document.getElementById("filter-date-ini").value = state.dataIni;
