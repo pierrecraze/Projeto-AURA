@@ -378,6 +378,7 @@ function setupSidebar() {
 function setupProfile() {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nomeFull = user.nome || "Admin Principal";
+    const cargo = user.cargo || "Administrador";
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
@@ -390,6 +391,7 @@ function setupProfile() {
         const el = document.getElementById(id);
         if (el) el.textContent = iniciais;
     });
+    document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
     
     const btnLogout = document.querySelector('.logout');
     if (btnLogout) {

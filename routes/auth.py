@@ -3,8 +3,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database.db import SessionLocal
 from models.admin import AdminModel
-from schemas.perfil import PerfilUpdate, SenhaUpdate
+from schemas.perfil import SenhaUpdate
 from core.security import verificar_senha, criar_token_jwt, gerar_hash_senha, obter_usuario_atual
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+class PerfilUpdate(BaseModel):
+    nome: str
+    email: EmailStr
+    cargo: Optional[str] = None
 
 router = APIRouter()
 
@@ -27,7 +34,9 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
         admin = AdminModel(
             nome="Admin Principal",
             email="admin@admin.com",
-            senha_hash=gerar_hash_senha("admin123")
+            senha_hash=gerar_hash_senha("admin123"),
+            is_superadmin=True,
+            cargo="Super Administrador"
         )
         db.add(admin)
         db.commit()
@@ -53,7 +62,9 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
         "token_type": "bearer",
         "usuario": {
             "nome": admin.nome,
-            "email": admin.email
+            "email": admin.email,
+            "cargo": admin.cargo,
+            "is_superadmin": admin.is_superadmin
         }
     }
 
@@ -65,12 +76,14 @@ async def atualizar_perfil(dados: PerfilUpdate, db: Session = Depends(get_db), u
         
     admin.nome = dados.nome
     admin.email = dados.email
+    if dados.cargo and admin.is_superadmin:
+        admin.cargo = dados.cargo
     db.commit()
     db.refresh(admin)
     
     # Se o email mudar, o token atual perde validade. Geramos um novo para o frontend atualizar.
     novo_token = criar_token_jwt({"sub": admin.email})
-    return {"mensagem": "Perfil atualizado", "usuario": {"nome": admin.nome, "email": admin.email}, "access_token": novo_token}
+    return {"mensagem": "Perfil atualizado", "usuario": {"nome": admin.nome, "email": admin.email, "cargo": admin.cargo, "is_superadmin": admin.is_superadmin}, "access_token": novo_token}
 
 @router.put("/senha", summary="Alterar a senha do usuário logado")
 async def atualizar_senha(dados: SenhaUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
