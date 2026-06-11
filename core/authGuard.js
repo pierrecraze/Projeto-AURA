@@ -4,7 +4,7 @@ function verificarAcesso() {
     if (!token) {
         // O uso da barra '/' no início garante que o caminho seja absoluto,
         // não importa em qual pasta o usuário esteja tentando entrar.
-        window.location.replace('/static/login.html'); 
+        window.location.replace('/login.html'); 
         return; 
     }
 }
