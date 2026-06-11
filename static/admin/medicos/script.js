@@ -66,7 +66,7 @@ async function carregarDados() {
             cidade:       m.cidade     || "—",
             uf:           m.uf         || "—",
             ingresso:     m.ingresso   || "—",
-            status:       m.status     || "Ativo",
+            status:       m.deletado_em ? "Inativo" : "Ativo",
             convenios:    (m.grupos || []).map(nome => {
                 const g = convenios.find(c => c.nome === nome);
                 return g ? g.id : null;
@@ -522,12 +522,33 @@ window.copiarSenhaGerada = function() {
 };
 
 /* ─── Toggle Status (perfil) ────────────────────────────────── */
-window.toggleStatus = function() {
+window.toggleStatus = async function() {
     const m = medicos.find(x => x.id === state.activeMedicoId);
     if (!m) return;
-    m.status = m.status === "Ativo" ? "Inativo" : "Ativo";
-    showToast(`${m.nome} marcado como ${m.status}.`);
-    renderApp();
+
+    const ativando = m.status !== "Ativo";
+    const url = `${API_URL}/medicos/${m.id}${ativando ? "/reativar" : ""}`;
+    const token = localStorage.getItem('aura_token');
+
+    try {
+        const response = await fetch(url, {
+            method: ativando ? "PATCH" : "DELETE",
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            showToast(`Erro: ${errData.detail || 'Não foi possível atualizar o status.'}`, "error");
+            return;
+        }
+
+        m.status = ativando ? "Ativo" : "Inativo";
+        showToast(`${m.nome} marcado como ${m.status}.`);
+        renderApp();
+    } catch (err) {
+        console.error("Erro ao atualizar status:", err);
+        showToast("Erro de conexão.", "error");
+    }
 };
 
 /* ─── Filtro e Visualização ─────────────────────────────────── */
@@ -755,17 +776,6 @@ function downloadCSV(header, rows, filename) {
     a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
 }
-
-window.exportarMedicosCSV = function() {
-    const lista = getMedicosFiltrados();
-    const header = ["ID", "Nome", "CPF", "CRM", "Telefone", "E-mail", "Cidade", "UF", "Convênios", "Pacientes", "Status"];
-    const rows = lista.map(m => {
-        const cvNomes  = m.convenios.map(id => convenios.find(c => c.id === id)?.nome).filter(Boolean);
-        const pacCount = pacientes.filter(p => p.medicoId === m.id).length;
-        return [`#${String(m.id).padStart(4, '0')}`, m.nome, m.cpf, m.crm, m.telefone, m.email, m.cidade, m.uf, cvNomes.join(" | "), pacCount, m.status];
-    });
-    downloadCSV(header, rows, "medicos_aura.csv");
-};
 
 window.exportarPerfilCSV = function() {
     const m = medicos.find(x => x.id === state.activeMedicoId);

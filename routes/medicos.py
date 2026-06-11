@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from schemas.medico import Medico, MedicoCreate, MedicoUpdate
 from services import medico_service
 
-from core.security import obter_usuario_atual, gerar_hash_senha
+from core.security import obter_usuario_atual
 from models.admin import AdminModel
 from database.db import SessionLocal
 
@@ -23,10 +23,6 @@ async def cadastrar_medico(medico_in: MedicoCreate, db: Session = Depends(get_db
     ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
-    
-    # Aplica o hash na senha do médico antes de enviá-la para o banco de dados
-    if hasattr(medico_in, 'senha') and medico_in.senha:
-        medico_in.senha = gerar_hash_senha(medico_in.senha)
 
     novo_medico = await medico_service.criar_medico(db, medico_in, ator=ator)
     return novo_medico
@@ -62,8 +58,23 @@ async def inativar_medico(id_medico: int, db: Session = Depends(get_db), usuario
     
     if not medico_inativado:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Médico não encontrado."
         )
-        
+
     return medico_inativado
+
+@router.patch("/{id_medico}/reativar", response_model=Medico)
+async def reativar_medico(id_medico: int, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    if not ator:
+        raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
+    medico_reativado = await medico_service.reativar_medico(db, id_medico, ator=ator)
+
+    if not medico_reativado:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Médico não encontrado."
+        )
+
+    return medico_reativado

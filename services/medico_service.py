@@ -83,3 +83,14 @@ async def inativar_medico(db: Session, id_medico: int, *, ator: AdminModelType):
 
         return medico
     return None
+
+@registrar_auditoria(entidade="Médico", acao="Reativação")
+async def reativar_medico(db: Session, id_medico: int, *, ator: AdminModelType):
+    medico = db.query(MedicoModel).filter(MedicoModel.id == id_medico).first()
+    if medico:
+        medico.deletado_em = None
+        db.commit()
+        db.refresh(medico)
+
+        return medico
+    return None
