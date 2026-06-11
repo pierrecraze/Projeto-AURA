@@ -11,3 +11,10 @@ class TriagemMetadata(BaseModel):
     medico_id: int  # Adaptamos 'profissional_id' para 'medico_id' para compatibilidade com o front-end
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# Dados enviados pelo front-end ao concluir uma avaliação no formulário clínico
+class TriagemCreate(BaseModel):
+    paciente_id: UUID
+    score_total: int
+    recomendacao_encaminhamento: bool

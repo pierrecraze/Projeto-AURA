@@ -27,19 +27,21 @@ const PESOS = {
   agressividade: 0.03,
 };
 
+const PACIENTE_ID = new URLSearchParams(window.location.search).get("paciente_id");
+
+let ultimoScore = 0;
+
 // ─────────────────────────────────────────────
 // Utilitários
 // ─────────────────────────────────────────────
 
 function getRespostaCampo(nome) {
-  // Agora que é checkbox, se estiver checado é "sim", senão é "nao".
-  const cb = document.querySelector(`input[name="${nome}"]`);
-  return cb && cb.checked ? "sim" : "nao";
+  const selecionado = document.querySelector(`input[name="${nome}"]:checked`);
+  return selecionado ? selecionado.value : null;
 }
 
 function todosRespondidos() {
-  // Checkboxes dispensam validação de campos vazios (unchecked = "nao")
-  return true;
+  return Object.keys(PESOS).every((nome) => getRespostaCampo(nome) !== null);
 }
 
 function calcularScore() {
@@ -69,10 +71,10 @@ function mostrarTela(id) {
 // ─────────────────────────────────────────────
 
 function cancelarFormulario() {
-  // Limpa todos os checkboxes
+  // Limpa todas as respostas do formulário
   document
-    .querySelectorAll('input[type="checkbox"]')
-    .forEach((c) => (c.checked = false));
+    .querySelectorAll('input[type="radio"]')
+    .forEach((r) => (r.checked = false));
   document.getElementById("erro-formulario").style.display = "none";
 }
 
@@ -91,6 +93,7 @@ function confirmarDados() {
 
   erroEl.style.display = "none";
   const score = calcularScore();
+  ultimoScore = score;
   exibirResultado(score);
 }
 
@@ -105,7 +108,7 @@ function exibirResultado(score) {
   const botoesRes = document.getElementById("botoes-resultado");
 
   // 🌟 BONUS: Atualiza automaticamente a interface de contagem "x / 12 SIM" e a barra!
-  const count = document.querySelectorAll('input[type="checkbox"]:checked').length;
+  const count = document.querySelectorAll('input[type="radio"][value="sim"]:checked').length;
   const countEl = document.getElementById("metrica-contagem");
   if (countEl) countEl.textContent = `${count} / 12 SIM`;
   const metricaBarra = document.getElementById("metrica-barra");
@@ -190,16 +193,54 @@ function exibirResultado(score) {
 // Ações dos botões de resultado
 // ─────────────────────────────────────────────
 
-function acaoEncaminhar() {
-  alert(
-    "✅ Paciente encaminhado para teste molecular FMR1.\nRegistre a solicitação no sistema.",
-  );
+async function registrarTriagem(recomendacaoEncaminhamento) {
+  if (!PACIENTE_ID) return false;
+
+  try {
+    const token = localStorage.getItem("aura_token");
+    const res = await fetch("/api/triagens/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        paciente_id: PACIENTE_ID,
+        score_total: Math.round(ultimoScore * 100),
+        recomendacao_encaminhamento: recomendacaoEncaminhamento,
+      }),
+    });
+    return res.ok;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
 }
 
-function acaoMonitoramento() {
+function irParaPaciente() {
+  window.location.href = PACIENTE_ID
+    ? `paciente.html?id=${PACIENTE_ID}`
+    : "dashboardMedico.html";
+}
+
+async function acaoEncaminhar() {
+  const registrado = await registrarTriagem(true);
   alert(
-    "📋 Paciente colocado em monitoramento/espera.\nAcompanhe a evolução clínica.",
+    registrado
+      ? "✅ Paciente encaminhado para teste molecular FMR1.\nAvaliação registrada no sistema."
+      : "✅ Encaminhamento indicado.\n⚠️ Não foi possível registrar a avaliação no sistema.",
   );
+  irParaPaciente();
+}
+
+async function acaoMonitoramento() {
+  const registrado = await registrarTriagem(false);
+  alert(
+    registrado
+      ? "📋 Paciente colocado em monitoramento/espera.\nAvaliação registrada no sistema."
+      : "📋 Monitoramento indicado.\n⚠️ Não foi possível registrar a avaliação no sistema.",
+  );
+  irParaPaciente();
 }
 
 function voltarFormulario() {

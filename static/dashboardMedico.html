@@ -59,7 +59,7 @@
 
         <section class="welcome-row">
           <div>
-            <h1 class="welcome-title">Bom dia, Dr. Lionel Aura.</h1>
+            <h1 class="welcome-title" id="welcomeTitle">Bem-vindo(a).</h1>
             <p class="welcome-sub">Aqui está o resumo das suas atividades na plataforma AURA.</p>
           </div>
         </section>
@@ -82,7 +82,7 @@
             </div>
           </button>
 
-          <button class="metric-card metric-card--btn" onclick="navigate('estatisticas')">
+          <button class="metric-card metric-card--btn" onclick="window.location.href='estatisticasPacientes.html'">
             <div class="metric-icon metric-icon--teal" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -90,12 +90,12 @@
             </div>
             <div class="metric-body">
               <span class="metric-label">Estatísticas</span>
-              <span class="metric-value">12</span>
+              <span class="metric-value" id="metricAvaliacoes">—</span>
               <span class="metric-trend trend-up">avaliações este mês</span>
             </div>
           </button>
 
-          <button class="metric-card metric-card--btn" onclick="navigate('relatorios')">
+          <button class="metric-card metric-card--btn" onclick="window.location.href='relatoriosPacientes.html'">
             <div class="metric-icon metric-icon--purple" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -107,8 +107,8 @@
             </div>
             <div class="metric-body">
               <span class="metric-label">Relatórios</span>
-              <span class="metric-value">5</span>
-              <span class="metric-trend trend-neutral">encaminhamentos gerados</span>
+              <span class="metric-value" id="metricRelatorios">—</span>
+              <span class="metric-trend trend-neutral">avaliações registradas</span>
             </div>
           </button>
 
@@ -168,86 +168,8 @@
     </main>
   </div>
 
-  <!-- PLACEHOLDER: LISTA DE PACIENTES -->
-  <div id="page-lista-pacientes" hidden>
-    <main>
-      <div class="dashboard">
-        <section class="welcome-row">
-          <div>
-            <h1 class="welcome-title">Lista de pacientes</h1>
-            <p class="welcome-sub">Página em construção.</p>
-          </div>
-          <button class="btn-action btn-secondary" onclick="navigate('home')">← Voltar</button>
-        </section>
-        <div class="placeholder-page">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-          <p>Lista total de pacientes</p>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- PLACEHOLDER: ESTATÍSTICAS -->
-  <div id="page-estatisticas" hidden>
-    <main>
-      <div class="dashboard">
-        <section class="welcome-row">
-          <div>
-            <h1 class="welcome-title">Estatísticas</h1>
-            <p class="welcome-sub">Página em construção.</p>
-          </div>
-          <button class="btn-action btn-secondary" onclick="navigate('home')">← Voltar</button>
-        </section>
-        <div class="placeholder-page">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          <p>Estatísticas e indicadores</p>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- PLACEHOLDER: RELATÓRIOS -->
-  <div id="page-relatorios" hidden>
-    <main>
-      <div class="dashboard">
-        <section class="welcome-row">
-          <div>
-            <h1 class="welcome-title">Relatórios</h1>
-            <p class="welcome-sub">Página em construção.</p>
-          </div>
-          <button class="btn-action btn-secondary" onclick="navigate('home')">← Voltar</button>
-        </section>
-        <div class="placeholder-page">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-          <p>Relatórios e laudos gerados</p>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script src="/static/server/home.js"></script>
+  <script src="/server/home.js"></script>
   <script>
-    const pages = ['home', 'lista-pacientes', 'estatisticas', 'relatorios'];
-
-    function navigate(page) {
-      pages.forEach(p => {
-        const el = document.getElementById('page-' + p);
-        if (el) el.hidden = (p !== page);
-      });
-    }
-
     const btnSearch   = document.getElementById('btnSearch');
     const searchWrap  = document.getElementById('searchWrap');
     const searchInput = document.getElementById('searchInput');
@@ -272,31 +194,16 @@
       tableEmpty.hidden = visible > 0;
     });
 
-    const banner    = document.getElementById('sessionBanner');
-    const countdown = document.getElementById('sessionCountdown');
-    const btnKeep   = document.getElementById('btnKeepSession');
-    let seconds     = 120;
-    let warningTimer;
+    function exibirSaudacao() {
+      const dados = JSON.parse(localStorage.getItem('aura_user') || 'null');
+      const titulo = document.getElementById('welcomeTitle');
+      if (!titulo) return;
 
-    function startWarning() {
-      banner.classList.add('visible');
-      warningTimer = setInterval(() => {
-        seconds--;
-        const m = Math.floor(seconds / 60);
-        const s = String(seconds % 60).padStart(2, '0');
-        countdown.textContent = `${m}:${s}`;
-        if (seconds <= 0) {
-          clearInterval(warningTimer);
-          window.location.href = '/login';
-        }
-      }, 1000);
+      const hora = new Date().getHours();
+      const periodo = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+      const nome = dados?.nome ? `, ${dados.nome}` : '';
+      titulo.textContent = `${periodo}${nome}.`;
     }
-
-    btnKeep.addEventListener('click', () => {
-      clearInterval(warningTimer);
-      seconds = 120;
-      banner.classList.remove('visible');
-    });
 
     async function carregarDadosDashboard() {
       try {
@@ -339,8 +246,32 @@
       } catch(e) { console.error(e); }
     }
 
+    async function carregarMetricasTriagens() {
+      try {
+        const token = localStorage.getItem('aura_token');
+        const res = await fetch('/api/triagens/', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+
+        const triagens = await res.json();
+        const agora = new Date();
+        const esteMes = triagens.filter(t => {
+          const d = new Date(t.data_hora);
+          return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+        });
+
+        const metricAvaliacoes = document.getElementById('metricAvaliacoes');
+        if (metricAvaliacoes) metricAvaliacoes.textContent = esteMes.length;
+
+        const metricRelatorios = document.getElementById('metricRelatorios');
+        if (metricRelatorios) metricRelatorios.textContent = triagens.length;
+      } catch (e) { console.error(e); }
+    }
+
+    exibirSaudacao();
     carregarDadosDashboard();
-    setTimeout(startWarning, 5000);
-  </script>
+    carregarMetricasTriagens();
+</script>
 </body>
 </html>

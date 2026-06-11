@@ -34,14 +34,9 @@ function formatCountdown(ms) {
 /* ---- Logout ---- */
 function logout() {
   clearTimers();
-  /*
-    Aqui você fará a chamada à sua API FastAPI:
-
-    await fetch('/api/auth/logout', { method: 'POST' });
-
-    Depois redireciona:
-  */
-  window.location.href = '/login';
+  localStorage.removeItem('aura_token');
+  localStorage.removeItem('aura_user');
+  window.location.href = '/login.html';
 }
 
 /* ---- Exibir aviso de sessão (RF20) ---- */
@@ -111,20 +106,38 @@ ACTIVITY_EVENTS.forEach(event => {
 btnKeep.addEventListener('click', dismissWarning);
 btnLogout.addEventListener('click', logout);
 
+/* ---- Informações do usuário logado no cabeçalho ---- */
+function preencherHeaderUsuario() {
+  const dados = JSON.parse(localStorage.getItem('aura_user') || 'null');
+  if (!dados) return;
+
+  const nomeEl  = document.querySelector('.user-name');
+  const cargoEl = document.querySelector('.user-role');
+  const avatarEl = document.querySelector('.user-avatar');
+
+  if (nomeEl && dados.nome) nomeEl.textContent = dados.nome;
+  if (cargoEl && dados.cargo) cargoEl.textContent = dados.cargo;
+  if (avatarEl && dados.nome) {
+    const iniciais = dados.nome.trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+    avatarEl.textContent = iniciais || 'DR';
+  }
+}
+
+/* ---- Interceptor global: redireciona ao login em respostas 401 ---- */
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+  const res = await originalFetch(...args);
+  if (res.status === 401) logout();
+  return res;
+};
+
 /* ---- Inicialização ---- */
 (function init() {
-  /*
-    Verificação de autenticação:
-    Se o backend retornar 401 em qualquer rota protegida,
-    redirecione para /login. Exemplo com interceptor global:
+  if (!localStorage.getItem('aura_token')) {
+    window.location.replace('/login.html');
+    return;
+  }
 
-    const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const res = await originalFetch(...args);
-      if (res.status === 401) logout();
-      return res;
-    };
-  */
-
+  preencherHeaderUsuario();
   resetInactivityTimer();
 })();

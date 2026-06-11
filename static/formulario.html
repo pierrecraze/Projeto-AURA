@@ -11,8 +11,24 @@
   <body>
     <!-- HEADER -->
     <header class="header">
+      <button type="button" class="btn-back-formulario" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Dashboard" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </button>
       <h1 class="header-title">AURA | FORMULÁRIO CLÍNICO</h1>
+      <button class="btn-logout-formulario" id="btnLogout" aria-label="Encerrar sessão">Sair</button>
     </header>
+
+    <div class="session-banner" id="sessionBanner" role="alert" aria-live="assertive">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span>Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja continuar?</span>
+      <button class="btn-session-keep" id="btnKeepSession">Continuar sessão</button>
+    </div>
 
     <!-- MAIN -->
     <main class="main">
@@ -308,6 +324,7 @@
       <!-- /tela-resultado -->
     </main>
 
+    <script src="/server/home.js"></script>
     <script src="server/formulario.js"></script>
   </body>
 </html>
