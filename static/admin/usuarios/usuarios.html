@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Usuários - AURA</title>
+    <link rel="stylesheet" href="static\admin\usuarios\usuarios.css">
+    <link rel="stylesheet" href="static\admin\usuarios\usuarios.csss">
+</head>
+<body>
+    <header class="top-nav">
+        <div class="nav-logo">
+            <!-- Simulação da logo para manter a consistência da plataforma -->
+            <h2>AURA</h2>
+        </div>
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="listaPaciente.html">Pacientes</a>
+            <a href="usuarios.html" class="active">Usuários</a>
+        </nav>
+        <div class="nav-user">
+            <button id="btnLogout" class="btn-logout">Sair</button>
+        </div>
+    </header>
+
+    <main class="usuarios-layout">
+        <section class="usuarios-card">
+            <div class="usuarios-header">
+                <div>
+                    <h2 class="usuarios-title">Gestão de Usuários</h2>
+                    <p class="usuarios-subtitle">Gerencie os acessos ao sistema (Exclusivo para Super Admins)</p>
+                </div>
+                <div class="usuarios-actions">
+                    <button class="btn-novo-usuario" onclick="abrirModalNovoUsuario()">+ Novo Usuário</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="usuarios-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-usuarios">
+                        <!-- Renderizado via JavaScript usando Mock Data -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Cadastro de Novo Usuário -->
+    <div id="modal-usuario" class="modal" hidden>
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModalNovoUsuario()" aria-label="Fechar">&times;</button>
+            <h3 class="modal-title">Cadastrar Novo Usuário</h3>
+            <form id="form-usuario">
+                <div class="form-group">
+                    <label for="nome-usuario">Nome Completo</label>
+                    <input type="text" id="nome-usuario" required placeholder="Digite o nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="email-usuario">E-mail</label>
+                    <input type="email" id="email-usuario" required placeholder="Digite o e-mail">
+                </div>
+                <div class="form-group">
+                    <label for="perfil-usuario">Perfil de Acesso</label>
+                    <select id="perfil-usuario" required>
+                        <option value="admin">Administrador (Super Admin)</option>
+                        <option value="medico">Médico / Profissional de Saúde</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharModalNovoUsuario()">Cancelar</button>
+                    <button type="submit" class="btn-salvar">Salvar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="static\admin\usuarios\usuarios.js"></script>
+</body>
+</html>
