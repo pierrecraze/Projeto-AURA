@@ -30,7 +30,7 @@ async function carregarConvenios() {
         if (res.status === 401) {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
-            window.location.replace('/static/login.html');
+            window.location.replace('/login.html');
             return;
         }
 
@@ -396,7 +396,7 @@ function setupProfile() {
         btnLogout.addEventListener('click', () => {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
-            window.location.replace('/static/login.html');
+            window.location.replace('/login.html');
         });
     }
 }

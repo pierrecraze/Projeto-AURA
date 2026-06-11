@@ -42,7 +42,7 @@ async function carregarDados() {
         if ([resMed, resGrupos, resPac, resTriagens].some(r => r.status === 401)) {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
-            window.location.replace('/static/login.html');
+            window.location.replace('/login.html');
             return;
         }
 
@@ -706,7 +706,7 @@ if (btnLogout) {
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('aura_token');
         localStorage.removeItem('aura_user');
-        window.location.replace('/static/login.html');
+        window.location.replace('/login.html');
     });
 }
 

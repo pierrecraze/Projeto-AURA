@@ -1,11 +1,19 @@
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Cole aqui a URL do Session Pooler (IPv4) com a porta 6543 gerada no Supabase!
-# Lembre-se de não deixar os colchetes na senha.
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres.bkjueyessokmhbeyxaho:[postgresql://postgres.bkjueyessokmhbeyxaho:[YOUR-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:5432/postgres]@aws-1-us-east-2.pooler.supabase.com:5432/postgres")
+# 1. Obriga o Python a ler o seu arquivo .env (ignorando a memória velha do terminal)
+load_dotenv(override=True)
 
+# 2. Pega a URL limpa que você configurou lá no .env (porta 6543)
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Trava de segurança para avisar se o .env sumir
+if not SQLALCHEMY_DATABASE_URL:
+    raise ValueError("A DATABASE_URL não foi encontrada. Verifique seu arquivo .env!")
+
+# 3. Cria a conexão
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
