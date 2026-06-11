@@ -20,6 +20,7 @@ let state = {
     editingId: null,        // id do médico sendo editado no modal
     senhaSufixo: ''         // sufixo dinâmico para a senha do médico
 };
+let medicosFiltrados = [];
 
 /* ─── Utilitários ───────────────────────────────────────────── */
 const initials  = n  => n.replace(/^Dr[a]?\. /, "").split(" ").slice(0, 2).map(p => p[0]).join("").toUpperCase();
@@ -218,6 +219,7 @@ function renderLista() {
         );
     }
 
+    medicosFiltrados = lista;
     updateMedicosKPIs();
     document.getElementById("table-count").innerHTML = `Exibindo <strong>${lista.length}</strong> médico${lista.length !== 1 ? 's' : ''}`;
 
@@ -713,6 +715,76 @@ if (btnLogout) {
 }
 
 // ==========================================
+// EXPORTAÇÃO E MODAL DE PREVIEW
+// ==========================================
+function getDataHoraAtual() {
+    const now = new Date();
+    return `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+}
+
+function exportarCSV() {
+    const header = ["ID", "Nome", "CPF", "CRM", "Status"];
+    const rows = medicosFiltrados.map(m => [m.id, m.nome, m.cpf, m.crm, m.status]);
+    const metadata = `"Relatório de Médicos - Instituto Buko Kaesemodel"\n"Baixado em: ${getDataHoraAtual()}"\n\n`;
+    const csv = metadata + [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `medicos_aura_${new Date().getTime()}.csv`; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportarPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF) return showToast("Erro: Biblioteca PDF não carregada.", "error");
+    const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape');
+    doc.setFontSize(14); doc.text("Relatório de Médicos - Instituto Buko Kaesemodel", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100, 116, 139); doc.text(`Baixado em: ${getDataHoraAtual()}`, 14, 22);
+    const rows = medicosFiltrados.map(m => [m.id, m.nome, m.cpf, m.crm, m.status]);
+    doc.autoTable({ head: [["ID", "Nome", "CPF", "CRM", "Status"]], body: rows, startY: 28, styles: { fontSize: 9 }, headStyles: { fillColor: [13, 27, 53] } });
+    doc.save(`medicos_aura_${new Date().getTime()}.pdf`);
+}
+
+function setupExportModal() {
+    const btnModal = document.getElementById("btnExportModal");
+    const overlay = document.getElementById("modalExportOverlay");
+    if (!btnModal || !overlay) return;
+    let selectedFormat = 'pdf';
+    function fecharExport() { overlay.style.display = "none"; document.body.style.overflow = ""; }
+    function gerarLivePreview() {
+        const amostra = medicosFiltrados.slice(0, 5);
+        const previewArea = document.getElementById("exportLivePreview");
+        if (selectedFormat === 'pdf') {
+            previewArea.className = "export-live-preview";
+            let html = `<div class="preview-doc-title">Relatório de Médicos</div><div style="text-align:center; font-size:10px; color:#64748B; margin-bottom: 14px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">Baixado em: ${getDataHoraAtual()}</div>`;
+            html += `<table class="preview-doc-table"><thead><tr><th>ID</th><th>Nome</th><th>CRM</th><th>Status</th></tr></thead><tbody>`;
+            if (amostra.length === 0) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">Nenhum dado encontrado</td></tr>`;
+            else { amostra.forEach(m => { html += `<tr><td>#${m.id}</td><td>${m.nome}</td><td>${m.crm}</td><td>${m.status}</td></tr>`; });
+            if (medicosFiltrados.length > 5) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">... e mais ${medicosFiltrados.length - 5} médicos</td></tr>`; }
+            previewArea.innerHTML = html + `</tbody></table>`;
+        } else {
+            previewArea.className = "export-live-preview csv-mode";
+            let txt = `"Relatório de Médicos - Instituto Buko Kaesemodel"\n"Baixado em: ${getDataHoraAtual()}"\n\nID,Nome,CPF,CRM,Status\n`;
+            amostra.forEach(m => { txt += `"${m.id}","${m.nome}","${m.cpf}","${m.crm}","${m.status}"\n`; });
+            if (medicosFiltrados.length > 5) txt += `\n... e mais ${medicosFiltrados.length - 5} linhas omitidas`;
+            previewArea.textContent = txt;
+        }
+    }
+    btnModal.addEventListener("click", () => { overlay.style.display = "flex"; document.body.style.overflow = "hidden"; gerarLivePreview(); });
+    [document.getElementById("modalExportClose"), document.getElementById("btnExportCancel")].forEach(b => b.addEventListener("click", fecharExport));
+    overlay.addEventListener("click", e => { if (e.target === overlay) fecharExport(); });
+    ['pdf', 'csv'].forEach(fmt => {
+        document.getElementById(`format${fmt.charAt(0).toUpperCase() + fmt.slice(1)}`).addEventListener("click", () => {
+            selectedFormat = fmt;
+            document.getElementById("formatPdf").classList.toggle("active", fmt === 'pdf');
+            document.getElementById("formatCsv").classList.toggle("active", fmt === 'csv');
+            gerarLivePreview();
+        });
+    });
+    document.getElementById("btnExportConfirm").addEventListener("click", () => {
+        fecharExport(); if (selectedFormat === 'csv') { showToast("Baixando CSV..."); exportarCSV(); } else { showToast("Gerando PDF..."); exportarPDF(); }
+    });
+}
+
+// ==========================================
 // LÓGICA DE IBGE, MÁSCARAS E VALIDAÇÕES (NOVO)
 // ==========================================
 
@@ -800,3 +872,4 @@ function setupLocalidadesEvents() {
         }
     });
 }
+document.addEventListener("DOMContentLoaded", setupExportModal);

@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupModalNovo();
   setupPaginacao();
   setupMascarasNovoPaciente();
+  setupExportModal();
   carregarDados();
   lucide.createIcons();
 });
@@ -258,9 +259,6 @@ function setupFiltros() {
 
   document.getElementById("btnNovo").addEventListener("click", () => {
     abrirModalNovo();
-  });
-  document.getElementById("btnExport").addEventListener("click", () => {
-    exportarCSV();
   });
 }
 
@@ -621,6 +619,11 @@ function fecharModal() {
 }
 
 // ---------- EXPORT CSV ----------
+function getDataHoraAtual() {
+  const now = new Date();
+  return `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+}
+
 function exportarCSV() {
   const header = ["ID", "Nome", "CPF", "Nascimento", "Sexo", "Telefone", "Email", "Médicos", "Convênios", "Status", "Cadastro"];
   const rows = pacientesFiltrados.map(p => [
@@ -629,12 +632,120 @@ function exportarCSV() {
     p.convenios.join(" | "),
     p.status, p.cadastro
   ]);
-  const csv = [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+  const dataHora = getDataHoraAtual();
+  const metadata = `"Relatório de Pacientes - Instituto Buko Kaesemodel"\n"Baixado em: ${dataHora}"\n\n`;
+  const csv = metadata + [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
   const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = "pacientes_aura.csv"; a.click();
   URL.revokeObjectURL(url);
+}
+
+function exportarPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    showToast("Erro: Biblioteca PDF não carregada.", "error");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape');
+  
+  doc.setFontSize(14);
+  doc.text("Relatório de Pacientes - Instituto Buko Kaesemodel", 14, 15);
+  
+  const dataHora = getDataHoraAtual();
+  doc.setFontSize(10);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Baixado em: ${dataHora}`, 14, 22);
+
+  const rows = pacientesFiltrados.map(p => [
+    p.idCurto, p.nome, p.cpf, p.nasc, p.status, p.cadastro
+  ]);
+  
+  doc.autoTable({
+    head: [["ID", "Nome", "CPF", "Nascimento", "Status", "Cadastrado em"]],
+    body: rows,
+    startY: 28,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [13, 27, 53] }
+  });
+  
+  doc.save(`pacientes_aura_${new Date().getTime()}.pdf`);
+}
+
+// ---------- MODAL DE EXPORTAÇÃO (NOVO) ----------
+function setupExportModal() {
+  const btnModal = document.getElementById("btnExportModal");
+  const overlay = document.getElementById("modalExportOverlay");
+  const btnClose = document.getElementById("modalExportClose");
+  const btnCancel = document.getElementById("btnExportCancel");
+  const btnConfirm = document.getElementById("btnExportConfirm");
+  const optPdf = document.getElementById("formatPdf");
+  const optCsv = document.getElementById("formatCsv");
+  const previewArea = document.getElementById("exportLivePreview");
+  
+  let selectedFormat = 'pdf';
+
+  function fecharExport() {
+    if(overlay) overlay.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function gerarLivePreview() {
+    const amostra = pacientesFiltrados.slice(0, 5);
+    const dataHora = getDataHoraAtual();
+    
+    if (selectedFormat === 'pdf') {
+      previewArea.className = "export-live-preview";
+      let html = `<div class="preview-doc-title">Relatório de Pacientes</div>`;
+      html += `<div style="text-align:center; font-size:10px; color:#64748B; margin-bottom: 14px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">Baixado em: ${dataHora}</div>`;
+      html += `<table class="preview-doc-table"><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Status</th></tr></thead><tbody>`;
+      if (amostra.length === 0) {
+        html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">Nenhum dado encontrado</td></tr>`;
+      } else {
+        amostra.forEach(p => {
+          html += `<tr><td>#${p.idCurto}</td><td>${p.nome}</td><td>${p.nasc}</td><td>${p.status}</td></tr>`;
+        });
+        if (pacientesFiltrados.length > 5) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">... e mais ${pacientesFiltrados.length - 5} pacientes</td></tr>`;
+      }
+      html += `</tbody></table>`;
+      previewArea.innerHTML = html;
+    } else {
+      previewArea.className = "export-live-preview csv-mode";
+      let txt = `"Relatório de Pacientes - Instituto Buko Kaesemodel"\n"Baixado em: ${dataHora}"\n\n`;
+      txt += `ID,Nome,CPF,Nascimento,Sexo,Telefone,Email,Status\n`;
+      amostra.forEach(p => {
+        txt += `"${p.idCurto}","${p.nome}","${p.cpf}","${p.nasc}","${p.sexo}","${p.tel}","${p.email}","${p.status}"\n`;
+      });
+      if (pacientesFiltrados.length > 5) txt += `\n... e mais ${pacientesFiltrados.length - 5} linhas omitidas na pré-visualização`;
+      previewArea.textContent = txt;
+    }
+  }
+
+  if (btnModal && overlay) {
+    btnModal.addEventListener("click", () => {
+      overlay.classList.add("open");
+      document.body.style.overflow = "hidden";
+      gerarLivePreview();
+    });
+    [btnClose, btnCancel].forEach(b => b.addEventListener("click", fecharExport));
+    overlay.addEventListener("click", e => { if (e.target === overlay) fecharExport(); });
+    
+    [optPdf, optCsv].forEach(opt => {
+      if(opt) opt.addEventListener("click", () => {
+        selectedFormat = opt.dataset.format;
+        optPdf.classList.toggle("active", selectedFormat === 'pdf');
+        optCsv.classList.toggle("active", selectedFormat === 'csv');
+        gerarLivePreview();
+      });
+    });
+
+    if (btnConfirm) btnConfirm.addEventListener("click", () => {
+      fecharExport();
+      if (selectedFormat === 'csv') { showToast("Baixando CSV...", "success"); exportarCSV(); }
+      else { showToast("Gerando PDF...", "success"); exportarPDF(); }
+    });
+  }
 }
 
 // ---------- MODAL NOVO PACIENTE ----------

@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="/core/authGuard.js"></script>
 </head>
 <body>
@@ -127,6 +129,9 @@
                 <option value="Ativo">Ativo</option>
                 <option value="Inativo">Inativo</option>
               </select>
+              <button id="btnExportModal" class="btn-primary" style="background: white; border: 1px solid #E2E8F0; color: #374151;">
+                <i data-lucide="download" style="color: #64748B;"></i> Exportar
+              </button>
               <button id="btn-novo-admin" class="btn-primary" onclick="openModalAddUsuario()">
                 <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i> Novo Admin
               </button>
@@ -274,6 +279,46 @@
       <div class="modal-footer" style="padding: 14px 22px; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end; gap: 10px; background: #FAFBFF;">
         <button onclick="closeModalUsuario()" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #D1D5DB; background: white; cursor: pointer; color: #374151; font-weight: 500;">Cancelar</button>
         <button id="btn-salvar-admin" class="btn-primary" onclick="saveUsuario()"><i data-lucide="save" style="width: 16px; height: 16px;"></i> Criar Administrador</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Exportar Dados -->
+  <div id="modalExportOverlay" style="position: fixed; inset: 0; background: rgba(15,27,53,0.45); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px;">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 850px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(15,27,53,0.18);">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #F1F5F9;">
+        <div>
+          <h2 style="font-size: 16px; font-weight: 700; color: #0F172A; margin: 0;">Exportar Dados</h2>
+          <p style="font-size: 12px; color: #94A3B8; margin: 2px 0 0;">Escolha o formato e visualize a amostra de dados que será baixada.</p>
+        </div>
+        <button id="modalExportClose" style="background: transparent; border: none; cursor: pointer; color: #64748B;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+      </div>
+      <div style="padding: 0; display: flex; height: 450px; overflow: hidden; flex: none;">
+        <div style="width: 260px; padding: 24px; border-right: 1px solid #E2E8F0; background: #FAFBFF; flex-shrink: 0; overflow-y: auto;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Formato do Arquivo</p>
+          <div class="export-format-card active" data-format="pdf" id="formatPdf">
+            <i data-lucide="file-text" style="color: #DC2626; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Documento PDF</span>
+              <span class="sub">Relatório formatado</span>
+            </div>
+          </div>
+          <div class="export-format-card" data-format="csv" id="formatCsv" style="margin-top: 10px;">
+            <i data-lucide="file-spreadsheet" style="color: #16A34A; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Planilha CSV</span>
+              <span class="sub">Dados brutos</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding: 24px; background: #F1F5F9; display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pré-visualização (Primeiras 5 linhas)</p>
+          <div id="exportLivePreview" class="export-live-preview"></div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #E2E8F0; background: white;">
+        <button id="btnExportCancel" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #E2E8F0; background: white; color: #374151; font-weight: 500; cursor: pointer;">Cancelar</button>
+        <button id="btnExportConfirm" style="padding: 8px 16px; border-radius: 8px; background: #1D4ED8; color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Confirmar Download</button>
       </div>
     </div>
   </div>

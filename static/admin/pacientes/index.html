@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="/core/authGuard.js"></script>
 
 </head>
@@ -138,19 +140,19 @@
                 <option value="Particular">Particular</option>
               </select>
             </div>
-            <button class="btn-secondary" id="btnExport"><i data-lucide="download"></i> Exportar</button>
+            <button class="btn-secondary" id="btnExportModal"><i data-lucide="download"></i> Exportar</button>
             <button class="btn-primary" id="btnNovo"><i data-lucide="user-plus"></i> Novo Paciente</button>
           </div>
         </div>
 
         <!-- Tabela -->
         <div class="card pac-table-card">
-          <div class="pac-table-meta">
-            <span class="pac-table-count" id="tableCount">Exibindo <strong>0</strong> pacientes</span>
-            <div class="pac-view-toggle">
-              <button class="view-btn active" id="viewTable" title="Tabela"><i data-lucide="table-2"></i></button>
-              <button class="view-btn" id="viewGrid" title="Cards"><i data-lucide="layout-grid"></i></button>
+          <div class="pac-table-meta" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 12px; border-bottom: 1px solid #F1F5F9;">
+            <div class="tabs">
+              <button class="tab active" id="viewTable" title="Tabela"><i data-lucide="table-2" style="width:13px;height:13px;"></i> Tabela</button>
+              <button class="tab" id="viewGrid" title="Cards"><i data-lucide="layout-grid" style="width:13px;height:13px;"></i> Cards</button>
             </div>
+            <span class="pac-table-count" id="tableCount">Exibindo <strong>0</strong> pacientes</span>
           </div>
 
           <!-- VIEW: Tabela -->
@@ -384,6 +386,48 @@
       <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
         <button class="btn-secondary" id="btnCancelarNovo">Cancelar</button>
         <button class="btn-primary" id="btnSalvarNovo"><i data-lucide="save"></i> Salvar Paciente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Exportar Dados -->
+  <div class="modal-overlay" id="modalExportOverlay">
+    <div class="modal" style="max-width: 850px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div>
+            <h2 class="modal-title">Exportar Dados</h2>
+            <p class="modal-subtitle">Escolha o formato e visualize a amostra de dados que será baixada.</p>
+          </div>
+        </div>
+        <button class="modal-close" id="modalExportClose"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" style="padding: 0; display: flex; height: 450px; overflow: hidden; flex: none;">
+        <div style="width: 260px; padding: 24px; border-right: 1px solid #E2E8F0; background: #FAFBFF; flex-shrink: 0; overflow-y: auto;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Formato do Arquivo</p>
+          <div class="export-format-card active" data-format="pdf" id="formatPdf">
+            <i data-lucide="file-text" style="color: #DC2626;"></i>
+            <div>
+              <span class="title">Documento PDF</span>
+              <span class="sub">Relatório formatado</span>
+            </div>
+          </div>
+          <div class="export-format-card mt-2" data-format="csv" id="formatCsv" style="margin-top: 10px;">
+            <i data-lucide="file-spreadsheet" style="color: #16A34A;"></i>
+            <div>
+              <span class="title">Planilha CSV</span>
+              <span class="sub">Dados brutos</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding: 24px; background: #F1F5F9; display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pré-visualização (Primeiras 5 linhas)</p>
+          <div id="exportLivePreview" class="export-live-preview"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn-secondary" id="btnExportCancel">Cancelar</button>
+        <button class="btn-primary" id="btnExportConfirm"><i data-lucide="download"></i> Confirmar Download</button>
       </div>
     </div>
   </div>

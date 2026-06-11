@@ -333,6 +333,11 @@ function fmtTs(isoString) {
     return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+function getDataHoraAtual() {
+    const now = new Date();
+    return `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+}
+
 // --- Lógica de Exportação ---
 function exportToCSV() {
     const logsParaExportar = getFilteredLogs();
@@ -340,8 +345,9 @@ function exportToCSV() {
     const rows = logsParaExportar.map(log => [
         fmtTs(log.ts), log.usuario, log.entidade, log.acao, log.ip, CAT_LABELS[log.cat]
     ]);
-    
-    const csvContent = [header, ...rows].map(e => e.map(v => `"${v}"`).join(",")).join("\n");
+    const dataHora = getDataHoraAtual();
+    const metadata = `"Relatório de Auditoria de Logs - Instituto Buko Kaesemodel"\n"Baixado em: ${dataHora}"\n\n`;
+    const csvContent = metadata + [header, ...rows].map(e => e.map(v => `"${v}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     
@@ -362,6 +368,9 @@ function exportToPDF() {
     
     doc.setFontSize(14);
     doc.text("Relatório de Auditoria de Logs - IBK / AURA", 14, 15);
+    const dataHora = getDataHoraAtual();
+    doc.setFontSize(10); doc.setTextColor(100, 116, 139);
+    doc.text(`Baixado em: ${dataHora}`, 14, 22);
     
     const logsParaExportar = getFilteredLogs();
     const rows = logsParaExportar.map(log => [
@@ -371,7 +380,7 @@ function exportToPDF() {
     doc.autoTable({
         head: [["Data/Hora", "Usuario", "Entidade", "Ação", "Endereço IP", "Categoria"]],
         body: rows,
-        startY: 20,
+        startY: 28,
         styles: { fontSize: 8 },
         headStyles: { fillColor: [13, 27, 53] } // Azul escuro do AURA
     });
@@ -379,10 +388,40 @@ function exportToPDF() {
     doc.save(`aura_logs_auditoria_${new Date().getTime()}.pdf`);
 }
 
-function setupEventListeners() {
+function setupExportModal() {
+    const btnModal = document.getElementById("btnExportModal");
+    const overlay = document.getElementById("modalExportOverlay");
+    if (!btnModal || !overlay) return;
+    let fmt = 'pdf';
+    function fechar() { overlay.style.display = "none"; document.body.style.overflow = ""; }
+    function preview() {
+        const fLogs = getFilteredLogs();
+        const am = fLogs.slice(0, 5);
+        const area = document.getElementById("exportLivePreview");
+        if (fmt === 'pdf') {
+            area.className = "export-live-preview";
+            let html = `<div class="preview-doc-title">Relatório de Auditoria de Logs</div><div style="text-align:center; font-size:10px; color:#64748B; margin-bottom: 14px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">Baixado em: ${getDataHoraAtual()}</div>`;
+            html += `<table class="preview-doc-table"><thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th></tr></thead><tbody>`;
+            if (am.length === 0) html += `<tr><td colspan="3" style="text-align:center; color:#94A3B8;">Nenhum dado</td></tr>`;
+            else { am.forEach(l => { html += `<tr><td>${fmtTs(l.ts)}</td><td>${l.usuario}</td><td>${l.acao}</td></tr>`; });
+            if (fLogs.length > 5) html += `<tr><td colspan="3" style="text-align:center; color:#94A3B8;">... e mais ${fLogs.length - 5} logs</td></tr>`; }
+            area.innerHTML = html + `</tbody></table>`;
+        } else {
+            area.className = "export-live-preview csv-mode";
+            let txt = `"Relatório de Auditoria de Logs - IBK"\n"Baixado em: ${getDataHoraAtual()}"\n\nData/Hora,Usuario,Entidade,Acao\n`;
+            am.forEach(l => { txt += `"${fmtTs(l.ts)}","${l.usuario}","${l.entidade}","${l.acao}"\n`; });
+            area.textContent = txt;
+        }
+    }
+    btnModal.addEventListener("click", () => { overlay.style.display = "flex"; document.body.style.overflow = "hidden"; preview(); });
+    [document.getElementById("modalExportClose"), document.getElementById("btnExportCancel")].forEach(b => b.addEventListener("click", fechar));
+    overlay.addEventListener("click", e => { if (e.target === overlay) fechar(); });
+    ['pdf', 'csv'].forEach(f => { document.getElementById(`format${f.charAt(0).toUpperCase() + f.slice(1)}`).addEventListener("click", () => { fmt = f; document.getElementById("formatPdf").classList.toggle("active", f === 'pdf'); document.getElementById("formatCsv").classList.toggle("active", f === 'csv'); preview(); }); });
+    document.getElementById("btnExportConfirm").addEventListener("click", () => { fechar(); if (fmt === 'csv') exportToCSV(); else exportToPDF(); });
+}
 
-    document.getElementById("btn-export-csv").addEventListener("click", exportToCSV);
-    document.getElementById("btn-export-pdf").addEventListener("click", exportToPDF);
+function setupEventListeners() {
+    setupExportModal();
 
     document.getElementById("clear-all-filters").addEventListener("click", () => {
         state.query = ""; state.catFiltro = "TODOS"; state.atorFiltro = "TODOS";

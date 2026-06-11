@@ -334,11 +334,22 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .log-status-right span { font-size: 11px; color: rgba(255,255,255,0.35); font-family: monospace; }
 .log-status-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px; }
 
-.log-export-group { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
-.export-legend { font-size: 10px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 2px; }
 .btn-icon-export { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: all 0.2s; }
 .btn-icon-export svg { width: 14px; height: 14px; }
 .btn-icon-export:hover { background: rgba(255,255,255,0.1); color: white; }
+
+/* ====== MODAL EXPORT ====== */
+.export-format-card { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; }
+.export-format-card:hover { border-color: #93C5FD; }
+.export-format-card.active { border-color: #3B82F6; background: #EFF6FF; box-shadow: 0 0 0 1px #3B82F6; }
+.export-format-card .title { display: block; font-size: 13px; font-weight: 600; color: #0F172A; }
+.export-format-card .sub { display: block; font-size: 11px; color: #64748B; margin-top: 2px; }
+.export-live-preview { background: white; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); flex: 1; overflow-y: auto; overflow-x: auto; font-size: 11px; color: #374151; }
+.export-live-preview.csv-mode { font-family: 'Courier New', monospace; white-space: pre; overflow-x: auto; background: #0F172A; color: #F8FAFC; padding: 12px; border-color: #0F172A; }
+.preview-doc-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; color: #0F172A; }
+.preview-doc-table { width: 100%; min-width: 480px; border-collapse: collapse; margin-top: 10px; }
+.preview-doc-table th, .preview-doc-table td { padding: 6px 8px; border: 1px solid #E2E8F0; text-align: left; }
+.preview-doc-table th { background: #F8FAFC; font-weight: 600; color: #475569; }
 
 .table-wrapper { 
     max-height: calc(100vh - 380px); 
