@@ -34,6 +34,13 @@ async def atualizar_medico(id: int, medico_in: MedicoCreate, db: Session = Depen
         return medico_atualizado
     raise HTTPException(status_code=404, detail="Médico não encontrado")
 
+@router.post("/{id_medico}/resetar-senha")
+async def resetar_senha_medico(id_medico: int, db: Session = Depends(get_db)):
+    medico_atualizado = await medico_service.resetar_senha_medico(db, id_medico)
+    if not medico_atualizado:
+        raise HTTPException(status_code=404, detail="Médico não encontrado")
+    return {"senha": medico_atualizado.senha_temporaria}
+
 @router.delete("/{id_medico}", response_model=Medico)
 async def inativar_medico(id_medico: int, db: Session = Depends(get_db)):
     medico_inativado = await medico_service.inativar_medico(db, id_medico)

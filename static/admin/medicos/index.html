@@ -143,7 +143,7 @@
               </div>
               <div style="display:flex;gap:8px;align-items:center;">
                 <span class="table-count" id="table-count">Exibindo <strong>0</strong> médicos</span>
-                <button class="btn-outline-small"><i data-lucide="download"></i> Exportar</button>
+                <button class="btn-outline-small" onclick="exportarMedicosCSV()"><i data-lucide="download"></i> Exportar</button>
               </div>
             </div>
 
@@ -217,9 +217,21 @@
                 <button class="btn-primary" style="width:100%;justify-content:center;" onclick="openModalEdit()">
                   <i data-lucide="edit-3"></i> Editar Perfil
                 </button>
+                <button class="btn-outline-small" style="width:100%;justify-content:center;margin-top:8px;" onclick="resetarSenhaMedico()">
+                  <i data-lucide="key-round"></i> Gerar Nova Senha
+                </button>
                 <button class="btn-export" style="width:100%;justify-content:center;margin-top:8px;" onclick="toggleStatus()">
                   <i data-lucide="power"></i> <span id="btn-toggle-status-label">Desativar</span>
                 </button>
+              </div>
+
+              <div class="form-group hidden" id="pf-senha-gerada" style="margin-top:12px;">
+                <label>Nova Senha Provisória</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="pf-senha-gerada-valor" class="form-input" readonly style="background-color: #F8FAFC; color: #64748B; font-family: monospace; font-weight: bold; letter-spacing: 1px;">
+                  <button class="btn-outline-small" type="button" onclick="copiarSenhaGerada()" title="Copiar Senha" style="padding: 0 10px;"><i data-lucide="copy" style="width: 14px; height: 14px;"></i></button>
+                </div>
+                <span style="font-size: 10px; color: #94A3B8; margin-top: 4px;">Forneça esta nova senha ao médico. A senha anterior deixou de funcionar.</span>
               </div>
             </div>
 
@@ -264,7 +276,7 @@
                     Últimas Triagens <span class="tab-badge" id="badge-pf-triagens">0</span>
                     </button>
                   </div>
-                  <button class="btn-outline-small"><i data-lucide="download"></i> Exportar</button>
+                  <button class="btn-outline-small" onclick="exportarPerfilCSV()"><i data-lucide="download"></i> Exportar</button>
                 </div>
                 <div class="table-container">
                   <table>

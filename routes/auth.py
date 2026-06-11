@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from database.db import SessionLocal
 from models.admin import AdminModel
+from models.medico import MedicoModel
 from schemas.perfil import PerfilUpdate, SenhaUpdate
 from core.security import verificar_senha, criar_token_jwt, gerar_hash_senha, obter_usuario_atual
 
@@ -33,27 +34,44 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
         db.commit()
         db.refresh(admin)
 
-    if not admin:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="E-mail ou senha inválidos"
-        )
-    
-    if not verificar_senha(senha_usuario, admin.senha_hash):
+    if admin:
+        if not verificar_senha(senha_usuario, admin.senha_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="E-mail ou senha inválidos"
+            )
+
+        dados_token = {"sub": admin.email, "tipo": "admin"}
+        token_gerado = criar_token_jwt(dados_token)
+
+        return {
+            "access_token": token_gerado,
+            "token_type": "bearer",
+            "usuario": {
+                "nome": admin.nome,
+                "email": admin.email,
+                "tipo": "admin"
+            }
+        }
+
+    medico = db.query(MedicoModel).filter(MedicoModel.email == email_usuario, MedicoModel.deletado_em.is_(None)).first()
+
+    if not medico or not verificar_senha(senha_usuario, medico.senha_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="E-mail ou senha inválidos"
         )
-    
-    dados_token = {"sub": admin.email}
+
+    dados_token = {"sub": medico.email, "tipo": "medico"}
     token_gerado = criar_token_jwt(dados_token)
 
     return {
-        "access_token": token_gerado, 
+        "access_token": token_gerado,
         "token_type": "bearer",
         "usuario": {
-            "nome": admin.nome,
-            "email": admin.email
+            "nome": medico.nome,
+            "email": medico.email,
+            "tipo": "medico"
         }
     }
 

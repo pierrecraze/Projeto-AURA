@@ -1,8 +1,11 @@
+import secrets
+import string
 from datetime import datetime
 from sqlalchemy.orm import Session
 from schemas.medico import MedicoCreate
 from models.medico import MedicoModel
 from core.audit import registrar_auditoria
+from core.security import gerar_hash_senha
 
 async def listar_medicos(db: Session):
     return db.query(MedicoModel).all()
@@ -17,7 +20,7 @@ async def criar_medico(db: Session, medico_in: MedicoCreate):
         telefone=medico_in.telefone,
         cidade=medico_in.cidade,
         uf=medico_in.uf,
-        senha_hash=medico_in.senha,
+        senha_hash=gerar_hash_senha(medico_in.senha),
         data_nascimento=medico_in.data_nascimento
     )
     db.add(novo_medico)
@@ -42,6 +45,32 @@ async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoCreate)
 
         return medico
     return None
+
+@registrar_auditoria(entidade="Médico", acao="Reset de Senha")
+async def resetar_senha_medico(db: Session, id_medico: int):
+    medico = db.query(MedicoModel).filter(MedicoModel.id == id_medico).first()
+    if not medico:
+        return None
+
+    primeiro_nome = medico.nome.split(" ")[0]
+    for prefixo in ("Dr.", "Dra.", "Dr", "Dra"):
+        if primeiro_nome.startswith(prefixo):
+            primeiro_nome = medico.nome.split(" ")[1]
+            break
+    primeiro_nome = primeiro_nome.capitalize()
+
+    especial = secrets.choice("!@#$*")
+    sufixo = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+    nova_senha = f"{primeiro_nome}{especial}{sufixo}"
+
+    medico.senha_hash = gerar_hash_senha(nova_senha)
+    medico.tentativas_login = 0
+    medico.bloqueado_ate = None
+    db.commit()
+    db.refresh(medico)
+
+    medico.senha_temporaria = nova_senha
+    return medico
 
 @registrar_auditoria(entidade="Médico", acao="Inativação")
 async def inativar_medico(db: Session, id_medico: int):

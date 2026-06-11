@@ -18,7 +18,8 @@ let state = {
     statusFilter: '',
     searchQuery: '',
     editingId: null,        // id do médico sendo editado no modal
-    senhaSufixo: ''         // sufixo dinâmico para a senha do médico
+    senhaSufixo: '',        // sufixo dinâmico para a senha do médico
+    pfTab: 'pacientes'       // aba ativa no perfil: 'pacientes' | 'triagens'
 };
 
 /* ─── Utilitários ───────────────────────────────────────────── */
@@ -196,7 +197,7 @@ function renderApp() {
 }
 
 /* ─── Tela 1: Lista ─────────────────────────────────────────── */
-function renderLista() {
+function getMedicosFiltrados() {
     let lista = medicos;
 
     // Filtro KPI
@@ -217,6 +218,12 @@ function renderLista() {
             (m.cpf && m.cpf.toLowerCase().includes(state.searchQuery))
         );
     }
+
+    return lista;
+}
+
+function renderLista() {
+    const lista = getMedicosFiltrados();
 
     updateMedicosKPIs();
     document.getElementById("table-count").innerHTML = `Exibindo <strong>${lista.length}</strong> médico${lista.length !== 1 ? 's' : ''}`;
@@ -328,6 +335,7 @@ function renderCards(lista) {
 function openPerfil(id) {
     state.activeMedicoId = id;
     state.view = 'perfil';
+    state.pfTab = 'pacientes';
     renderApp();
     window.scrollTo(0, 0);
 }
@@ -387,9 +395,55 @@ function renderPerfil() {
             </div>`).join("");
     }
 
-    // Pacientes
+    // Pacientes / Triagens
+    const triList = triagens.filter(t => t.medicoId === m.id);
     document.getElementById("badge-pf-pacientes").textContent = pacList.length;
-    const tbody = document.getElementById("pf-pacientes-tbody");
+    document.getElementById("badge-pf-triagens").textContent  = triList.length;
+
+    // Esconde a senha provisória gerada anteriormente ao trocar de médico
+    document.getElementById("pf-senha-gerada").classList.add("hidden");
+
+    renderPfTable();
+}
+
+function renderPfTable() {
+    const m = medicos.find(x => x.id === state.activeMedicoId);
+    if (!m) return;
+
+    const thead = document.getElementById("pf-dynamic-thead");
+    const tbody = document.getElementById("pf-dynamic-tbody");
+
+    if (state.pfTab === 'triagens') {
+        const triList = triagens.filter(t => t.medicoId === m.id)
+            .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+
+        thead.innerHTML = `<tr><th>Paciente</th><th>Data</th><th>Horário</th></tr>`;
+
+        if (triList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:32px;color:#94A3B8;">Nenhuma triagem registrada.</td></tr>`;
+        } else {
+            tbody.innerHTML = triList.map(t => {
+                const p  = pacientes.find(x => x.id === t.pacienteId);
+                const dt = new Date(t.dataHora);
+                return `<tr>
+                    <td>
+                        <div class="td-flex">
+                            <div class="user-avatar" style="background:${avatarBg(t.pacienteId)}">${p ? initials(p.nome) : "—"}</div>
+                            <p class="user-name">${p ? p.nome : "Paciente removido"}</p>
+                        </div>
+                    </td>
+                    <td>${dt.toLocaleDateString('pt-BR')}</td>
+                    <td>${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+                </tr>`;
+            }).join("");
+        }
+        return;
+    }
+
+    const pacList = pacientes.filter(p => p.medicoId === m.id);
+
+    thead.innerHTML = `<tr><th>Paciente</th><th>Documento</th><th>Convênios</th><th>Status</th></tr>`;
+
     if (pacList.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum paciente vinculado.</td></tr>`;
     } else {
@@ -413,6 +467,57 @@ function renderPerfil() {
         }).join("");
     }
 }
+
+/* ─── Tabs do Perfil (Pacientes / Triagens) ─────────────────── */
+window.switchPfTab = function(tab) {
+    state.pfTab = tab;
+    document.getElementById("tab-pf-pacientes").className = `tab ${tab === 'pacientes' ? 'active' : ''}`;
+    document.getElementById("tab-pf-triagens").className  = `tab ${tab === 'triagens' ? 'active' : ''}`;
+    renderPfTable();
+};
+
+/* ─── Reset de Senha (perfil) ───────────────────────────────── */
+window.resetarSenhaMedico = async function() {
+    const m = medicos.find(x => x.id === state.activeMedicoId);
+    if (!m) return;
+
+    if (!confirm(`Gerar uma nova senha provisória para ${m.nome}? A senha atual deixará de funcionar imediatamente.`)) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem("aura_token");
+        const response = await fetch(`${API_URL}/medicos/${m.id}/resetar-senha`, {
+            method: "POST",
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById("pf-senha-gerada-valor").value = data.senha;
+            document.getElementById("pf-senha-gerada").classList.remove("hidden");
+            lucide.createIcons();
+            showToast("Nova senha provisória gerada com sucesso.");
+        } else {
+            const errData = await response.json();
+            showToast(`Erro: ${errData.detail || 'Não foi possível gerar a senha.'}`, "error");
+        }
+    } catch (err) {
+        console.error("Erro ao resetar senha:", err);
+        showToast("Erro de conexão.", "error");
+    }
+};
+
+window.copiarSenhaGerada = function() {
+    const input = document.getElementById("pf-senha-gerada-valor");
+    navigator.clipboard.writeText(input.value).then(() => {
+        showToast("Senha copiada!");
+    }).catch(() => {
+        input.select();
+        document.execCommand("copy");
+        showToast("Senha copiada!");
+    });
+};
 
 /* ─── Toggle Status (perfil) ────────────────────────────────── */
 window.toggleStatus = function() {
@@ -637,6 +742,54 @@ window.saveVincular = function() {
     closeModalVincular();
     showToast("Vínculos de convênio atualizados.");
     renderApp();
+};
+
+/* ─── Exportação CSV ────────────────────────────────────────── */
+function downloadCSV(header, rows, filename) {
+    const csv = [header, ...rows].map(r => r.map(v => `"${String(v ?? "—").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+}
+
+window.exportarMedicosCSV = function() {
+    const lista = getMedicosFiltrados();
+    const header = ["ID", "Nome", "CPF", "CRM", "Telefone", "E-mail", "Cidade", "UF", "Convênios", "Pacientes", "Status"];
+    const rows = lista.map(m => {
+        const cvNomes  = m.convenios.map(id => convenios.find(c => c.id === id)?.nome).filter(Boolean);
+        const pacCount = pacientes.filter(p => p.medicoId === m.id).length;
+        return [`#${String(m.id).padStart(4, '0')}`, m.nome, m.cpf, m.crm, m.telefone, m.email, m.cidade, m.uf, cvNomes.join(" | "), pacCount, m.status];
+    });
+    downloadCSV(header, rows, "medicos_aura.csv");
+};
+
+window.exportarPerfilCSV = function() {
+    const m = medicos.find(x => x.id === state.activeMedicoId);
+    if (!m) return;
+
+    const nomeArquivo = m.nome.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_").toLowerCase();
+
+    if (state.pfTab === 'triagens') {
+        const triList = triagens.filter(t => t.medicoId === m.id)
+            .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+        const header = ["ID", "Paciente", "Data", "Horário"];
+        const rows = triList.map(t => {
+            const p  = pacientes.find(x => x.id === t.pacienteId);
+            const dt = new Date(t.dataHora);
+            return [t.id, p ? p.nome : "Paciente removido", dt.toLocaleDateString('pt-BR'), dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })];
+        });
+        downloadCSV(header, rows, `triagens_${nomeArquivo}.csv`);
+    } else {
+        const pacList = pacientes.filter(p => p.medicoId === m.id);
+        const header = ["ID", "Nome", "Documento", "Convênios", "Status"];
+        const rows = pacList.map(p => {
+            const cvNomes = p.convenios.map(id => convenios.find(c => c.id === id)?.nome).filter(Boolean);
+            return [`#${String(p.id).padStart(4, '0')}`, p.nome, p.doc, cvNomes.join(" | "), p.status];
+        });
+        downloadCSV(header, rows, `pacientes_${nomeArquivo}.csv`);
+    }
 };
 
 /* ─── Helpers ───────────────────────────────────────────────── */
