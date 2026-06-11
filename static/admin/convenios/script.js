@@ -2,7 +2,7 @@
 // AURA — Gestão de Convênios (Grupos)
 // ==========================================
 
-const API_URL = "http://localhost:8000/api/grupos/";
+const API_URL = "/api/grupos/";
 let conveniosData = [];
 let activeConvenio = null;
 let editId = null;
