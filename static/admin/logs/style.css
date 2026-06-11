@@ -277,8 +277,6 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
 .page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; color: #0F172A; }
 .page-subtitle { font-size: 13px; color: var(--text-muted); }
-.btn-export { display: flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 8px; border: 1px solid #D1D5DB; background: white; color: #374151; cursor: pointer; transition: background 0.2s; }
-.btn-export:hover { background: #F8FAFC; }
 
 /* KPI Cards */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
@@ -308,13 +306,22 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .date-filter label { font-size: 11px; color: #94A3B8; font-weight: 500; }
 .input-base { padding: 6px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; color: #1E293B; background: #F8FAFC; font-family: 'Inter', sans-serif; }
 .divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
-.search-box { position: relative; flex: 1 1 200px; min-width: 180px; }
+.search-box { position: relative; width: 260px; max-width: 100%; flex-shrink: 0; }
 .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: #94A3B8; }
 .search-box input { width: 100%; padding-left: 28px; padding-right: 10px; }
 .clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; color: #94A3B8; }
 .clear-search svg { width: 12px; height: 12px; }
 .btn-clear { display: flex; align-items: center; gap: 5px; padding: 5px 10px; font-size: 12px; font-weight: 500; border-radius: 8px; border: 1px solid var(--border); background: white; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
 .btn-clear svg { width: 11px; height: 11px; }
+
+/* Filtros de Atores (Pills Interativos) */
+.ator-filters { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ator-pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: #F8FAFC; color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; outline: none; font-family: 'Inter', sans-serif; }
+.ator-pill i { width: 14px; height: 14px; opacity: 0.7; transition: opacity 0.2s ease; }
+.ator-pill:hover { background: white; border-color: #93C5FD; color: #1E293B; box-shadow: 0 2px 6px rgba(59,130,246,0.08); }
+.ator-pill:hover i { opacity: 0.9; }
+.ator-pill.active { background: #EFF6FF; border-color: #3B82F6; color: #1D4ED8; font-weight: 600; box-shadow: 0 0 0 1px #3B82F6; }
+.ator-pill.active i { opacity: 1; }
 
 /* Tabela de Logs (Dark UI) */
 .log-container { border-radius: 12px; border: 1px solid #1E3A5F; overflow: hidden; box-shadow: 0 4px 16px rgba(15,35,71,0.12); margin-top: 10px; }
@@ -325,6 +332,13 @@ th, td { display: table-cell !important; vertical-align: middle; }
 .log-status-right { display: flex; align-items: center; gap: 6px; }
 .log-status-right svg { width: 11px; height: 11px; color: rgba(255,255,255,0.35); }
 .log-status-right span { font-size: 11px; color: rgba(255,255,255,0.35); font-family: monospace; }
+.log-status-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); margin: 0 4px; }
+
+.log-export-group { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); }
+.export-legend { font-size: 10px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 2px; }
+.btn-icon-export { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: all 0.2s; }
+.btn-icon-export svg { width: 14px; height: 14px; }
+.btn-icon-export:hover { background: rgba(255,255,255,0.1); color: white; }
 
 .table-wrapper { 
     max-height: calc(100vh - 380px); 

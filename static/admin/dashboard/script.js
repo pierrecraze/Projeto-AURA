@@ -168,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Perfil do admin
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nome = user.nome || "Admin Principal";
+    const cargo = user.cargo || "Administrador";
     const iniciais = nome.split(" ").slice(0,2).map(n => n[0]).join("").toUpperCase() || "AD";
     const firstName = nome.split(" ")[0];
 
@@ -175,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ["profileAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
     const welcomeNameEl = document.getElementById("welcomeName");
     if (welcomeNameEl) welcomeNameEl.innerHTML = `${firstName} <span class="welcome-wave">👋</span>`;
+    document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
 
     initNotifications();
     initChart();

@@ -158,9 +158,11 @@ function setupSidebar() {
 function setupProfile() {
   const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
   const nome = user.nome || "Admin Principal";
+  const cargo = user.cargo || "Administrador";
   const iniciais = nome.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase() || "AD";
   ["profileName", "topbarName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
   ["profileAvatar", "topbarAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
+  document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
   const btnLogout = document.querySelector(".logout");
   if (btnLogout) btnLogout.addEventListener("click", () => {
     localStorage.removeItem("aura_token");

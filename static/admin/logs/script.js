@@ -47,11 +47,12 @@ async function carregarLogsDaAPI() {
             return {
                 id: log.id,
                 ts: log.data_hora,
-                usuario: log.tipo_ator === "admin_sistema" ? "Admin" : "Sistema", 
+                usuario: log.ator_nome || (log.tipo_ator === "admin_sistema" ? "Admin" : "Sistema"), 
                 entidade: log.tabela_afetada || "Desconhecida", 
                 acao: `${log.acao_realizada} — ${log.detalhe}`, 
                 ip: log.ip_origem || "127.0.0.1",
-                cat: categoria
+                cat: categoria,
+                tipo_ator: log.tipo_ator
             };
         });
 
@@ -71,6 +72,7 @@ const urlParams = new URLSearchParams(window.location.search);
 let state = {
     query: urlParams.get('q') || "",
     catFiltro: urlParams.get('cat') || "TODOS",
+    atorFiltro: urlParams.get('ator') || "TODOS",
     dataIni: urlParams.get('inicio') || "",
     dataFim: urlParams.get('fim') || "",
     page: parseInt(urlParams.get('page')) || 1,
@@ -90,6 +92,7 @@ function updateUrlState() {
     const params = new URLSearchParams();
     if(state.query) params.set('q', state.query);
     if(state.catFiltro !== "TODOS") params.set('cat', state.catFiltro);
+    if(state.atorFiltro !== "TODOS") params.set('ator', state.atorFiltro);
     if(state.dataIni) params.set('inicio', state.dataIni);
     if(state.dataFim) params.set('fim', state.dataFim);
     if(state.page > 1) params.set('page', state.page);
@@ -120,10 +123,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Perfil do admin
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nome = user.nome || "Admin Principal";
+    const cargo = user.cargo || "Administrador";
     const iniciais = nome.split(" ").slice(0,2).map(n => n[0]).join("").toUpperCase() || "AD";
 
     ["profileName", "topbarName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
     ["profileAvatar", "topbarAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
+    document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
 
     // Adicionado lógica do botão Sair da conta (Logout)
     const btnLogout = document.querySelector('.logout');
@@ -138,6 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("search-input").value = state.query;
     document.getElementById("filter-date-ini").value = state.dataIni;
     document.getElementById("filter-date-fim").value = state.dataFim;
+    
+    document.querySelectorAll(".ator-pill").forEach(b => b.classList.remove("active"));
+    const activeAtor = document.querySelector(`.ator-pill[data-ator="${state.atorFiltro}"]`);
+    if (activeAtor) activeAtor.classList.add("active");
+
     document.querySelectorAll(".kpi-card").forEach(b => b.classList.remove("active"));
     const activeKpi = document.querySelector(`.kpi-card[onclick*="${state.catFiltro}"]`);
     if(activeKpi) activeKpi.classList.add("active");
@@ -148,13 +158,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // --- Lógica de Renderização ---
-function updateApp(pushState = true) {
-    if(pushState) updateUrlState();
-
+function getFilteredLogs() {
     let lista = [...LOGS_RAW];
     
     if (state.catFiltro !== "TODOS") {
         lista = lista.filter(e => e.cat === state.catFiltro);
+    }
+    if (state.atorFiltro !== "TODOS") {
+        lista = lista.filter(e => e.tipo_ator === state.atorFiltro);
     }
     if (state.dataIni) {
         lista = lista.filter(e => e.ts.slice(0, 10) >= state.dataIni);
@@ -175,6 +186,19 @@ function updateApp(pushState = true) {
         if (a.ts < b.ts) return 1;
         if (a.ts > b.ts) return -1;
         return 0;
+    });
+
+    return lista;
+}
+
+function updateApp(pushState = true) {
+    if(pushState) updateUrlState();
+
+    let lista = getFilteredLogs();
+
+    // Pinta o botão correto no momento em que a página é atualizada ou acessada por atalho
+    document.querySelectorAll(".ator-pill").forEach(b => {
+        b.classList.toggle("active", b.dataset.ator === state.atorFiltro);
     });
 
     const totalPages = Math.ceil(lista.length / state.perPage);
@@ -222,10 +246,12 @@ function renderTable(slice) {
         let userColor = "rgba(255,255,255,0.75)";
         let userText = log.usuario;
         let userWeight = 400;
+        let userIcon = "user";
 
-        if (log.usuario === "Sistema") { userColor = "#7C3AED"; userText = "[ SISTEMA ]"; }
-        else if (log.usuario === "Admin") { userColor = "#60A5FA"; }
-        else if (log.usuario === "Desconhecido") { userColor = "#EF4444"; userText = "[ DESCONHECIDO ]"; userWeight = 700; }
+        if (log.usuario === "Sistema") { userColor = "#7C3AED"; userText = "[ SISTEMA ]"; userIcon = "cpu"; }
+        else if (log.tipo_ator === "admin_sistema") { userColor = "#60A5FA"; userIcon = "shield-check"; }
+        else if (log.tipo_ator === "medico") { userColor = "#10B981"; userIcon = "stethoscope"; }
+        else if (log.usuario === "Desconhecido") { userColor = "#EF4444"; userText = "[ DESCONHECIDO ]"; userWeight = 700; userIcon = "help-circle"; }
 
         const acaoColor = isCrit ? "#FCA5A5" : isAlrt ? "#FDE68A" : "rgba(255,255,255,0.85)";
         const acaoText = isCrit ? `⚠ ${log.acao}` : log.acao;
@@ -236,7 +262,12 @@ function renderTable(slice) {
         tr.className = rowClass;
         tr.innerHTML = `
             <td><span style="color: ${tsColor}; letter-spacing: 0.02em;">${fmtTs(log.ts)}</span></td>
-            <td><span style="color: ${userColor}; font-weight: ${userWeight};">${userText}</span></td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="${userIcon}" style="width: 14px; height: 14px; color: ${userColor}; opacity: 0.8;"></i>
+                    <span style="color: ${userColor}; font-weight: ${userWeight};">${userText}</span>
+                </div>
+            </td>
             
             <td><span style="color: #cbd5e1; font-weight: 500; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px;">${log.entidade}</span></td>
             
@@ -287,7 +318,7 @@ function updateClearFiltersVisibility() {
     const btnClear = document.getElementById("clear-all-filters");
     const searchClear = document.getElementById("clear-search");
     
-    const hasFilters = state.query || state.catFiltro !== "TODOS" || state.dataIni || state.dataFim;
+    const hasFilters = state.query || state.catFiltro !== "TODOS" || state.dataIni || state.dataFim || state.atorFiltro !== "TODOS";
     
     if (hasFilters) btnClear.classList.remove("hidden");
     else btnClear.classList.add("hidden");
@@ -302,7 +333,65 @@ function fmtTs(isoString) {
     return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+// --- Lógica de Exportação ---
+function exportToCSV() {
+    const logsParaExportar = getFilteredLogs();
+    const header = ["Data/Hora", "Usuario", "Entidade", "Acao", "Endereco IP", "Categoria"];
+    const rows = logsParaExportar.map(log => [
+        fmtTs(log.ts), log.usuario, log.entidade, log.acao, log.ip, CAT_LABELS[log.cat]
+    ]);
+    
+    const csvContent = [header, ...rows].map(e => e.map(v => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `aura_logs_auditoria_${new Date().getTime()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportToPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Erro: Biblioteca geradora de PDF não carregada. Tente recarregar a página.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape');
+    
+    doc.setFontSize(14);
+    doc.text("Relatório de Auditoria de Logs - IBK / AURA", 14, 15);
+    
+    const logsParaExportar = getFilteredLogs();
+    const rows = logsParaExportar.map(log => [
+        fmtTs(log.ts), log.usuario, log.entidade, log.acao, log.ip, CAT_LABELS[log.cat]
+    ]);
+    
+    doc.autoTable({
+        head: [["Data/Hora", "Usuario", "Entidade", "Ação", "Endereço IP", "Categoria"]],
+        body: rows,
+        startY: 20,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [13, 27, 53] } // Azul escuro do AURA
+    });
+    
+    doc.save(`aura_logs_auditoria_${new Date().getTime()}.pdf`);
+}
+
 function setupEventListeners() {
+
+    document.getElementById("btn-export-csv").addEventListener("click", exportToCSV);
+    document.getElementById("btn-export-pdf").addEventListener("click", exportToPDF);
+
+    document.getElementById("clear-all-filters").addEventListener("click", () => {
+        state.query = ""; state.catFiltro = "TODOS"; state.atorFiltro = "TODOS";
+        state.dataIni = ""; state.dataFim = ""; state.page = 1; updateApp(true);
+    });
+
+    document.getElementById("clear-search").addEventListener("click", () => {
+        state.query = ""; state.page = 1; updateApp(true);
+    });
 
     document.getElementById("filter-date-ini").addEventListener("change", (e) => {
         state.dataIni = e.target.value; state.page = 1; updateApp(true);
@@ -313,5 +402,19 @@ function setupEventListeners() {
 
     document.getElementById("search-input").addEventListener("input", (e) => {
         state.query = e.target.value; state.page = 1; updateApp(true);
+    });
+
+    document.querySelectorAll(".ator-pill").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const clickedAtor = e.currentTarget.dataset.ator;
+            // Funciona como Toggle: se já estava selecionado, ele desmarca e seleciona "TODOS"
+            if (state.atorFiltro === clickedAtor) {
+                state.atorFiltro = "TODOS";
+            } else {
+                state.atorFiltro = clickedAtor;
+            }
+            state.page = 1;
+            updateApp(true);
+        });
     });
 }
