@@ -7,6 +7,7 @@ let state = {
     statusFilter: '',
     searchQuery: ''
 };
+let usuariosFiltrados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     setupDate();
@@ -93,6 +94,7 @@ function renderTabela() {
     if (state.searchQuery) {
         lista = lista.filter(u => u.nome.toLowerCase().includes(state.searchQuery) || u.email.toLowerCase().includes(state.searchQuery));
     }
+    usuariosFiltrados = lista;
 
     if (lista.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:40px;color:#94A3B8;">Nenhum administrador encontrado.</td></tr>`;
@@ -418,6 +420,65 @@ async function saveUsuario() {
     }
 }
 
+// ==========================================
+// EXPORTAÇÃO E MODAL DE PREVIEW
+// ==========================================
+function getDataHoraAtual() {
+    const now = new Date(); return `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+}
+
+function exportarCSV() {
+    const header = ["ID", "Nome", "Cargo", "E-mail", "Status", "Perfil"];
+    const rows = usuariosFiltrados.map(u => [u.id, u.nome, u.cargo || 'Administrador', u.email, u.status, u.is_superadmin ? "Super Admin" : "Admin"]);
+    const metadata = `"Relatório de Administradores - Instituto Buko Kaesemodel"\n"Baixado em: ${getDataHoraAtual()}"\n\n`;
+    const csv = metadata + [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `admins_aura_${new Date().getTime()}.csv`; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportarPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF) return showToast("Erro: Biblioteca PDF não carregada.", "error");
+    const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape');
+    doc.setFontSize(14); doc.text("Relatório de Administradores - Instituto Buko Kaesemodel", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100, 116, 139); doc.text(`Baixado em: ${getDataHoraAtual()}`, 14, 22);
+    const rows = usuariosFiltrados.map(u => [u.id, u.nome, u.cargo || 'Administrador', u.email, u.status]);
+    doc.autoTable({ head: [["ID", "Nome", "Cargo", "E-mail", "Status"]], body: rows, startY: 28, styles: { fontSize: 9 }, headStyles: { fillColor: [13, 27, 53] } });
+    doc.save(`admins_aura_${new Date().getTime()}.pdf`);
+}
+
+function setupExportModal() {
+    const btnModal = document.getElementById("btnExportModal");
+    const overlay = document.getElementById("modalExportOverlay");
+    if (!btnModal || !overlay) return;
+    let fmt = 'pdf';
+    function fechar() { overlay.style.display = "none"; document.body.style.overflow = ""; }
+    function preview() {
+        const am = usuariosFiltrados.slice(0, 5);
+        const area = document.getElementById("exportLivePreview");
+        if (fmt === 'pdf') {
+            area.className = "export-live-preview";
+            let html = `<div class="preview-doc-title">Relatório de Administradores</div><div style="text-align:center; font-size:10px; color:#64748B; margin-bottom: 14px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">Baixado em: ${getDataHoraAtual()}</div>`;
+            html += `<table class="preview-doc-table"><thead><tr><th>ID</th><th>Nome</th><th>Cargo</th><th>Status</th></tr></thead><tbody>`;
+            if (am.length === 0) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">Nenhum dado</td></tr>`;
+            else { am.forEach(u => { html += `<tr><td>#${u.id}</td><td>${u.nome}</td><td>${u.cargo || 'Administrador'}</td><td>${u.status}</td></tr>`; });
+            if (usuariosFiltrados.length > 5) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">... e mais ${usuariosFiltrados.length - 5} admins</td></tr>`; }
+            area.innerHTML = html + `</tbody></table>`;
+        } else {
+            area.className = "export-live-preview csv-mode";
+            let txt = `"Relatório de Administradores - IBK"\n"Baixado em: ${getDataHoraAtual()}"\n\nID,Nome,Cargo,E-mail,Status\n`;
+            am.forEach(u => { txt += `"${u.id}","${u.nome}","${u.cargo || 'Administrador'}","${u.email}","${u.status}"\n`; });
+            area.textContent = txt;
+        }
+    }
+    btnModal.addEventListener("click", () => { overlay.style.display = "flex"; document.body.style.overflow = "hidden"; preview(); });
+    [document.getElementById("modalExportClose"), document.getElementById("btnExportCancel")].forEach(b => b.addEventListener("click", fechar));
+    overlay.addEventListener("click", e => { if (e.target === overlay) fechar(); });
+    ['pdf', 'csv'].forEach(f => { document.getElementById(`format${f.charAt(0).toUpperCase() + f.slice(1)}`).addEventListener("click", () => { fmt = f; document.getElementById("formatPdf").classList.toggle("active", f === 'pdf'); document.getElementById("formatCsv").classList.toggle("active", f === 'csv'); preview(); }); });
+    document.getElementById("btnExportConfirm").addEventListener("click", () => { fechar(); if (fmt === 'csv') { showToast("Baixando CSV..."); exportarCSV(); } else { showToast("Gerando PDF..."); exportarPDF(); } });
+}
+document.addEventListener("DOMContentLoaded", setupExportModal);
 async function carregarLogsUsuario(adminId) {
     const container = document.getElementById("pf-user-logs");
     if (!container) return;
