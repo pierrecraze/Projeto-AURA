@@ -86,9 +86,15 @@ form.addEventListener('submit', async (e) => {
           
           showAlert('Login realizado com sucesso! Redirecionando...', 'success');
           
-          // Redireciona para o Dashboard
+          // Verifica quem é o usuário logado para redirecionar para a tela certa
           setTimeout(() => {
-              window.location.href = '/admin/dashboard/index.html'; 
+              // Se o usuário tem CRM, é um Profissional de Saúde
+              if (data.usuario.crm) {
+                  window.location.href = '/dashboardMedico.html';
+              } else {
+                  // Se não, é Administrador
+                  window.location.href = '/admin/dashboard/index.html'; 
+              }
           }, 1000);
 
       } else {

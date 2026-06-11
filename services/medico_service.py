@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from schemas.medico import MedicoCreate
 from models.medico import MedicoModel
+from models.admin import AdminModel as AdminModelType
 from core.audit import registrar_auditoria
 from core.security import gerar_hash_senha
 
@@ -11,7 +12,7 @@ async def listar_medicos(db: Session):
     return db.query(MedicoModel).all()
 
 @registrar_auditoria(entidade="Médico", acao="Criação")
-async def criar_medico(db: Session, medico_in: MedicoCreate):
+async def criar_medico(db: Session, medico_in: MedicoCreate, *, ator: AdminModelType):
     novo_medico = MedicoModel(
         nome=medico_in.nome,
         email=medico_in.email,
@@ -30,7 +31,7 @@ async def criar_medico(db: Session, medico_in: MedicoCreate):
     return novo_medico
 
 @registrar_auditoria(entidade="Médico", acao="Atualização")
-async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoCreate):
+async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoCreate, *, ator: AdminModelType):
     medico = db.query(MedicoModel).filter(MedicoModel.id == id_medico).first()
     if medico:
         medico.nome = medico_in.nome
@@ -73,7 +74,7 @@ async def resetar_senha_medico(db: Session, id_medico: int):
     return medico
 
 @registrar_auditoria(entidade="Médico", acao="Inativação")
-async def inativar_medico(db: Session, id_medico: int):
+async def inativar_medico(db: Session, id_medico: int, *, ator: AdminModelType):
     medico = db.query(MedicoModel).filter(MedicoModel.id == id_medico).first()
     if medico:
         medico.deletado_em = datetime.now()

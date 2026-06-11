@@ -2,11 +2,12 @@
 // AURA — Gestão de Convênios (Grupos)
 // ==========================================
 
-const API_URL = "http://localhost:8000/api/grupos/";
+const API_URL = "/api/grupos/";
 let conveniosData = [];
 let activeConvenio = null;
 let editId = null;
 let currentFilter = 'Todos';
+let conveniosFiltrados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     setupDate();
@@ -62,6 +63,7 @@ function renderConvenios() {
     } else if (currentFilter === 'Inativos') {
         filteredData = conveniosData.filter(c => c.deletado_em !== null);
     }
+    conveniosFiltrados = filteredData;
 
     if (filteredData.length === 0) {
         grid.innerHTML = `
@@ -226,6 +228,65 @@ function switchTab(tabName) {
 }
 
 // ==========================================
+// EXPORTAÇÃO E MODAL DE PREVIEW
+// ==========================================
+function getDataHoraAtual() {
+    const now = new Date(); return `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+}
+
+function exportarCSV() {
+    const header = ["ID", "Nome Fantasia", "CNPJ", "Status"];
+    const rows = conveniosFiltrados.map(c => [c.id, c.nome_fantasia, applyCnpjMask(c.cnpj) || c.cnpj, c.deletado_em ? "Inativo" : "Ativo"]);
+    const metadata = `"Relatório de Convênios - Instituto Buko Kaesemodel"\n"Baixado em: ${getDataHoraAtual()}"\n\n`;
+    const csv = metadata + [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `convenios_aura_${new Date().getTime()}.csv`; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportarPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF) return showToast("Erro: Biblioteca PDF não carregada.", "error");
+    const { jsPDF } = window.jspdf; const doc = new jsPDF('portrait');
+    doc.setFontSize(14); doc.text("Relatório de Convênios - Instituto Buko Kaesemodel", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100, 116, 139); doc.text(`Baixado em: ${getDataHoraAtual()}`, 14, 22);
+    const rows = conveniosFiltrados.map(c => [c.id, c.nome_fantasia, applyCnpjMask(c.cnpj) || c.cnpj, c.deletado_em ? "Inativo" : "Ativo"]);
+    doc.autoTable({ head: [["ID", "Nome Fantasia", "CNPJ", "Status"]], body: rows, startY: 28, styles: { fontSize: 9 }, headStyles: { fillColor: [13, 27, 53] } });
+    doc.save(`convenios_aura_${new Date().getTime()}.pdf`);
+}
+
+function setupExportModal() {
+    const btnModal = document.getElementById("btnExportModal");
+    const overlay = document.getElementById("modalExportOverlay");
+    if (!btnModal || !overlay) return;
+    let fmt = 'pdf';
+    function fechar() { overlay.style.display = "none"; document.body.style.overflow = ""; }
+    function preview() {
+        const am = conveniosFiltrados.slice(0, 5);
+        const area = document.getElementById("exportLivePreview");
+        if (fmt === 'pdf') {
+            area.className = "export-live-preview";
+            let html = `<div class="preview-doc-title">Relatório de Convênios</div><div style="text-align:center; font-size:10px; color:#64748B; margin-bottom: 14px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">Baixado em: ${getDataHoraAtual()}</div>`;
+            html += `<table class="preview-doc-table"><thead><tr><th>ID</th><th>Nome</th><th>CNPJ</th><th>Status</th></tr></thead><tbody>`;
+            if (am.length === 0) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">Nenhum dado</td></tr>`;
+            else { am.forEach(c => { html += `<tr><td>#${c.id}</td><td>${c.nome_fantasia}</td><td>${applyCnpjMask(c.cnpj)}</td><td>${c.deletado_em ? "Inativo" : "Ativo"}</td></tr>`; });
+            if (conveniosFiltrados.length > 5) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">... e mais ${conveniosFiltrados.length - 5} convênios</td></tr>`; }
+            area.innerHTML = html + `</tbody></table>`;
+        } else {
+            area.className = "export-live-preview csv-mode";
+            let txt = `"Relatório de Convênios - IBK"\n"Baixado em: ${getDataHoraAtual()}"\n\nID,Nome Fantasia,CNPJ,Status\n`;
+            am.forEach(c => { txt += `"${c.id}","${c.nome_fantasia}","${applyCnpjMask(c.cnpj)}","${c.deletado_em ? "Inativo" : "Ativo"}"\n`; });
+            area.textContent = txt;
+        }
+    }
+    btnModal.addEventListener("click", () => { overlay.style.display = "flex"; document.body.style.overflow = "hidden"; preview(); });
+    [document.getElementById("modalExportClose"), document.getElementById("btnExportCancel")].forEach(b => b.addEventListener("click", fechar));
+    overlay.addEventListener("click", e => { if (e.target === overlay) fechar(); });
+    ['pdf', 'csv'].forEach(f => { document.getElementById(`format${f.charAt(0).toUpperCase() + f.slice(1)}`).addEventListener("click", () => { fmt = f; document.getElementById("formatPdf").classList.toggle("active", f === 'pdf'); document.getElementById("formatCsv").classList.toggle("active", f === 'csv'); preview(); }); });
+    document.getElementById("btnExportConfirm").addEventListener("click", () => { fechar(); if (fmt === 'csv') { showToast("Baixando CSV..."); exportarCSV(); } else { showToast("Gerando PDF..."); exportarPDF(); } });
+}
+document.addEventListener("DOMContentLoaded", setupExportModal);
+// ==========================================
 // 4. MODAL NOVO/EDITAR CONVÊNIO
 // ==========================================
 function openModalAddConvenio() {
@@ -378,6 +439,7 @@ function setupSidebar() {
 function setupProfile() {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nomeFull = user.nome || "Admin Principal";
+    const cargo = user.cargo || "Administrador";
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
@@ -390,6 +452,7 @@ function setupProfile() {
         const el = document.getElementById(id);
         if (el) el.textContent = iniciais;
     });
+    document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
     
     const btnLogout = document.querySelector('.logout');
     if (btnLogout) {

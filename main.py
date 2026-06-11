@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth
+from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth, admins
 
 # --- Configuração do Banco de Dados ---
 from database.db import engine, Base
@@ -38,6 +38,8 @@ app.include_router(logs.router, prefix="/api/logs", tags=["Logs"])
 app.include_router(dashboard.router)
 app.include_router(triagens.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(admins.router, prefix="/api/admins", tags=["Administradores"])
 
 # Servir arquivos estáticos
+app.mount("/core", StaticFiles(directory="core"), name="core")
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

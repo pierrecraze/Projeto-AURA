@@ -1,9 +1,10 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from sqlalchemy.orm import Session
-from schemas.medico import Medico, MedicoCreate
+from schemas.medico import Medico, MedicoCreate, MedicoUpdate
 from services import medico_service
 
-from core.security import obter_usuario_atual
+from core.security import obter_usuario_atual, gerar_hash_senha
+from models.admin import AdminModel
 from database.db import SessionLocal
 
 # Dependência para obter a sessão do banco de dados
@@ -18,8 +19,16 @@ def get_db():
 router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Medico, status_code=status.HTTP_201_CREATED)
-async def cadastrar_medico(medico_in: MedicoCreate, db: Session = Depends(get_db)):
-    novo_medico = await medico_service.criar_medico(db, medico_in)
+async def cadastrar_medico(medico_in: MedicoCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    if not ator:
+        raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
+    
+    # Aplica o hash na senha do médico antes de enviá-la para o banco de dados
+    if hasattr(medico_in, 'senha') and medico_in.senha:
+        medico_in.senha = gerar_hash_senha(medico_in.senha)
+
+    novo_medico = await medico_service.criar_medico(db, medico_in, ator=ator)
     return novo_medico
 
 @router.get("/", response_model=list[Medico])
@@ -28,8 +37,11 @@ async def listar_medicos(db: Session = Depends(get_db)):
     return medicos
 
 @router.put("/{id}", response_model=Medico)
-async def atualizar_medico(id: int, medico_in: MedicoCreate, db: Session = Depends(get_db)):
-    medico_atualizado = await medico_service.atualizar_medico(db, id, medico_in)
+async def atualizar_medico(id: int, medico_in: MedicoUpdate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    if not ator:
+        raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
+    medico_atualizado = await medico_service.atualizar_medico(db, id, medico_in, ator=ator)
     if medico_atualizado:
         return medico_atualizado
     raise HTTPException(status_code=404, detail="Médico não encontrado")
@@ -42,8 +54,11 @@ async def resetar_senha_medico(id_medico: int, db: Session = Depends(get_db)):
     return {"senha": medico_atualizado.senha_temporaria}
 
 @router.delete("/{id_medico}", response_model=Medico)
-async def inativar_medico(id_medico: int, db: Session = Depends(get_db)):
-    medico_inativado = await medico_service.inativar_medico(db, id_medico)
+async def inativar_medico(id_medico: int, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    if not ator:
+        raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
+    medico_inativado = await medico_service.inativar_medico(db, id_medico, ator=ator)
     
     if not medico_inativado:
         raise HTTPException(

@@ -186,7 +186,7 @@ Tudo pronto! Rode o comando abaixo para iniciar a API em **modo de desenvolvimen
 ```bash
 uvicorn main:app --reload
 ```
-
+what
 ---
 
 ## 7. Acessando e Testando as APIs

@@ -17,6 +17,10 @@ class MedicoBase(BaseModel):
 class MedicoCreate(MedicoBase):
     senha: str
 
+# Usado para ATUALIZAR dados (PUT) - Não exige a senha
+class MedicoUpdate(MedicoBase):
+    pass
+
 # Usado para DEVOLVER dados (Tem o ID do banco) e omite a senha
 class Medico(MedicoBase):
     id: int
