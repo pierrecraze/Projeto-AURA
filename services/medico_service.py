@@ -2,6 +2,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from schemas.medico import MedicoCreate
 from models.medico import MedicoModel
+from core.security import gerar_hash_senha
 from core.audit import registrar_auditoria
 
 async def listar_medicos(db: Session):
@@ -17,7 +18,7 @@ async def criar_medico(db: Session, medico_in: MedicoCreate):
         telefone=medico_in.telefone,
         cidade=medico_in.cidade,
         uf=medico_in.uf,
-        senha_hash=medico_in.senha,
+        senha_hash=gerar_hash_senha(medico_in.senha),
         data_nascimento=medico_in.data_nascimento
     )
     db.add(novo_medico)

@@ -6,19 +6,38 @@
     <title>AURA | Pacientes</title>
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
-      rel="stylesheet"/>
+      rel="stylesheet"
+    />
 
-    <link rel="stylesheet" href="css/styles.css" />         <!-- CSS global do projeto -->
-    <link rel="stylesheet" href="css/listaPaciente.css" />  <!-- CSS específico desta página -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- CSS global do projeto -->
+    <link rel="stylesheet" href="css/listaPaciente.css" />
+    <!-- CSS específico desta página -->
 
-    <link rel="icon" href="favicon.ico">
+    <link rel="icon" href="favicon.ico" />
   </head>
   <body>
+    <script src="/core/authGuard.js" data-role="medico"></script>
     <!-- HEADER (mesmo padrão do global) -->
     <header>
       <div class="header-left">
-        <button type="button" class="btn-back-header" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Dashboard" aria-label="Voltar">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <button
+          type="button"
+          class="btn-back-header"
+          onclick="window.location.href = 'dashboardMedico.html'"
+          title="Voltar ao Dashboard"
+          aria-label="Voltar"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          >
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
@@ -64,7 +83,10 @@
               </p>
             </div>
           </div>
-        <button class="btn-primary" onclick="window.location.href='cadastroPaciente.html'">
+          <button
+            class="btn-primary"
+            onclick="window.location.href = 'cadastroPaciente.html'"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

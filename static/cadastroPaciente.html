@@ -19,6 +19,7 @@
   </head>
 
   <body>
+    <script src="/core/authGuard.js" data-role="medico"></script>
     <header>
       <a href="index.html" class="header-brand" title="Ir para home">
         <div class="logo-mark" aria-hidden="true">
@@ -81,8 +82,8 @@
         <polyline points="12 6 12 12 16 14" />
       </svg>
       <span
-        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja
-        continuar?</span
+        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>.
+        Deseja continuar?</span
       >
       <button class="btn-session-keep" id="btnKeepSession">
         Continuar sessão
@@ -101,21 +102,40 @@
         </div>
 
         <div class="stepper" aria-label="Etapas do cadastro">
-          <div class="stepper-item is-active" id="stepper-1" role="button" tabindex="0" aria-controls="step-1" aria-current="step">
+          <div
+            class="stepper-item is-active"
+            id="stepper-1"
+            role="button"
+            tabindex="0"
+            aria-controls="step-1"
+            aria-current="step"
+          >
             <span class="stepper-dot" aria-hidden="true">1</span>
             <span class="stepper-text">
               <span class="stepper-title">Paciente</span>
               <span class="stepper-sub">Identificação</span>
             </span>
           </div>
-          <div class="stepper-item" id="stepper-2" role="button" tabindex="0" aria-controls="step-2">
+          <div
+            class="stepper-item"
+            id="stepper-2"
+            role="button"
+            tabindex="0"
+            aria-controls="step-2"
+          >
             <span class="stepper-dot" aria-hidden="true">2</span>
             <span class="stepper-text">
               <span class="stepper-title">Responsável</span>
               <span class="stepper-sub">Vínculo e CPF</span>
             </span>
           </div>
-          <div class="stepper-item" id="stepper-3" role="button" tabindex="0" aria-controls="step-3">
+          <div
+            class="stepper-item"
+            id="stepper-3"
+            role="button"
+            tabindex="0"
+            aria-controls="step-3"
+          >
             <span class="stepper-dot" aria-hidden="true">3</span>
             <span class="stepper-text">
               <span class="stepper-title">Endereço</span>
@@ -182,7 +202,9 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="responsavel"
-                  >Responsável pelo Paciente<span class="required">*</span></label
+                  >Responsável pelo Paciente<span class="required"
+                    >*</span
+                  ></label
                 >
                 <input
                   type="text"
@@ -194,7 +216,9 @@
 
               <div class="form-group">
                 <label for="grauParentesco"
-                  >Grau de parentesco com o paciente<span class="required">*</span></label
+                  >Grau de parentesco com o paciente<span class="required"
+                    >*</span
+                  ></label
                 >
                 <input
                   type="text"

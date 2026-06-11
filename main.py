@@ -40,4 +40,6 @@ app.include_router(triagens.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
 # Servir arquivos estáticos
+# Servir arquivos estáticos
+app.mount("/core", StaticFiles(directory="core"), name="core")  # ← adiciona essa
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

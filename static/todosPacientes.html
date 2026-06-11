@@ -18,10 +18,26 @@
   </head>
 
   <body>
+    <script src="/core/authGuard.js" data-role="medico"></script>
     <header>
       <div class="header-left">
-        <button type="button" class="btn-back-header" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Dashboard" aria-label="Voltar">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <button
+          type="button"
+          class="btn-back-header"
+          onclick="window.location.href = 'dashboardMedico.html'"
+          title="Voltar ao Dashboard"
+          aria-label="Voltar"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          >
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
@@ -42,19 +58,25 @@
         </a>
       </div>
 
-
-
       <div class="header-center">
         <nav class="header-nav">
           <ul>
-            <li><a href="estatisticasPacientes.html" class="btn-center">Estatísticas</a></li>
-            <li><a href="dashboardMedico.html" class="btn-center">Início</a></li>
-            <li><a href="relatoriosPacientes.html" class="btn-center">Relatórios</a></li>
+            <li>
+              <a href="estatisticasPacientes.html" class="btn-center"
+                >Estatísticas</a
+              >
+            </li>
+            <li>
+              <a href="dashboardMedico.html" class="btn-center">Início</a>
+            </li>
+            <li>
+              <a href="relatoriosPacientes.html" class="btn-center"
+                >Relatórios</a
+              >
+            </li>
           </ul>
         </nav>
-    </div>
-
-
+      </div>
 
       <div class="header-right">
         <span class="header-sub">Instituto Buko Kaesemodel</span>
@@ -102,8 +124,8 @@
         <polyline points="12 6 12 12 16 14" />
       </svg>
       <span
-        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja
-        continuar?</span
+        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>.
+        Deseja continuar?</span
       >
       <button class="btn-session-keep" id="btnKeepSession">
         Continuar sessão
@@ -117,7 +139,10 @@
             <h2 class="section-title">Todos os Pacientes</h2>
             <p class="section-sub">Gerencie e acompanhe todos os pacientes</p>
           </div>
-          <button class="btn-primary" onclick="window.location.href='cadastroPaciente.html'">
+          <button
+            class="btn-primary"
+            onclick="window.location.href = 'cadastroPaciente.html'"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

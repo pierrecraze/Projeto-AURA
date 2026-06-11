@@ -6,22 +6,22 @@
      - Bloqueio de acesso sem autenticação
    ============================================================ */
 
-const SESSION_TIMEOUT_MS  = 10 * 60 * 1000;   // 10 min de inatividade (RNF14)
-const SESSION_WARNING_MS  =  2 * 60 * 1000;   // aviso com 2 min restantes (RF20)
+const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 min de inatividade (RNF14)
+const SESSION_WARNING_MS = 2 * 60 * 1000; // aviso com 2 min restantes (RF20)
 
 let inactivityTimer;
 let warningTimer;
 let countdownInterval;
 let warningActive = false;
 
-const banner       = document.getElementById('sessionBanner');
-const countdown    = document.getElementById('sessionCountdown');
-const btnKeep      = document.getElementById('btnKeepSession');
-const btnLogout    = document.getElementById('btnLogout');
+const banner = document.getElementById("sessionBanner");
+const countdown = document.getElementById("sessionCountdown");
+const btnKeep = document.getElementById("btnKeepSession");
+const btnLogout = document.getElementById("btnLogout");
 
 /* ---- Utilitários ---- */
 function pad(n) {
-  return String(n).padStart(2, '0');
+  return String(n).padStart(2, "0");
 }
 
 function formatCountdown(ms) {
@@ -41,7 +41,7 @@ function logout() {
 
     Depois redireciona:
   */
-  window.location.href = '/login';
+  window.location.href = "/login.html";
 }
 
 /* ---- Exibir aviso de sessão (RF20) ---- */
@@ -49,7 +49,7 @@ function showSessionWarning() {
   if (warningActive) return;
   warningActive = true;
 
-  banner.classList.add('visible');
+  banner.classList.add("visible");
 
   let remainingMs = SESSION_WARNING_MS;
   countdown.textContent = formatCountdown(remainingMs);
@@ -68,7 +68,7 @@ function showSessionWarning() {
 /* ---- Ocultar aviso e renovar sessão ---- */
 function dismissWarning() {
   clearInterval(countdownInterval);
-  banner.classList.remove('visible');
+  banner.classList.remove("visible");
   warningActive = false;
 
   /*
@@ -92,24 +92,37 @@ function resetInactivityTimer() {
   warningActive = false;
 
   /* Dispara o aviso quando restam SESSION_WARNING_MS para expirar */
-  warningTimer = setTimeout(showSessionWarning, SESSION_TIMEOUT_MS - SESSION_WARNING_MS);
+  warningTimer = setTimeout(
+    showSessionWarning,
+    SESSION_TIMEOUT_MS - SESSION_WARNING_MS,
+  );
 
   /* Logout automático ao fim do tempo total */
   inactivityTimer = setTimeout(logout, SESSION_TIMEOUT_MS);
 }
 
 /* ---- Eventos de atividade do usuário ---- */
-const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+const ACTIVITY_EVENTS = [
+  "mousemove",
+  "keydown",
+  "mousedown",
+  "touchstart",
+  "scroll",
+];
 
-ACTIVITY_EVENTS.forEach(event => {
-  document.addEventListener(event, () => {
-    if (!warningActive) resetInactivityTimer();
-  }, { passive: true });
+ACTIVITY_EVENTS.forEach((event) => {
+  document.addEventListener(
+    event,
+    () => {
+      if (!warningActive) resetInactivityTimer();
+    },
+    { passive: true },
+  );
 });
 
 /* ---- Botões ---- */
-btnKeep.addEventListener('click', dismissWarning);
-btnLogout.addEventListener('click', logout);
+btnKeep.addEventListener("click", dismissWarning);
+btnLogout.addEventListener("click", logout);
 
 /* ---- Inicialização ---- */
 (function init() {

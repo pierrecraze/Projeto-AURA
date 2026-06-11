@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from uuid import UUID
 
@@ -9,5 +9,13 @@ class TriagemMetadata(BaseModel):
     data_hora: datetime
     paciente_id: UUID
     medico_id: int  # Adaptamos 'profissional_id' para 'medico_id' para compatibilidade com o front-end
+
+    model_config = ConfigDict(from_attributes=True)
+
+class TriagemCreate(BaseModel):
+    # Campos que o médico preenche
+    paciente_id: UUID
+    score_total: int = Field(..., ge=0, le=100)  # ge=0 le=100 = entre 0 e 100
+    recomendacao_encaminhamento: bool
 
     model_config = ConfigDict(from_attributes=True)
