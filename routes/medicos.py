@@ -1,9 +1,9 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from sqlalchemy.orm import Session
-from schemas.medico import Medico, MedicoCreate
+from schemas.medico import Medico, MedicoCreate, MedicoUpdate
 from services import medico_service
 
-from core.security import obter_usuario_atual
+from core.security import obter_usuario_atual, gerar_hash_senha
 from models.admin import AdminModel
 from database.db import SessionLocal
 
@@ -23,6 +23,11 @@ async def cadastrar_medico(medico_in: MedicoCreate, db: Session = Depends(get_db
     ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
+    
+    # Aplica o hash na senha do médico antes de enviá-la para o banco de dados
+    if hasattr(medico_in, 'senha') and medico_in.senha:
+        medico_in.senha = gerar_hash_senha(medico_in.senha)
+
     novo_medico = await medico_service.criar_medico(db, medico_in, ator=ator)
     return novo_medico
 
@@ -32,7 +37,7 @@ async def listar_medicos(db: Session = Depends(get_db)):
     return medicos
 
 @router.put("/{id}", response_model=Medico)
-async def atualizar_medico(id: int, medico_in: MedicoCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
+async def atualizar_medico(id: int, medico_in: MedicoUpdate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
     ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
