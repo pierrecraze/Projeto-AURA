@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api/auth";
+const API_URL = "/api/auth";
 
 document.addEventListener("DOMContentLoaded", () => {
     // Carrega os ícones primeiro para garantir a renderização visual da tela

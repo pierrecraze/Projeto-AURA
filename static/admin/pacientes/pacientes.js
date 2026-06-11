@@ -2,7 +2,7 @@
 //  AURA — Gestão de Pacientes
 // =============================================
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "/api";
 const POR_PAGINA = 10;
 
 // ---------- DADOS MOCK ----------

@@ -1,5 +1,5 @@
 /* ─── Configuração da API ──────────────────────────────────── */
-const API_URL = "http://localhost:8000/api";
+const API_URL = "/api";
 
 /* ─── Dados (preenchidos pela API) ─────────────────────────── */
 let medicos    = [];
