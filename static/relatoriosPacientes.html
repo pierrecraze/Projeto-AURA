@@ -181,6 +181,7 @@
     </main>
 
     <script src="/server/home.js"></script>
+    <script src="/server/relatorio.js"></script>
     <script>
       const POR_PAGINA = 10;
       let paginaAtual = 1;
@@ -238,6 +239,7 @@
                 <td>${horaBr}</td>
                 <td>
                   <div class="actions-cell">
+                    <button class="btn-acao" onclick="event.stopPropagation(); gerarPDFAvaliacao('${r.id}')">Relatório PDF</button>
                     <button class="btn-acao" onclick="event.stopPropagation(); window.location.href='paciente.html?id=${r.paciente_id}'">Ver paciente</button>
                   </div>
                 </td>
@@ -271,6 +273,31 @@
         if (p < 1 || p > total) return;
         paginaAtual = p;
         renderizar();
+      }
+
+      async function gerarPDFAvaliacao(id) {
+        const rel = relatorios.find((r) => r.id === id);
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch(`/api/triagens/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const det = await res.json();
+
+          gerarRelatorioPDF({
+            pacienteNome: rel?.pacienteNome || "Paciente removido",
+            dataHora: det.data_hora,
+            scorePct: det.score_total,
+            sintomas: det.sintomas, // null em avaliações antigas (sem registro individual)
+            conduta: det.recomendacao_encaminhamento,
+            medicoNome: det.medico_nome,
+            medicoCrm: det.medico_crm,
+          });
+        } catch (err) {
+          console.error("Erro ao gerar relatório:", err);
+          alert("Não foi possível gerar o relatório desta avaliação.");
+        }
       }
 
       async function carregarRelatorios() {

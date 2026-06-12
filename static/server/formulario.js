@@ -27,23 +27,12 @@ const PESOS = {
   agressividade: 0.03,
 };
 
-// Rótulos legíveis para exibição dos sintomas no resultado.
-const SINTOMAS_LABELS = {
-  deficiencia_intelectual: "Deficiência intelectual",
-  macroorquidismo: "Macroorquidismo",
-  dificuldades_aprendizagem: "Dificuldades de aprendizagem",
-  movimentos_repetitivos: "Movimentos repetitivos",
-  hiperatividade: "Hiperatividade",
-  evita_contato_fisico: "Evita contato físico",
-  face_alongada: "Face alongada / orelhas",
-  hipermobilidade: "Hipermobilidade articular",
-  deficit_atencao: "Déficit de atenção",
-  atraso_fala: "Atraso na fala",
-  evita_contato_visual: "Evita contato visual",
-  agressividade: "Agressividade",
-};
+// Os rótulos legíveis dos sintomas (SINTOMAS_LABELS) vivem em relatorio.js,
+// carregado antes deste script nas páginas que usam o formulário.
 
-const PACIENTE_ID = new URLSearchParams(window.location.search).get("paciente_id");
+// Aceita tanto ?paciente_id= (formulario.html) quanto ?id= (paciente.html)
+const _params = new URLSearchParams(window.location.search);
+const PACIENTE_ID = _params.get("paciente_id") || _params.get("id");
 
 let ultimoScore = 0;
 
@@ -149,9 +138,7 @@ function exibirResultado(score) {
   }
 
   // ── Sintomas apresentados (chips) ──────────────
-  const marcados = Object.keys(PESOS)
-    .filter((nome) => getRespostaCampo(nome) === "sim")
-    .sort((a, b) => PESOS[b] - PESOS[a]);
+  const marcados = sintomasMarcados();
 
   const countEl = document.getElementById("metrica-contagem");
   if (countEl) {
@@ -220,6 +207,14 @@ function exibirResultado(score) {
       </button>`;
   }
 
+  // Botão de relatório formal (PDF), disponível em todas as categorias
+  botoesRes.insertAdjacentHTML(
+    "beforeend",
+    `<button class="btn-acao relatorio" onclick="gerarRelatorioResultado()">
+       Gerar relatório (PDF)
+     </button>`,
+  );
+
   // Botão voltar (evita duplicatas em reavaliações)
   const btnVoltarAntigo = document.querySelector(".btn-voltar");
   if (btnVoltarAntigo) btnVoltarAntigo.remove();
@@ -229,6 +224,40 @@ function exibirResultado(score) {
   );
 
   mostrarTela("tela-resultado");
+}
+
+// ─────────────────────────────────────────────
+// Relatório formal (PDF) a partir do resultado
+// ─────────────────────────────────────────────
+
+function sintomasMarcados() {
+  return Object.keys(PESOS)
+    .filter((nome) => getRespostaCampo(nome) === "sim")
+    .sort((a, b) => PESOS[b] - PESOS[a]);
+}
+
+function gerarRelatorioResultado() {
+  const usuario = JSON.parse(localStorage.getItem("aura_user") || "null") || {};
+
+  // Nome/nascimento do paciente: na página paciente.html vêm dos campos da ficha
+  const nomeInput = document.getElementById("nomePaciente");
+  const titleEl = document.getElementById("titleName");
+  const nascInput = document.getElementById("dataNascimento");
+  const pacienteNome =
+    (nomeInput && nomeInput.value.trim()) ||
+    (titleEl && titleEl.textContent.trim()) ||
+    "Não informado";
+
+  gerarRelatorioPDF({
+    pacienteNome,
+    pacienteNascimento: nascInput && nascInput.value ? nascInput.value : null,
+    dataHora: new Date(),
+    scorePct: Math.round(ultimoScore * 100),
+    sintomas: sintomasMarcados(),
+    conduta: null, // ainda não registrada neste momento
+    medicoNome: usuario.nome || null,
+    medicoCrm: usuario.crm || null,
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -250,6 +279,7 @@ async function registrarTriagem(recomendacaoEncaminhamento) {
         paciente_id: PACIENTE_ID,
         score_total: Math.round(ultimoScore * 100),
         recomendacao_encaminhamento: recomendacaoEncaminhamento,
+        sintomas: sintomasMarcados(),
       }),
     });
     return res.ok;

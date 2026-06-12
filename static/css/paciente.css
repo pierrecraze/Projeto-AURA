@@ -597,6 +597,17 @@
   color: #fff;
 }
 
+.clinical-embed .btn-acao.relatorio {
+  background: transparent;
+  border: 1px dashed var(--primary);
+  color: var(--primary);
+}
+
+.clinical-embed .btn-acao.relatorio:hover {
+  background: var(--primary-light);
+  border-style: solid;
+}
+
 .clinical-embed .btn-voltar {
   display: inline-block;
   margin-top: 14px;

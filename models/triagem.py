@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, Integer, Boolean, String, DateTime, ForeignKey, SmallInteger
+from sqlalchemy import Column, Integer, Boolean, String, Text, DateTime, ForeignKey, SmallInteger
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 from database.db import Base
@@ -11,6 +11,8 @@ class AvaliacaoModel(Base):
     data_hora = Column(DateTime, default=datetime.utcnow, nullable=False)
     score_total = Column(SmallInteger, nullable=False)
     recomendacao_encaminhamento = Column(Boolean, nullable=False)
+    # Lista (JSON) dos sintomas assinalados na avaliação — usada no relatório PDF
+    sintomas = Column(Text, nullable=True)
     assinatura_hash = Column(String(255), nullable=True)
     assinado_em = Column(DateTime, nullable=True)
     

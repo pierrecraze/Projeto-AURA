@@ -14,6 +14,15 @@ from database.db import engine, Base
 from models.admin import AdminModel # Importa o modelo para o SQLAlchemy conhecê-lo
 Base.metadata.create_all(bind=engine) # Cria a tabela admin_sistema automaticamente se não existir
 
+# Mini-migração: create_all não altera tabelas existentes, então garante a
+# coluna 'sintomas' em avaliacao (snapshot dos sintomas, usado no relatório PDF)
+from sqlalchemy import text
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE avaliacao ADD COLUMN IF NOT EXISTS sintomas TEXT"))
+except Exception as e:
+    print(f"[AVISO] Não foi possível garantir a coluna avaliacao.sintomas: {e}")
+
 # Inicialização do Aplicativo
 app = FastAPI(
     title="API Projeto AURA",
