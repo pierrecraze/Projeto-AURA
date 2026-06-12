@@ -77,8 +77,8 @@
             </div>
             <div class="metric-body">
               <span class="metric-label">Lista total de pacientes</span>
-              <span class="metric-value">38</span>
-              <span class="metric-trend trend-up">+3 este mês</span>
+              <span class="metric-value" id="metricTotalPacientes">—</span>
+              <span class="metric-trend trend-neutral" id="metricTotalLegenda">na instituição</span>
             </div>
           </button>
 
@@ -215,8 +215,12 @@
           const pacientes = await res.json();
           const ativos = pacientes.filter(p => !p.deletado_em);
           
-          const metricTotal = document.querySelector('.metric-card:nth-child(1) .metric-value');
+          const metricTotal = document.getElementById('metricTotalPacientes');
           if (metricTotal) metricTotal.textContent = ativos.length;
+          const metricTotalLegenda = document.getElementById('metricTotalLegenda');
+          if (metricTotalLegenda)
+            metricTotalLegenda.textContent =
+              `${ativos.length} ${ativos.length === 1 ? 'paciente' : 'pacientes'} na instituição`;
 
           const tbody = document.getElementById('patientTableBody');
           tbody.innerHTML = '';
