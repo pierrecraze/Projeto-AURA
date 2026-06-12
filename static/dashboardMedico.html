@@ -205,7 +205,7 @@
             <tbody id="patientTableBodyHome">
             </tbody>
           </table>
-          <p class="table-empty" id="tableEmptyHome" hidden>Nenhum paciente encontrado.</p>
+          <p class="table-empty" id="tableEmptyHome" style="display:none;">Nenhum paciente encontrado.</p>
         </section>
 
       </div>
@@ -482,7 +482,7 @@
             row.hidden = !match;
             if (match) visible++;
           });
-          if(tableEmptyHome) tableEmptyHome.hidden = visible > 0;
+          if(tableEmptyHome) tableEmptyHome.style.display = visible > 0 ? 'none' : 'flex';
         });
       }
 
@@ -500,9 +500,11 @@
           });
 
           if (res.ok) {
-            const pacientes = await res.json();
-            const ativos = pacientes.filter(p => !p.deletado_em);
-            
+            const dados = await res.json();
+            // Tolera tanto array puro quanto resposta paginada {items|data|results}
+            const lista = Array.isArray(dados) ? dados : (dados.items || dados.data || dados.results || []);
+            const ativos = lista.filter(p => !p.deletado_em);
+
             // Sincroniza o contador do card azul com a quantidade real
             const metricTotal = document.getElementById('metricTotalPacientes');
             if (metricTotal) metricTotal.textContent = ativos.length;
@@ -531,7 +533,9 @@
                 `;
                 tbodyHome.appendChild(tr);
               });
-              if(tableEmptyHome) tableEmptyHome.hidden = recentes.length > 0;
+              // .table-empty tem display:flex no CSS, então o atributo `hidden`
+              // não basta — controlamos pelo style.display.
+              if(tableEmptyHome) tableEmptyHome.style.display = recentes.length > 0 ? 'none' : 'flex';
             }
 
             // Monta a Tabela Completa (Aba Pacientes)
@@ -569,8 +573,10 @@
 
             // A aba de Avaliações é carregada separadamente por avalCarregar()
             // (via /api/triagens/resumo), no módulo de avaliações abaixo.
+          } else {
+            console.error('[dashboard] /api/pacientes/ respondeu', res.status, res.statusText);
           }
-        } catch(e) { console.error("Erro na comunicação com a API:", e); }
+        } catch(e) { console.error("[dashboard] Falha ao montar Início/Pacientes:", e); }
       }
 
       carregarDadosDashboard();
@@ -810,46 +816,47 @@
         statsRenderGraficoMes();
       }
 
-      // Doughnut: classifica cada paciente pela sua avaliação mais recente no período;
-      // pacientes sem avaliação entram como "Não avaliados" (não mais como "Baixa")
+      // Doughnut: conta CADA avaliação do período pelo seu nível de probabilidade.
+      // (Contar por avaliação — e não "a mais recente por paciente" — garante que
+      //  toda triagem registrada apareça, inclusive uma amarela isolada.)
       function statsRenderGraficoProb(triagens) {
         const ctx = document.getElementById('graficoProbabilidade');
         if (!ctx) return;
 
-        const ultimaPorPaciente = {};
-        triagens.forEach(t => {
-          const atual = ultimaPorPaciente[t.paciente_id];
-          if (!atual || new Date(t.data_hora) > new Date(atual.data_hora)) {
-            ultimaPorPaciente[t.paciente_id] = t;
-          }
-        });
-
         const contagem = { baixa: 0, media: 0, alta: 0 };
-        Object.values(ultimaPorPaciente).forEach(t => {
+        triagens.forEach(t => {
           const { classe } = classificarScorePct(Number(t.score_total));
           if (classe === 'alto') contagem.alta++;
           else if (classe === 'medio') contagem.media++;
           else contagem.baixa++;
         });
 
-        const avaliadosIds = new Set(Object.keys(ultimaPorPaciente).map(String));
-        const naoAvaliados = statsPacientes.filter(p => !avaliadosIds.has(String(p.id))).length;
-
         if (chartProb) chartProb.destroy();
         chartProb = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)', 'Não avaliados'],
+            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)'],
             datasets: [{
-              data: [contagem.baixa, contagem.media, contagem.alta, naoAvaliados],
-              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045', '#c3ccd4'],
+              data: [contagem.baixa, contagem.media, contagem.alta],
+              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045'],
               borderWidth: 2,
               borderColor: '#ffffff'
             }]
           },
           options: {
             responsive: true,
-            plugins: { legend: { position: 'bottom' } }
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: {
+                callbacks: {
+                  label: (item) => {
+                    const total = item.dataset.data.reduce((s, n) => s + n, 0) || 1;
+                    const pct = Math.round((item.parsed / total) * 100);
+                    return ` ${item.label}: ${item.parsed} (${pct}%)`;
+                  }
+                }
+              }
+            }
           }
         });
       }
