@@ -23,7 +23,6 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; background: var(--slat
   flex-shrink: 0;
   border-right: 1px solid rgba(255,255,255,0.04);
   transition: width var(--sidebar-transition);
-  overflow: hidden;
   position: relative;
   z-index: 20;
 }
@@ -122,7 +121,7 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; background: var(--slat
   position: absolute;
   bottom: calc(100% + 6px);
   left: 12px;
-  right: 12px;
+  width: 216px;
   background: white;
   border-radius: 12px;
   border: 1px solid var(--border);
