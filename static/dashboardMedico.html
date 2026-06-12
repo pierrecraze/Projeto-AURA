@@ -10,6 +10,40 @@
   <link rel="stylesheet" href="css/listaPaciente.css" />
   <link rel="icon" href="favicon.ico">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Badge de score na lista de avaliações */
+    .score-pill {
+      display: inline-block;
+      min-width: 52px;
+      text-align: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: #fff;
+    }
+    .score-pill--alto { background: #e74c3c; }
+    .score-pill--medio { background: #f0a500; }
+    .score-pill--baixo { background: #27ae60; }
+
+    .actions-cell .btn-acao {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .actions-cell .btn-acao svg { flex-shrink: 0; }
+
+    .btn-acao--danger {
+      color: #c0392b;
+      border-color: #e7b6b0;
+    }
+    .btn-acao--danger:hover {
+      background: #fdf0ee;
+      border-color: #e74c3c;
+      color: #c0392b;
+    }
+  </style>
 </head>
 <body>
   <script src="/core/authGuard.js" data-role="medico"></script>
@@ -317,20 +351,23 @@
         </div>
 
         <div class="search-bar">
-          <div class="search-wrap" style="position: relative; width: 100%;">
-            <input class="search-input" type="text" id="searchReports" placeholder="Filtrar relatórios por nome do paciente..." style="width: 100%; height: 40px; padding: 0 1rem; font-family: inherit; font-size: 0.875rem; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); outline: none;"/>
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+            </svg>
+            <input class="search-input" type="text" id="searchReports" placeholder="Buscar por nome do paciente…" oninput="avalFiltrar()"/>
           </div>
         </div>
 
-        <div class="table-card panel">
-          <table class="patient-table">
+        <div class="table-card">
+          <table>
             <thead>
               <tr>
                 <th>Paciente</th>
-                <th>Última Alteração</th>
-                <th>Probabilidade Clínica</th>
-                <th>Status do Monitoramento</th>
-                <th style="text-align: center;">Laudo / Encaminhamento</th>
+                <th>Data da avaliação</th>
+                <th>Horário</th>
+                <th>Score</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody id="tabelaRelatoriosBody"></tbody>
@@ -338,14 +375,14 @@
 
           <div id="emptyReportsState" class="empty-state" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"/>
             </svg>
-            <p>Nenhum laudo clínico ou relatório encontrado.</p>
+            <p>Nenhuma avaliação encontrada.</p>
           </div>
 
           <div class="pagination">
-            <span class="pagination-info" id="paginacaoInfoRelatorios">Exibindo todos os registros clínicos ativos</span>
-            <div class="pagination-btns"></div>
+            <span class="pagination-info" id="paginacaoInfoRelatorios"></span>
+            <div class="pagination-btns" id="paginacaoBtnsRelatorios"></div>
           </div>
         </div>
       </div>
@@ -369,6 +406,9 @@
       const activeBtn = document.getElementById('nav-' + page);
       if (activeBtn) activeBtn.classList.add('active');
 
+      // Atualiza a lista de avaliações sempre que a aba é aberta
+      if (page === 'relatorios' && window.avalCarregar) window.avalCarregar();
+
       window.scrollTo(0, 0);
     }
 
@@ -382,6 +422,7 @@
 
   <script src="/static/server/home.js"></script>
   <script src="server/listaPaciente.js"></script>
+  <script src="server/relatorio.js?v=20260612b"></script>
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -458,27 +499,7 @@
         });
       }
 
-      // -- Busca Local e Filtro Interativo de Relatórios --
-      const searchInputReports = document.getElementById('searchReports');
-      if (searchInputReports) {
-        searchInputReports.addEventListener('input', () => {
-          const q = searchInputReports.value.toLowerCase().trim();
-          let visible = 0;
-          const reportRows = document.querySelectorAll('#tabelaRelatoriosBody tr');
-          
-          reportRows.forEach(row => {
-            const name = row.querySelector('.patient-cell span')?.textContent.toLowerCase() ?? '';
-            const match = q === '' || name.includes(q);
-            row.hidden = !match;
-            if (match) visible++;
-          });
-          
-          const emptyReportsState = document.getElementById('emptyReportsState');
-          if (emptyReportsState) {
-            emptyReportsState.style.display = visible === 0 ? 'flex' : 'none';
-          }
-        });
-      }
+      // A aba de Avaliações é montada pelo módulo avaliações (busca via avalFiltrar).
 
       // -- Banner de Sessão Expirada --
       const banner    = document.getElementById('sessionBanner');
@@ -608,63 +629,8 @@
               if (emptyState) emptyState.style.display = ativos.length === 0 ? 'flex' : 'none';
             }
 
-            // --- MONTAGEM DINÂMICA DA ABA DE RELATÓRIOS ---
-            const tbodyRelatorios = document.getElementById('tabelaRelatoriosBody');
-            if (tbodyRelatorios) {
-              tbodyRelatorios.innerHTML = '';
-              
-              ativos.forEach(p => {
-                const d = (p.dataNascimento || p.data_nascimento || '').split('-');
-                const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
-                const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
-                
-                // Determina os textos e as cores de probabilidade baseadas no score real do banco
-                let score = p.score_clinico !== undefined ? Number(p.score_clinico) : null;
-                let probText = 'Não avaliado';
-                let probBadgeClass = 'trend-neutral';
-                let statusText = 'Aguardando Triagem';
-                let statusColor = '#6b8fa8';
-
-                if (score !== null) {
-                  if (score >= 0.56) {
-                    probText = `Alta Probabilidade (${score.toFixed(2)})`;
-                    probBadgeClass = 'badge--m'; // Usa estilo azul/vermelho do sistema
-                    statusText = 'Encaminhado p/ Teste';
-                    statusColor = '#d64045'; // Alerta / Alta
-                  } else if (score >= 0.40) {
-                    probText = `Média Probabilidade (${score.toFixed(2)})`;
-                    probBadgeClass = 'badge--f';
-                    statusText = 'Em Análise Detalhada';
-                    statusColor = '#b06a10'; // Atenção / Média
-                  } else {
-                    probText = `Baixa Probabilidade (${score.toFixed(2)})`;
-                    probBadgeClass = 'trend-up';
-                    statusText = 'Monitoramento Clínico';
-                    statusColor = '#2a9d5c'; // Sucesso / Baixa
-                  }
-                }
-
-                const trReport = document.createElement('tr');
-                trReport.innerHTML = `
-                  <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
-                  <td>${dateBr}</td>
-                  <td><span class="badge ${probBadgeClass}" style="text-transform:none; font-size:0.78rem;">${probText}</span></td>
-                  <td><span style="font-weight:600; color:${statusColor}; font-size:0.82rem;">● ${statusText}</span></td>
-                  <td style="text-align: center;" class="actions-cell">
-                    <button type="button" class="btn-icon" title="Ver Laudo Completo" onclick="window.location.href='paciente.html?id=${p.id}'" style="margin: 0 auto; width:36px; height:36px; border:1px solid var(--border); background:#fff;">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    </button>
-                  </td>
-                `;
-                tbodyRelatorios.appendChild(trReport);
-              });
-
-              const emptyReportsState = document.getElementById('emptyReportsState');
-              if (emptyReportsState) {
-                emptyReportsState.style.display = ativos.length === 0 ? 'flex' : 'none';
-              }
-            }
-            // ----------------------------------------------------
+            // A aba de Avaliações é carregada separadamente por avalCarregar()
+            // (via /api/triagens/resumo), no módulo de avaliações abaixo.
           }
         } catch(e) { console.error("Erro na comunicação com a API:", e); }
       }
@@ -672,6 +638,180 @@
       carregarDadosDashboard();
       setTimeout(startWarning, 5000);
     });
+  </script>
+
+  <!-- Módulo da aba Avaliações (lista de triagens com score e relatório PDF) -->
+  <script>
+    (function () {
+      const AVAL_POR_PAGINA = 10;
+      let avalPagina = 1;
+      let avaliacoes = [];
+
+      function avalIniciais(nome) {
+        const partes = String(nome || '').trim().split(/\s+/).filter(Boolean);
+        if (partes.length === 0) return '??';
+        return partes.length >= 2
+          ? (partes[0][0] + partes[1][0]).toUpperCase()
+          : partes[0][0].toUpperCase();
+      }
+
+      function avalFiltradas() {
+        const q = (document.getElementById('searchReports')?.value || '').toLowerCase().trim();
+        if (!q) return avaliacoes;
+        return avaliacoes.filter(r => (r.pacienteNome || '').toLowerCase().includes(q));
+      }
+
+      window.avalFiltrar = function () {
+        avalPagina = 1;
+        avalRenderizar();
+      };
+
+      function avalRenderizar() {
+        const filtrados = avalFiltradas();
+        const total = filtrados.length;
+        const totalPag = Math.max(1, Math.ceil(total / AVAL_POR_PAGINA));
+        if (avalPagina > totalPag) avalPagina = totalPag;
+
+        const inicio = (avalPagina - 1) * AVAL_POR_PAGINA;
+        const pagina = filtrados.slice(inicio, inicio + AVAL_POR_PAGINA);
+
+        const tbody = document.getElementById('tabelaRelatoriosBody');
+        const empty = document.getElementById('emptyReportsState');
+        if (!tbody) return;
+
+        if (pagina.length === 0) {
+          tbody.innerHTML = '';
+          if (empty) empty.style.display = 'block';
+        } else {
+          if (empty) empty.style.display = 'none';
+          tbody.innerHTML = pagina.map((r) => {
+            const data = new Date(r.data_hora);
+            const dataBr = data.toLocaleDateString('pt-BR');
+            const horaBr = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const { classe, categoria } = classificarScorePct(r.score_total);
+            const scoreBadge = `<span class="score-pill score-pill--${classe}" title="${categoria}">${r.score_total}%</span>`;
+            return `
+              <tr class="row-click" onclick="window.location.href='paciente.html?id=${r.paciente_id}'">
+                <td>
+                  <span class="patient-name">
+                    <span class="patient-initials">${avalIniciais(r.pacienteNome)}</span>
+                    ${r.pacienteNome || 'Paciente removido'}
+                  </span>
+                </td>
+                <td>${dataBr}</td>
+                <td>${horaBr}</td>
+                <td>${scoreBadge}</td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="btn-acao" title="Gerar o relatório formal desta avaliação" onclick="event.stopPropagation(); avalGerarPDF('${r.id}')">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                      Relatório PDF
+                    </button>
+                    <button class="btn-acao" title="Abrir a ficha do paciente" onclick="event.stopPropagation(); window.location.href='paciente.html?id=${r.paciente_id}'">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      Ver paciente
+                    </button>
+                    <button class="btn-acao btn-acao--danger" title="Excluir esta avaliação" onclick="event.stopPropagation(); avalExcluir('${r.id}', '${(r.pacienteNome || 'este paciente').replace(/'/g, "\\'")}')">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                      Excluir
+                    </button>
+                  </div>
+                </td>
+              </tr>`;
+          }).join('');
+        }
+
+        avalRenderPaginacao(total, totalPag);
+      }
+
+      function avalRenderPaginacao(total, totalPag) {
+        const info = document.getElementById('paginacaoInfoRelatorios');
+        const btnsDiv = document.getElementById('paginacaoBtnsRelatorios');
+        if (!info || !btnsDiv) return;
+
+        const inicio = total === 0 ? 0 : (avalPagina - 1) * AVAL_POR_PAGINA + 1;
+        const fim = Math.min(avalPagina * AVAL_POR_PAGINA, total);
+        info.textContent = `Exibindo ${inicio}-${fim} de ${total}`;
+
+        let btns = `<button class="pg-btn" onclick="avalIrPara(${avalPagina - 1})" ${avalPagina === 1 ? 'disabled' : ''}>‹</button>`;
+        const start = Math.max(1, avalPagina - 2);
+        const end = Math.min(totalPag, avalPagina + 2);
+        for (let p = start; p <= end; p++) {
+          btns += `<button class="pg-btn ${p === avalPagina ? 'active' : ''}" onclick="avalIrPara(${p})">${p}</button>`;
+        }
+        btns += `<button class="pg-btn" onclick="avalIrPara(${avalPagina + 1})" ${avalPagina === totalPag ? 'disabled' : ''}>›</button>`;
+        btnsDiv.innerHTML = btns;
+      }
+
+      window.avalIrPara = function (p) {
+        const total = Math.max(1, Math.ceil(avalFiltradas().length / AVAL_POR_PAGINA));
+        if (p < 1 || p > total) return;
+        avalPagina = p;
+        avalRenderizar();
+      };
+
+      window.avalGerarPDF = async function (id) {
+        const rel = avaliacoes.find((r) => r.id === id);
+        const janela = window.open('', '_blank');
+        if (janela) janela.document.write("<p style='font-family:sans-serif;padding:24px'>Gerando relatório…</p>");
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch(`/api/triagens/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const det = await res.json();
+          gerarRelatorioPDF({
+            pacienteNome: rel?.pacienteNome || 'Paciente removido',
+            dataHora: det.data_hora,
+            scorePct: det.score_total,
+            sintomas: det.sintomas,
+            conduta: det.recomendacao_encaminhamento,
+            medicoNome: det.medico_nome,
+            medicoCrm: det.medico_crm,
+          }, janela);
+        } catch (err) {
+          console.error('Erro ao gerar relatório:', err);
+          if (janela) janela.close();
+          alert('Não foi possível gerar o relatório desta avaliação.');
+        }
+      };
+
+      window.avalExcluir = async function (id, nome) {
+        if (!confirm(`Excluir definitivamente a avaliação de ${nome}?\n\nEsta ação não pode ser desfeita.`)) return;
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch(`/api/triagens/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+          if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+          avaliacoes = avaliacoes.filter((r) => r.id !== id);
+          avalRenderizar();
+        } catch (err) {
+          console.error('Erro ao excluir avaliação:', err);
+          alert('Não foi possível excluir a avaliação.');
+        }
+      };
+
+      window.avalCarregar = async function () {
+        try {
+          const token = localStorage.getItem('aura_token');
+          const headers = { 'Authorization': `Bearer ${token}` };
+          const [resTri, resPac] = await Promise.all([
+            fetch('/api/triagens/resumo', { headers }),
+            fetch('/api/pacientes/', { headers })
+          ]);
+          const triagens = resTri.ok ? await resTri.json() : [];
+          const pacientes = resPac.ok ? await resPac.json() : [];
+          const nomesPorId = {};
+          pacientes.forEach(p => { nomesPorId[p.id] = p.nome; });
+          avaliacoes = triagens
+            .map(t => ({ ...t, pacienteNome: nomesPorId[t.paciente_id] }))
+            .sort((a, b) => new Date(b.data_hora) - new Date(a.data_hora));
+          avalRenderizar();
+        } catch (err) {
+          console.error('Erro ao carregar avaliações:', err);
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', () => window.avalCarregar());
+    })();
   </script>
 </body>
 </html>
