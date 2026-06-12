@@ -839,25 +839,39 @@ function setupProfile() {
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
 
-    ["profileName", "topbarName"].forEach(id => {
+        ["profileName", "topbarName", "popoverName"].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = nomeExibicao;
+            if (el) el.textContent = id === "popoverName" ? nomeFull : nomeExibicao;
     });
-    ["profileAvatar", "topbarAvatar"].forEach(id => {
+        ["profileAvatar", "topbarAvatar", "popoverAvatar"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = iniciais;
     });
+        const popEmail = document.getElementById("popoverEmail"); if(popEmail) popEmail.textContent = email;
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
-}
 
-// Logout
-const btnLogout = document.querySelector('.logout');
-if (btnLogout) {
-    btnLogout.addEventListener('click', () => {
-        localStorage.removeItem('aura_token');
-        localStorage.removeItem('aura_user');
-        window.location.replace('/login.html');
-    });
+        const pCard = document.getElementById("profileCard");
+        const pBtn = document.getElementById("profileMoreBtn");
+        const pPop = document.getElementById("profilePopover");
+        const pDrop = document.getElementById("profileDropdown");
+        if (pCard && pPop && pDrop) {
+            pCard.addEventListener("click", (evt) => {
+                if (evt.target === pBtn || pBtn.contains(evt.target)) {
+                    evt.stopPropagation(); pDrop.classList.toggle("show"); pPop.classList.remove("show");
+                } else {
+                    evt.stopPropagation(); pPop.classList.toggle("show"); pDrop.classList.remove("show");
+                }
+            });
+            document.addEventListener("click", () => { pPop.classList.remove("show"); pDrop.classList.remove("show"); });
+        }
+        
+        document.querySelectorAll('.logout').forEach(btnLogout => {
+            btnLogout.addEventListener('click', () => {
+                localStorage.removeItem('aura_token');
+                localStorage.removeItem('aura_user');
+                window.location.replace('/login.html');
+            });
+        });
 }
 
 // ==========================================

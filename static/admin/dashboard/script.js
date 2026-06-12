@@ -169,14 +169,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nome = user.nome || "Admin Principal";
     const cargo = user.cargo || "Administrador";
+    const email = user.email || "admin@admin.com";
     const iniciais = nome.split(" ").slice(0,2).map(n => n[0]).join("").toUpperCase() || "AD";
     const firstName = nome.split(" ")[0];
 
-    ["profileName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
-    ["profileAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
+    ["profileName", "popoverName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
+    ["profileAvatar", "popoverAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
+    const popEmail = document.getElementById("popoverEmail"); if(popEmail) popEmail.textContent = email;
     const welcomeNameEl = document.getElementById("welcomeName");
     if (welcomeNameEl) welcomeNameEl.innerHTML = `${firstName} <span class="welcome-wave">👋</span>`;
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
+
+    const pCard = document.getElementById("profileCard");
+    const pBtn = document.getElementById("profileMoreBtn");
+    const pPop = document.getElementById("profilePopover");
+    const pDrop = document.getElementById("profileDropdown");
+    if (pCard && pPop && pDrop) {
+        pCard.addEventListener("click", (evt) => {
+            if (evt.target === pBtn || pBtn.contains(evt.target)) {
+                evt.stopPropagation(); pDrop.classList.toggle("show"); pPop.classList.remove("show");
+            } else {
+                evt.stopPropagation(); pPop.classList.toggle("show"); pDrop.classList.remove("show");
+            }
+        });
+        document.addEventListener("click", () => { pPop.classList.remove("show"); pDrop.classList.remove("show"); });
+    }
 
     initChart();
     initConvenioChart();
@@ -310,11 +327,10 @@ function renderTopMedicos() {
 }
 
 // --- Logout ---
-const btnLogout = document.querySelector('.logout');
-if (btnLogout) {
+document.querySelectorAll('.logout').forEach(btnLogout => {
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('aura_token');
         localStorage.removeItem('aura_user');
         window.location.replace('/login.html');
     });
-}
+});

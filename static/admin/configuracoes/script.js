@@ -28,13 +28,27 @@ function setupSidebar() {
         });
     }
 
-    const btnLogout = document.querySelector('.logout');
-    if (btnLogout) {
+    document.querySelectorAll('.logout').forEach(btnLogout => {
         btnLogout.addEventListener('click', () => {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
             window.location.replace('/login.html');
         });
+    });
+
+    const pCard = document.getElementById("profileCard");
+    const pBtn = document.getElementById("profileMoreBtn");
+    const pPop = document.getElementById("profilePopover");
+    const pDrop = document.getElementById("profileDropdown");
+    if (pCard && pPop && pDrop) {
+        pCard.addEventListener("click", (evt) => {
+            if (evt.target === pBtn || pBtn.contains(evt.target)) {
+                evt.stopPropagation(); pDrop.classList.toggle("show"); pPop.classList.remove("show");
+            } else {
+                evt.stopPropagation(); pPop.classList.toggle("show"); pDrop.classList.remove("show");
+            }
+        });
+        document.addEventListener("click", () => { pPop.classList.remove("show"); pDrop.classList.remove("show"); });
     }
 }
 
@@ -59,12 +73,18 @@ function loadProfileData() {
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
 
     const pName = document.getElementById("profileName");
+    const popName = document.getElementById("popoverName");
     if (pName) pName.textContent = nomeExibicao;
+    if (popName) popName.textContent = nomeFull;
     
     const pAvatar = document.getElementById("profileAvatar");
     const aPreview = document.getElementById("avatarPreview");
+    const popAvatar = document.getElementById("popoverAvatar");
     
-    [pAvatar, aPreview].forEach(el => {
+    const popEmail = document.getElementById("popoverEmail");
+    if (popEmail) popEmail.textContent = email;
+
+    [pAvatar, aPreview, popAvatar].forEach(el => {
         if (el) {
             el.textContent = iniciais;
             el.style.backgroundColor = "#1E40AF";
