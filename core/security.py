@@ -47,11 +47,14 @@ def obter_usuario_atual(token: str = Depends(oauth2_scheme)):
         # Tenta abrir a pulseira com a nossa Chave Mestra
         payload = jwt.decode(token, secret_key, algorithms=[algorithm])
         email: str = payload.get("sub")
+        id_usuario: int = payload.get("id")
+        role: str = payload.get("role")
         
         if email is None:
             raise erro_credenciais
             
-        return email # Retorna quem é o dono da pulseira
+        # Retorna um dict com tudo que as rotas precisam saber sobre o usuário
+        return {"email": email, "id": id_usuario, "role": role}
         
     except jwt.ExpiredSignatureError:
         # Se passaram os 60 minutos...

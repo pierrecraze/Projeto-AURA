@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
@@ -40,6 +40,6 @@ class TriagemDetalhe(TriagemMetadata):
 # Dados enviados pelo front-end ao concluir uma avaliação no formulário clínico
 class TriagemCreate(BaseModel):
     paciente_id: UUID
-    score_total: int
+    score_total: int = Field(..., ge=0, le=100)  # ge=0 le=100 = entre 0 e 100
     recomendacao_encaminhamento: bool
     sintomas: Optional[List[str]] = None

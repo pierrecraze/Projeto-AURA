@@ -4,8 +4,11 @@ from schemas.paciente import PacienteCreate, VinculoFamiliarCreate
 from models.paciente import PacienteModel, ResponsavelModel, PacienteResponsavelModel, VinculoFamiliarModel
 from core.audit import registrar_auditoria
 
-async def listar_pacientes(db: Session):
-    return db.query(PacienteModel).all()
+async def listar_pacientes(db: Session, medico_id: int = None):
+    query = db.query(PacienteModel)
+    if medico_id is not None:
+        query = query.filter(PacienteModel.cadastrado_por_id == medico_id)
+    return query.all()
 
 @registrar_auditoria(entidade="Paciente", acao="Criação")
 async def criar_paciente(db: Session, paciente_in: PacienteCreate, instituicao_id: int, cadastrado_por_id: int, *, ator=None):

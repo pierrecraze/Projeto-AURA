@@ -23,16 +23,16 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/login", summary="Autenticar usuário e gerar token JWT")
+@router.post("/login", summary="Autenticar usuário (Admin ou Médico)")
 async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     email_usuario = credenciais.username
     senha_usuario = credenciais.password
 
-    # 1. Tenta achar na tabela de Admins
+    # 1. Tenta achar na tabela de ADMIN primeiro
     usuario = db.query(AdminModel).filter(AdminModel.email == email_usuario).first()
-    is_medico = False
+    tipo_usuario = "admin"
 
-    # Seed automático: se o banco estiver vazio, ele cadastra o admin padrão automaticamente
+    # Seed automático do admin (caso o banco esteja vazio)
     if not usuario and email_usuario == "admin@admin.com":
         usuario = AdminModel(
             nome="Admin Principal",
@@ -45,45 +45,55 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
         db.commit()
         db.refresh(usuario)
 
-    # 2. Se não achou admin, tenta na tabela de Médicos
+    # 2. Se NÃO for Admin, tenta achar na tabela de MÉDICO
     if not usuario:
         usuario = db.query(MedicoModel).filter(MedicoModel.email == email_usuario).first()
-        is_medico = True
+        tipo_usuario = "medico"
 
-    # 3. Se não achou em nenhuma das duas tabelas
-    if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="E-mail ou senha inválidos"
-        )
-    
-    # 4. Verifica a senha e prossegue
-    if not verificar_senha(senha_usuario, usuario.senha_hash):
+    # 3. Validação de segurança: Existe? A senha bate?
+    if not usuario or not verificar_senha(senha_usuario, usuario.senha_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="E-mail ou senha inválidos"
         )
+
+    # 4. Regra de negócio: Impede login de médicos deletados/inativados
+    if tipo_usuario == "medico" and usuario.deletado_em is not None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso bloqueado. Conta inativada."
+        )
     
-    dados_token = {"sub": usuario.email}
+    # 5. Cria o Token embutindo o ID e o ROLE (Cargo)
+    dados_token = {
+        "sub": usuario.email,
+        "role": tipo_usuario,
+        "id": usuario.id
+    }
     token_gerado = criar_token_jwt(dados_token)
 
+    # 6. Monta os dados do usuário para o Front-end
     dados_usuario = {
+        "id": usuario.id,
         "nome": usuario.nome,
         "email": usuario.email,
     }
-    
-    if is_medico:
+
+    if tipo_usuario == "medico":
         dados_usuario["crm"] = usuario.crm
         dados_usuario["cargo"] = "Profissional de Saúde"
     else:
         dados_usuario["cargo"] = usuario.cargo
         dados_usuario["is_superadmin"] = usuario.is_superadmin
 
+    # 7. Devolve a resposta pronta para o Front-end ler
     return {
-        "access_token": token_gerado, 
+        "access_token": token_gerado,
         "token_type": "bearer",
+        "role": tipo_usuario,
         "usuario": dados_usuario
     }
+
 
 @router.put("/perfil", summary="Atualizar dados do perfil do Admin")
 async def atualizar_perfil(dados: PerfilUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
