@@ -14,14 +14,14 @@ class PacienteBase(BaseModel):
     cpf: Optional[str] = None
     data_nascimento: date
     sexo_biologico: str
-    instituicao_id: int
-    cadastrado_por_id: int
-    
+
 class PacienteCreate(PacienteBase):
     responsaveis: Optional[list[ResponsavelBase]] = None
 
 class Paciente(PacienteBase):
     id: UUID
+    instituicao_id: int
+    cadastrado_por_id: int
     data_cadastro: datetime
     deletado_em: Optional[datetime] = None
 

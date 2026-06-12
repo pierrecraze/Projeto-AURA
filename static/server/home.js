@@ -138,6 +138,14 @@ window.fetch = async (...args) => {
     return;
   }
 
+  // Administradores (sem CRM) não têm acesso ao painel do médico:
+  // são redirecionados para o hub administrativo.
+  const dados = JSON.parse(localStorage.getItem('aura_user') || 'null');
+  if (!dados || !dados.crm) {
+    window.location.replace('/admin/dashboard/index.html');
+    return;
+  }
+
   preencherHeaderUsuario();
   resetInactivityTimer();
 })();

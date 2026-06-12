@@ -8,14 +8,14 @@ async def listar_pacientes(db: Session):
     return db.query(PacienteModel).all()
 
 @registrar_auditoria(entidade="Paciente", acao="Criação")
-async def criar_paciente(db: Session, paciente_in: PacienteCreate):
+async def criar_paciente(db: Session, paciente_in: PacienteCreate, instituicao_id: int, cadastrado_por_id: int, *, ator=None):
     novo_paciente = PacienteModel(
         nome=paciente_in.nome,
         cpf=paciente_in.cpf,
         data_nascimento=paciente_in.data_nascimento,
         sexo_biologico=paciente_in.sexo_biologico,
-        instituicao_id=paciente_in.instituicao_id,
-        cadastrado_por_id=paciente_in.cadastrado_por_id,
+        instituicao_id=instituicao_id,
+        cadastrado_por_id=cadastrado_por_id,
         data_cadastro=datetime.utcnow()
     )
     db.add(novo_paciente)
@@ -46,15 +46,13 @@ async def criar_paciente(db: Session, paciente_in: PacienteCreate):
     return novo_paciente
 
 @registrar_auditoria(entidade="Paciente", acao="Atualização")
-async def atualizar_paciente(db: Session, id_paciente: str, paciente_in: PacienteCreate):
+async def atualizar_paciente(db: Session, id_paciente: str, paciente_in: PacienteCreate, *, ator=None):
     paciente = db.query(PacienteModel).filter(PacienteModel.id == id_paciente).first()
     if paciente:
         paciente.nome = paciente_in.nome
         paciente.cpf = paciente_in.cpf
         paciente.data_nascimento = paciente_in.data_nascimento
         paciente.sexo_biologico = paciente_in.sexo_biologico
-        paciente.instituicao_id = paciente_in.instituicao_id
-        paciente.cadastrado_por_id = paciente_in.cadastrado_por_id
         db.commit()
         db.refresh(paciente)
         return paciente
