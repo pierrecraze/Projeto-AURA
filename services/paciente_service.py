@@ -4,10 +4,13 @@ from schemas.paciente import PacienteCreate, VinculoFamiliarCreate
 from models.paciente import PacienteModel, ResponsavelModel, PacienteResponsavelModel, VinculoFamiliarModel
 from core.audit import registrar_auditoria
 
-async def listar_pacientes(db: Session, medico_id: int = None):
+async def listar_pacientes(db: Session, instituicao_id: int = None):
+    """Lista pacientes. Se instituicao_id for informado, retorna apenas os
+    pacientes daquela instituição — todos os médicos da mesma instituição
+    compartilham a visão dos mesmos pacientes."""
     query = db.query(PacienteModel)
-    if medico_id is not None:
-        query = query.filter(PacienteModel.cadastrado_por_id == medico_id)
+    if instituicao_id is not None:
+        query = query.filter(PacienteModel.instituicao_id == instituicao_id)
     return query.all()
 
 @registrar_auditoria(entidade="Paciente", acao="Criação")

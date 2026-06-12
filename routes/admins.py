@@ -23,14 +23,14 @@ async def listar_admins(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=AdminResponse, status_code=status.HTTP_201_CREATED)
 async def criar_admin(admin_in: AdminCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
     return await admin_service.criar_admin(db, admin_in, ator=ator)
 
 @router.put("/{id_admin}/status", response_model=AdminResponse)
 async def alternar_status_admin(id_admin: int, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
     admin_atualizado = await admin_service.alternar_status(db, id_admin, ator=ator)
@@ -40,7 +40,7 @@ async def alternar_status_admin(id_admin: int, db: Session = Depends(get_db), us
 
 @router.put("/{id_admin}", response_model=AdminResponse)
 async def atualizar_admin(id_admin: int, admin_in: AdminUpdate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator or not ator.is_superadmin:
         raise HTTPException(status_code=403, detail="Apenas super admins podem editar.")
     admin_atualizado = await admin_service.atualizar_admin(db, id_admin, admin_in, ator=ator)

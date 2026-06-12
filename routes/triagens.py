@@ -115,7 +115,7 @@ async def criar_triagem(triagem_in: TriagemCreate, db: Session = Depends(get_db)
     """
     Registra o resultado de uma avaliação clínica (formulário X-Frágil) realizada pelo médico logado.
     """
-    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email).first()
+    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email["email"]).first()
     if not medico:
         raise HTTPException(status_code=403, detail="Usuário não é um profissional de saúde válido.")
 

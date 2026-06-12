@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, DateTime, SmallInteger
+from sqlalchemy import Column, Integer, String, Date, DateTime, SmallInteger, ForeignKey
 from database.db import Base
 
 class MedicoModel(Base):
@@ -6,6 +6,9 @@ class MedicoModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String(150), nullable=False)
+    # Instituição à qual o médico pertence — pacientes são compartilhados
+    # entre todos os médicos da mesma instituição
+    instituicao_id = Column(Integer, ForeignKey("instituicao.id"), nullable=True)
     email = Column(String(255), nullable=False, unique=True)
     cpf = Column(String(11), nullable=False, unique=True)
     crm = Column(String(20), nullable=False, unique=True)

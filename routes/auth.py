@@ -97,7 +97,7 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
 
 @router.put("/perfil", summary="Atualizar dados do perfil do Admin")
 async def atualizar_perfil(dados: PerfilUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
-    admin = db.query(AdminModel).filter(AdminModel.email == usuario_logado).first()
+    admin = db.query(AdminModel).filter(AdminModel.email == usuario_logado["email"]).first()
     if not admin:
         raise HTTPException(status_code=404, detail="Administrador não encontrado.")
         
@@ -109,12 +109,13 @@ async def atualizar_perfil(dados: PerfilUpdate, db: Session = Depends(get_db), u
     db.refresh(admin)
     
     # Se o email mudar, o token atual perde validade. Geramos um novo para o frontend atualizar.
-    novo_token = criar_token_jwt({"sub": admin.email})
+    # Inclui role/id como no login, para o token continuar completo.
+    novo_token = criar_token_jwt({"sub": admin.email, "role": "admin", "id": admin.id})
     return {"mensagem": "Perfil atualizado", "usuario": {"nome": admin.nome, "email": admin.email, "cargo": admin.cargo, "is_superadmin": admin.is_superadmin}, "access_token": novo_token}
 
 @router.put("/senha", summary="Alterar a senha do usuário logado")
 async def atualizar_senha(dados: SenhaUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
-    admin = db.query(AdminModel).filter(AdminModel.email == usuario_logado).first()
+    admin = db.query(AdminModel).filter(AdminModel.email == usuario_logado["email"]).first()
     
     if not verificar_senha(dados.senha_atual, admin.senha_hash):
         raise HTTPException(status_code=400, detail="A senha atual está incorreta.")
