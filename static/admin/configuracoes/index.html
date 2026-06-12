@@ -9,43 +9,29 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="/core/authGuard.js"></script>
   <style>
-    /* ====== POPOVERS DE PERFIL ====== */
-    .sidebar-footer { position: relative; }
-    .profile-popover, .dropdown-menu {
-      position: absolute; bottom: calc(100% + 10px); left: 24px; right: 24px;
-      background: white; border: 1px solid #E2E8F0; border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(15, 27, 53, 0.1); padding: 12px;
-      display: none; flex-direction: column; gap: 8px; z-index: 100;
-      opacity: 0; transform: translateY(10px); transition: all 0.2s ease;
-    }
-    .dropdown-menu { left: auto; right: 24px; width: 200px; padding: 8px; gap: 2px; }
-    .profile-popover.show, .dropdown-menu.show { display: flex; opacity: 1; transform: translateY(0); }
-    .popover-header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #F1F5F9; padding-bottom: 12px; }
-    .popover-avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1D4ED8; background: #DBEAFE; font-size: 14px; flex-shrink: 0; }
-    .popover-info { overflow: hidden; }
-    .popover-name { font-size: 13px; font-weight: 600; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
-    .popover-email { font-size: 11px; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; margin-top: 2px; }
-    .popover-footer { display: flex; flex-direction: column; }
-    .btn-popover, .dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border: none; background: transparent; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; cursor: pointer; transition: background 0.2s; text-align: left; }
-    .btn-popover:hover, .dropdown-item:hover { background: #F8FAFC; color: #0F172A; }
-    .dropdown-item.logout { color: #DC2626; }
-    .dropdown-item.logout:hover { background: #FEF2F2; color: #DC2626; }
-    .profile-card:hover { background: rgba(255,255,255,0.05); border-radius: 8px; }
-
-    /* Estilos da Página de Ajuda */
+    /* Estilos Específicos do Manual */
+    html { scroll-behavior: smooth; }
     .help-header { padding: 40px 48px; background: linear-gradient(135deg, #0D1B35 0%, #1E3A8A 100%); color: white; border-radius: 0 0 24px 24px; margin-bottom: -40px; }
     .help-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
     .help-header p { font-size: 15px; color: #93C5FD; max-width: 600px; line-height: 1.5; }
-    .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; padding: 0 48px; position: relative; z-index: 10; margin-bottom: 40px; }
-    .help-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
-    .help-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    
+    .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 0 48px; position: relative; z-index: 10; margin-bottom: 60px; margin-top: 60px; }
+    .help-card { background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; display: block; }
+    .help-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #93C5FD; }
     .help-icon { width: 48px; height: 48px; border-radius: 12px; background: #EFF6FF; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #1D4ED8; }
     .help-card h3 { font-size: 16px; font-weight: 600; color: #0F172A; margin-bottom: 8px; }
     .help-card p { font-size: 13px; color: #64748B; line-height: 1.5; margin-bottom: 16px; }
-    .help-card ul { list-style: none; padding: 0; margin: 0; }
-    .help-card li { font-size: 13px; color: #374151; padding: 6px 0; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 8px; }
-    .help-card li:last-child { border-bottom: none; }
-    .help-card li i { width: 14px; height: 14px; color: #10B981; }
+    
+    .manual-section { padding: 40px 48px; border-top: 1px solid #E2E8F0; }
+    .manual-section h2 { font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .manual-section h2 i { color: #1D4ED8; }
+    .manual-section p { font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 24px; max-width: 800px; }
+    
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 900px; }
+    .feature-item { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px; }
+    .feature-item h4 { font-size: 14px; font-weight: 600; color: #1E293B; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .feature-item p { font-size: 13px; color: #64748B; margin-bottom: 12px; line-height: 1.4; }
+    .btn-mock { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: white; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 11px; font-weight: 600; color: #374151; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -73,23 +59,21 @@
         <button class="nav-item" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="profile-popover" id="profilePopover">
-          <div class="popover-header">
+      <div class="sidebar-footer" style="position: relative;">
+        <div class="user-profile-popover" id="userProfilePopover">
+          <div class="popover-top-bar">
+            <span class="popover-email" id="popoverEmail">admin@admin.com</span>
+            <button class="popover-close" id="popoverClose"><i data-lucide="x"></i></button>
+          </div>
+          <div class="popover-avatar-container">
             <div class="popover-avatar" id="popoverAvatar">AD</div>
-            <div class="popover-info">
-              <p class="popover-name" id="popoverName">Admin Principal</p>
-              <p class="popover-email" id="popoverEmail">admin@admin.com</p>
-            </div>
+            <div class="popover-avatar-cam"><i data-lucide="camera"></i></div>
           </div>
-          <div class="popover-footer">
-            <button class="btn-popover" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="user" style="width: 16px; height: 16px;"></i> Editar Perfil</button>
-          </div>
-        </div>
-
-        <div class="dropdown-menu" id="profileDropdown">
-          <button class="dropdown-item" onclick="window.location.href='../ajuda/index.html'"><i data-lucide="help-circle" style="width: 16px; height: 16px;"></i> Ajuda / Suporte</button>
-          <button class="dropdown-item logout"><i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Sair da conta</button>
+          <p class="popover-greeting" id="popoverGreeting">Olá, Admin!</p>
+          <p class="popover-role" id="popoverRole">Administrador</p>
+          <button class="popover-edit-btn" onclick="window.location.href='../configuracoes/index.html'">Editar informações</button>
+          <div class="popover-divider"></div>
+          <button class="popover-logout-btn logout"><i data-lucide="log-out"></i> Sair da conta</button>
         </div>
 
         <div class="profile-card" id="profileCard" style="cursor: pointer;">
@@ -98,64 +82,101 @@
             <p class="profile-name" id="profileName">Admin Principal</p>
             <p class="profile-role">Administrador · IBK</p>
           </div>
-          <button class="profile-more-btn" id="profileMoreBtn" style="background: transparent; border: none; cursor: pointer; color: #94A3B8; padding: 4px; display: flex; align-items: center; justify-content: center;"><i data-lucide="more-vertical" style="width: 18px; height: 18px;"></i></button>
+          <i data-lucide="more-vertical" class="profile-more"></i>
         </div>
       </div>
     </aside>
 
     <div class="main-wrapper">
-      <div class="help-header">
-        <h1>Manual do Usuário AURA</h1>
-        <p>Encontre guias rápidos, boas práticas de segurança e instruções de como utilizar os recursos do sistema da clínica.</p>
-      </div>
-
-      <div class="help-grid" style="margin-top: 60px;">
+      <!-- Importante: main tag com a classe content para habilitar o SCROLL vertical -->
+      <main class="content" style="padding: 0; padding-bottom: 60px;">
         
-        <div class="help-card">
-          <div class="help-icon"><i data-lucide="layout-dashboard"></i></div>
-          <h3>Dashboard e Métricas</h3>
-          <p>Visão global dos dados clínicos e painel de indicadores.</p>
-          <ul>
-            <li><i data-lucide="check-circle"></i> Acompanhe triagens em tempo real</li>
-            <li><i data-lucide="check-circle"></i> Verifique a distribuição de pacientes</li>
-            <li><i data-lucide="check-circle"></i> Monitore picos de atendimentos</li>
-          </ul>
+        <div class="help-header">
+          <h1>Manual do Usuário AURA</h1>
+          <p>Encontre guias rápidos, boas práticas de segurança e instruções de como utilizar os recursos do sistema da clínica.</p>
         </div>
 
-        <div class="help-card">
-          <div class="help-icon" style="background: #F5F3FF; color: #6D28D9;"><i data-lucide="users"></i></div>
-          <h3>Gestão de Pacientes</h3>
-          <p>Cadastro centralizado com segurança LGPD.</p>
-          <ul>
-            <li><i data-lucide="check-circle"></i> Dados sensíveis criptografados</li>
-            <li><i data-lucide="check-circle"></i> Vínculos com Convênios e Médicos</li>
-            <li><i data-lucide="check-circle"></i> Exclusão lógica segura (Soft Delete)</li>
-          </ul>
+        <!-- Cards Clickáveis que levam às seções abaixo -->
+        <div class="help-grid">
+          <a href="#sec-pacientes" class="help-card">
+            <div class="help-icon" style="background: #F5F3FF; color: #6D28D9;"><i data-lucide="users"></i></div>
+            <h3>Gestão de Pacientes</h3>
+            <p>Aprenda a adicionar, desativar e buscar pacientes na base com segurança LGPD.</p>
+          </a>
+          <a href="#sec-medicos" class="help-card">
+            <div class="help-icon" style="background: #ECFDF5; color: #047857;"><i data-lucide="stethoscope"></i></div>
+            <h3>Controle de Profissionais</h3>
+            <p>Gerenciamento de médicos, vinculações e senhas de acesso.</p>
+          </a>
+          <a href="#sec-exportacao" class="help-card">
+            <div class="help-icon" style="background: #FEF9EC; color: #D97706;"><i data-lucide="download"></i></div>
+            <h3>Exportação de Dados</h3>
+            <p>Como baixar relatórios em PDF e planilhas CSV para auditoria local.</p>
+          </a>
         </div>
 
-        <div class="help-card">
-          <div class="help-icon" style="background: #ECFDF5; color: #047857;"><i data-lucide="stethoscope"></i></div>
-          <h3>Controle de Profissionais</h3>
-          <p>Administração da equipe médica e seus acessos.</p>
-          <ul>
-            <li><i data-lucide="check-circle"></i> Redefinição de senhas provisórias</li>
-            <li><i data-lucide="check-circle"></i> Histórico de pacientes vinculados</li>
-            <li><i data-lucide="check-circle"></i> Gerenciamento de status e inativação</li>
-          </ul>
+        <!-- Seção 1: Pacientes -->
+        <div id="sec-pacientes" class="manual-section">
+          <h2><i data-lucide="users"></i> Gestão de Pacientes</h2>
+          <p>A tabela de pacientes permite que você gerencie todos os atendidos pelo IBK. Abaixo estão as funcionalidades detalhadas e os botões responsáveis por ativá-las.</p>
+          
+          <div class="feature-grid">
+            <div class="feature-item">
+              <h4>Adicionar Paciente</h4>
+              <p>Utilize o botão principal da tela para abrir o formulário completo. Lembre-se de vincular um médico responsável.</p>
+              <span class="btn-mock" style="background: #1D4ED8; color: white; border-color: #1D4ED8;"><i data-lucide="user-plus" style="width: 12px;"></i> Novo Paciente</span>
+            </div>
+            <div class="feature-item">
+              <h4>Ver Detalhes</h4>
+              <p>Ao clicar no ícone de "olho" na linha do paciente, você abre o modal contendo histórico clínico e triagens.</p>
+              <span class="btn-mock"><i data-lucide="eye" style="width: 12px;"></i> Ver Perfil</span>
+            </div>
+            <div class="feature-item">
+              <h4>Inativação (Soft Delete)</h4>
+              <p>Por exigências da LGPD, registros médicos não são apagados. Use o botão "Desativar" para ocultá-los.</p>
+              <span class="btn-mock" style="color: #DC2626; border-color: #FECACA; background: #FEF2F2;"><i data-lucide="trash-2" style="width: 12px;"></i> Desativar</span>
+            </div>
+          </div>
         </div>
 
-        <div class="help-card">
-          <div class="help-icon" style="background: #FEF2F2; color: #DC2626;"><i data-lucide="shield-check"></i></div>
-          <h3>Segurança e Auditoria</h3>
-          <p>Registro imutável de todas as ações dentro da plataforma.</p>
-          <ul>
-            <li><i data-lucide="check-circle"></i> Logs blindados contra alteração</li>
-            <li><i data-lucide="check-circle"></i> Filtros precisos para investigações</li>
-            <li><i data-lucide="check-circle"></i> Rastreamento de IP por usuário</li>
-          </ul>
+        <!-- Seção 2: Médicos -->
+        <div id="sec-medicos" class="manual-section">
+          <h2><i data-lucide="stethoscope"></i> Controle de Profissionais</h2>
+          <p>O gerenciamento dos profissionais que acessam o app AURA é vital para a segurança. Apenas Admins podem executar essas ações.</p>
+          
+          <div class="feature-grid">
+            <div class="feature-item">
+              <h4>Vincular a Convênios</h4>
+              <p>Para o médico aparecer no cadastro de um paciente, ele deve estar vinculado a um Convênio.</p>
+              <span class="btn-mock"><i data-lucide="link" style="width: 12px;"></i> Gerenciar Vínculos</span>
+            </div>
+            <div class="feature-item">
+              <h4>Gerar Senha de Acesso</h4>
+              <p>Quando um médico esquecer a senha, vá ao perfil dele e gere uma nova credencial provisória de 6 dígitos.</p>
+              <span class="btn-mock"><i data-lucide="refresh-cw" style="width: 12px;"></i> Resetar Senha</span>
+            </div>
+          </div>
         </div>
 
-      </div>
+        <!-- Seção 3: Exportação -->
+        <div id="sec-exportacao" class="manual-section">
+          <h2><i data-lucide="download"></i> Exportação e Relatórios</h2>
+          <p>Todas as tabelas do sistema (Pacientes, Médicos, Logs) podem ser baixadas. Os filtros aplicados na tela afetam diretamente o resultado do arquivo final gerado.</p>
+          
+          <div class="feature-grid">
+            <div class="feature-item">
+              <h4>Gerar Relatório</h4>
+              <p>Clique no botão Exportar e aguarde a janela de pré-visualização para confirmar os dados.</p>
+              <span class="btn-mock"><i data-lucide="download" style="width: 12px;"></i> Exportar</span>
+            </div>
+            <div class="feature-item">
+              <h4>Formatos Suportados</h4>
+              <p>Você pode baixar em <strong>PDF</strong> para relatórios limpos ou <strong>CSV</strong> caso precise abrir os dados no Excel.</p>
+            </div>
+          </div>
+        </div>
+
+      </main>
     </div>
   </div>
 
@@ -168,25 +189,21 @@
       const email = user.email || "admin@admin.com";
       const cargo = user.cargo || "Administrador";
       const iniciais = nome.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase() || "AD";
+      const firstName = nome.split(" ")[0];
       
       ["profileName", "popoverName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
       ["profileAvatar", "popoverAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
       const popEmail = document.getElementById("popoverEmail"); if(popEmail) popEmail.textContent = email;
+      const popGreet = document.getElementById("popoverGreeting"); if(popGreet) popGreet.textContent = `Olá, ${firstName}!`;
       document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
 
       const pCard = document.getElementById("profileCard");
-      const pBtn = document.getElementById("profileMoreBtn");
-      const pPop = document.getElementById("profilePopover");
-      const pDrop = document.getElementById("profileDropdown");
-      if (pCard && pPop && pDrop) {
-        pCard.addEventListener("click", (evt) => {
-          if (evt.target === pBtn || pBtn.contains(evt.target)) {
-            evt.stopPropagation(); pDrop.classList.toggle("show"); pPop.classList.remove("show");
-          } else {
-            evt.stopPropagation(); pPop.classList.toggle("show"); pDrop.classList.remove("show");
-          }
-        });
-        document.addEventListener("click", () => { pPop.classList.remove("show"); pDrop.classList.remove("show"); });
+      const pPop = document.getElementById("userProfilePopover");
+      const pClose = document.getElementById("popoverClose");
+      if (pCard && pPop) {
+        pCard.addEventListener("click", (evt) => { evt.stopPropagation(); pPop.classList.toggle("show"); });
+        if (pClose) pClose.addEventListener("click", (evt) => { evt.stopPropagation(); pPop.classList.remove("show"); });
+        document.addEventListener("click", (evt) => { if (!pPop.contains(evt.target) && !pCard.contains(evt.target)) pPop.classList.remove("show"); });
       }
 
       document.querySelectorAll('.logout').forEach(btn => {

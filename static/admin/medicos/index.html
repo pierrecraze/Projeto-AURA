@@ -11,30 +11,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="/core/authGuard.js"></script>
   <style>
-    /* ====== POPOVERS DE PERFIL ====== */
-    .sidebar-footer { position: relative; }
-    .profile-popover, .dropdown-menu {
-      position: absolute; bottom: calc(100% + 10px); left: 24px; right: 24px;
-      background: white; border: 1px solid #E2E8F0; border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(15, 27, 53, 0.1); padding: 12px;
-      display: none; flex-direction: column; gap: 8px; z-index: 100;
-      opacity: 0; transform: translateY(10px); transition: all 0.2s ease;
-    }
-    .dropdown-menu { left: auto; right: 24px; width: 200px; padding: 8px; gap: 2px; }
-    .profile-popover.show, .dropdown-menu.show { display: flex; opacity: 1; transform: translateY(0); }
-    .popover-header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #F1F5F9; padding-bottom: 12px; }
-    .popover-avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1D4ED8; background: #DBEAFE; font-size: 14px; flex-shrink: 0; }
-    .popover-info { overflow: hidden; }
-    .popover-name { font-size: 13px; font-weight: 600; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
-    .popover-email { font-size: 11px; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; margin-top: 2px; }
-    .popover-footer { display: flex; flex-direction: column; }
-    .btn-popover, .dropdown-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border: none; background: transparent; border-radius: 6px; font-size: 13px; font-weight: 500; color: #475569; cursor: pointer; transition: background 0.2s; text-align: left; }
-    .btn-popover:hover, .dropdown-item:hover { background: #F8FAFC; color: #0F172A; }
-    .dropdown-item.logout { color: #DC2626; }
-    .dropdown-item.logout:hover { background: #FEF2F2; color: #DC2626; }
-    .profile-card:hover { background: rgba(255,255,255,0.05); border-radius: 8px; }
-  </style>
-  <style>
     /* ====== MODAL EXPORT ====== */
     .export-format-card { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; }
     .export-format-card:hover { border-color: #93C5FD; }
@@ -78,31 +54,15 @@
         <button class="nav-item" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
       </nav>
       <div class="sidebar-footer">
-        <!-- Popovers do Perfil -->
-        <div class="profile-popover" id="profilePopover">
-          <div class="popover-header">
-            <div class="popover-avatar" id="popoverAvatar">AD</div>
-            <div class="popover-info">
-              <p class="popover-name" id="popoverName">Admin Principal</p>
-              <p class="popover-email" id="popoverEmail">admin@admin.com</p>
-            </div>
-          </div>
-          <div class="popover-footer">
-            <button class="btn-popover" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="user" style="width: 16px; height: 16px;"></i> Editar Perfil</button>
-          </div>
-        </div>
-        <div class="dropdown-menu" id="profileDropdown">
-          <button class="dropdown-item" onclick="window.location.href='../ajuda/index.html'"><i data-lucide="help-circle" style="width: 16px; height: 16px;"></i> Ajuda / Suporte</button>
-          <button class="dropdown-item logout"><i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Sair da conta</button>
-        </div>
-        <div class="profile-card" id="profileCard" style="cursor: pointer;">
+        <div class="profile-card" id="profileCard">
           <div class="profile-avatar" id="profileAvatar">AD</div>
           <div class="profile-info">
             <p class="profile-name" id="profileName">Admin Principal</p>
             <p class="profile-role">Administrador · IBK</p>
           </div>
-          <button class="profile-more-btn" id="profileMoreBtn" style="background: transparent; border: none; cursor: pointer; color: #94A3B8; padding: 4px; display: flex; align-items: center; justify-content: center;"><i data-lucide="more-vertical" style="width: 18px; height: 18px;"></i></button>
+          <i data-lucide="more-vertical" class="profile-more"></i>
         </div>
+        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
       </div>
     </aside>
 
