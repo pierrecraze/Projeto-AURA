@@ -491,19 +491,41 @@
       // O banner de sessão, logout e timers de inatividade são geridos pelo home.js
       // (RNF14/RF20) — a lógica duplicada que existia aqui foi removida.
 
+      // Monta a célula "Última avaliação" da tabela de Pacientes Recentes
+      function celulaUltimaAval(ultimaAvalPorPaciente, pid) {
+        const t = ultimaAvalPorPaciente[String(pid)];
+        if (!t) return '<span style="color: var(--text-muted);">Não avaliado</span>';
+        const dataBr = new Date(t.data_hora).toLocaleDateString('pt-BR');
+        const { classe, categoria } = classificarScorePct(Number(t.score_total));
+        return `<span style="display:inline-flex; align-items:center; gap:8px; white-space:nowrap;">${dataBr} <span class="score-pill score-pill--${classe}" title="${categoria}">${t.score_total}%</span></span>`;
+      }
+
       // -- Chamada Oficial à API do Back-end --
       async function carregarDadosDashboard() {
         try {
           const token = localStorage.getItem('aura_token');
-          const res = await fetch('/api/pacientes/', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const headers = { 'Authorization': `Bearer ${token}` };
+          const [res, resTri] = await Promise.all([
+            fetch('/api/pacientes/', { headers }),
+            fetch('/api/triagens/resumo', { headers })
+          ]);
 
           if (res.ok) {
             const dados = await res.json();
             // Tolera tanto array puro quanto resposta paginada {items|data|results}
             const lista = Array.isArray(dados) ? dados : (dados.items || dados.data || dados.results || []);
             const ativos = lista.filter(p => !p.deletado_em);
+
+            // Mapa paciente_id -> avaliação mais recente (p/ coluna "Última avaliação")
+            const triagens = resTri.ok ? await resTri.json() : [];
+            const ultimaAvalPorPaciente = {};
+            (Array.isArray(triagens) ? triagens : []).forEach(t => {
+              const k = String(t.paciente_id);
+              const atual = ultimaAvalPorPaciente[k];
+              if (!atual || new Date(t.data_hora) > new Date(atual.data_hora)) {
+                ultimaAvalPorPaciente[k] = t;
+              }
+            });
 
             // Sincroniza o contador do card azul com a quantidade real
             const metricTotal = document.getElementById('metricTotalPacientes');
@@ -525,7 +547,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                   <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
-                  <td>${dateBr}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td>-</td>
+                  <td>${dateBr}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td>${celulaUltimaAval(ultimaAvalPorPaciente, p.id)}</td>
                   <td class="actions-cell">
                     <button type="button" class="btn-icon" title="Avaliar paciente" onclick="window.location.href='paciente.html?id=${p.id}#clinicalWrap'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
                     <button type="button" class="btn-icon" title="Ver ficha do paciente" onclick="window.location.href='paciente.html?id=${p.id}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
@@ -831,14 +853,19 @@
           else contagem.baixa++;
         });
 
+        // "Não avaliados": pacientes sem NENHUMA avaliação registrada (independe do
+        // período — é quem ainda nunca foi triado). Usa todas as triagens, não as filtradas.
+        const jaAvaliados = new Set(statsTriagens.map(t => String(t.paciente_id)));
+        const naoAvaliados = statsPacientes.filter(p => !jaAvaliados.has(String(p.id))).length;
+
         if (chartProb) chartProb.destroy();
         chartProb = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)'],
+            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)', 'Não avaliados'],
             datasets: [{
-              data: [contagem.baixa, contagem.media, contagem.alta],
-              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045'],
+              data: [contagem.baixa, contagem.media, contagem.alta, naoAvaliados],
+              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045', '#c3ccd4'],
               borderWidth: 2,
               borderColor: '#ffffff'
             }]
