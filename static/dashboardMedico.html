@@ -33,7 +33,7 @@
           <li><button type="button" class="btn-center active" id="nav-home" onclick="navigate('home')">Início</button></li>
           <li><button type="button" class="btn-center" id="nav-lista-pacientes" onclick="navigate('lista-pacientes')">Pacientes</button></li>
           <li><button type="button" class="btn-center" id="nav-estatisticas" onclick="navigate('estatisticas')">Estatísticas</button></li>
-          <li><button type="button" class="btn-center" id="nav-relatorios" onclick="navigate('relatorios')">Relatórios</button></li>
+          <li><button type="button" class="btn-center" id="nav-relatorios" onclick="navigate('relatorios')">Avaliações</button></li>
         </ul>
       </nav>
     </div>
@@ -118,7 +118,7 @@
               </svg>
             </div>
             <div class="metric-body">
-              <span class="metric-label">Relatórios</span>
+              <span class="metric-label">Avaliações</span>
               <span class="metric-value">Gerar</span>
               <span class="metric-trend trend-neutral">encaminhamentos</span>
             </div>
@@ -311,7 +311,7 @@
       <div class="page-wrapper" style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.75rem;">
         <div class="section-header">
           <div>
-            <h2 class="section-title" style="font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--text);">Relatórios e Laudos Médicos</h2>
+            <h2 class="section-title" style="font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--text);">Avaliações Clínicas</h2>
             <p class="section-sub" style="font-size: 0.85rem; color: var(--text-muted);">Acompanhe a emissão de documentos e monitoramento clínico</p>
           </div>
         </div>
@@ -371,6 +371,13 @@
 
       window.scrollTo(0, 0);
     }
+
+    // Permite abrir uma aba específica via ?view= (ex.: vindo da ficha do paciente)
+    document.addEventListener('DOMContentLoaded', () => {
+      const view = new URLSearchParams(window.location.search).get('view');
+      const validViews = ['home', 'lista-pacientes', 'estatisticas', 'relatorios'];
+      if (view && validViews.includes(view)) navigate(view);
+    });
   </script>
 
   <script src="/static/server/home.js"></script>
