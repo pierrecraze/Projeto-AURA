@@ -169,27 +169,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nome = user.nome || "Admin Principal";
     const cargo = user.cargo || "Administrador";
-    const email = user.email || "admin@admin.com";
     const iniciais = nome.split(" ").slice(0,2).map(n => n[0]).join("").toUpperCase() || "AD";
     const firstName = nome.split(" ")[0];
 
     ["profileName"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nome; });
-    ["profileAvatar", "popoverAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
-    const popoverEmail = document.getElementById("popoverEmail"); if (popoverEmail) popoverEmail.textContent = email;
-    const popoverGreeting = document.getElementById("popoverGreeting"); if (popoverGreeting) popoverGreeting.textContent = `Olá, ${firstName}!`;
-    const popoverRole = document.getElementById("popoverRole"); if (popoverRole) popoverRole.textContent = cargo;
+    ["profileAvatar"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = iniciais; });
     const welcomeNameEl = document.getElementById("welcomeName");
     if (welcomeNameEl) welcomeNameEl.innerHTML = `${firstName} <span class="welcome-wave">👋</span>`;
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
-
-    const profileCard = document.getElementById("profileCard");
-    const profilePopover = document.getElementById("userProfilePopover");
-    const popoverClose = document.getElementById("popoverClose");
-    if (profileCard && profilePopover) {
-        profileCard.addEventListener("click", (e) => { e.stopPropagation(); profilePopover.classList.toggle("show"); });
-        if (popoverClose) popoverClose.addEventListener("click", (e) => { e.stopPropagation(); profilePopover.classList.remove("show"); });
-        document.addEventListener("click", (e) => { if (!profilePopover.contains(e.target) && !profileCard.contains(e.target)) profilePopover.classList.remove("show"); });
-    }
 
     initChart();
     initConvenioChart();
@@ -323,10 +310,11 @@ function renderTopMedicos() {
 }
 
 // --- Logout ---
-document.querySelectorAll('.logout').forEach(btnLogout => {
+const btnLogout = document.querySelector('.logout');
+if (btnLogout) {
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('aura_token');
         localStorage.removeItem('aura_user');
         window.location.replace('/login.html');
     });
-});
+}
