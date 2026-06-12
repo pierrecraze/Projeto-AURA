@@ -4,8 +4,15 @@ from sqlalchemy.orm import Session
 from database.db import SessionLocal
 from models.admin import AdminModel
 from models.medico import MedicoModel
-from schemas.perfil import PerfilUpdate, SenhaUpdate
+from schemas.perfil import SenhaUpdate
 from core.security import verificar_senha, criar_token_jwt, gerar_hash_senha, obter_usuario_atual
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+
+class PerfilUpdate(BaseModel):
+    nome: str
+    email: EmailStr
+    cargo: Optional[str] = None
 
 router = APIRouter()
 
@@ -30,7 +37,9 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
         usuario = AdminModel(
             nome="Admin Principal",
             email="admin@admin.com",
-            senha_hash=gerar_hash_senha("admin123")
+            senha_hash=gerar_hash_senha("admin123"),
+            is_superadmin=True,
+            cargo="Super Administrador"
         )
         db.add(usuario)
         db.commit()
@@ -44,10 +53,10 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
     # 3. Validação de segurança: Existe? A senha bate?
     if not usuario or not verificar_senha(senha_usuario, usuario.senha_hash):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="E-mail ou senha inválidos"
         )
-        
+
     # 4. Regra de negócio: Impede login de médicos deletados/inativados
     if tipo_usuario == "medico" and usuario.deletado_em is not None:
         raise HTTPException(
@@ -59,19 +68,30 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
     dados_token = {
         "sub": usuario.email,
         "role": tipo_usuario,
-        "id": usuario.id 
+        "id": usuario.id
     }
     token_gerado = criar_token_jwt(dados_token)
 
-    # 6. Devolve a resposta pronta para o Front-end ler
+    # 6. Monta os dados do usuário para o Front-end
+    dados_usuario = {
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+    }
+
+    if tipo_usuario == "medico":
+        dados_usuario["crm"] = usuario.crm
+        dados_usuario["cargo"] = "Profissional de Saúde"
+    else:
+        dados_usuario["cargo"] = usuario.cargo
+        dados_usuario["is_superadmin"] = usuario.is_superadmin
+
+    # 7. Devolve a resposta pronta para o Front-end ler
     return {
-        "access_token": token_gerado, 
+        "access_token": token_gerado,
         "token_type": "bearer",
-        "role": tipo_usuario, 
-        "usuario": {
-            "id": usuario.id,
-            "nome": usuario.nome
-        }
+        "role": tipo_usuario,
+        "usuario": dados_usuario
     }
 
 
@@ -83,12 +103,14 @@ async def atualizar_perfil(dados: PerfilUpdate, db: Session = Depends(get_db), u
         
     admin.nome = dados.nome
     admin.email = dados.email
+    if dados.cargo and admin.is_superadmin:
+        admin.cargo = dados.cargo
     db.commit()
     db.refresh(admin)
     
     # Se o email mudar, o token atual perde validade. Geramos um novo para o frontend atualizar.
     novo_token = criar_token_jwt({"sub": admin.email})
-    return {"mensagem": "Perfil atualizado", "usuario": {"nome": admin.nome, "email": admin.email}, "access_token": novo_token}
+    return {"mensagem": "Perfil atualizado", "usuario": {"nome": admin.nome, "email": admin.email, "cargo": admin.cargo, "is_superadmin": admin.is_superadmin}, "access_token": novo_token}
 
 @router.put("/senha", summary="Alterar a senha do usuário logado")
 async def atualizar_senha(dados: SenhaUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):

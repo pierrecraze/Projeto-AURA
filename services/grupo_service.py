@@ -8,6 +8,24 @@ from core.audit import registrar_auditoria
 async def listar_grupos(db: Session):
     return db.query(GrupoModel).all()
 
+async def obter_instituicao_padrao(db: Session):
+    """
+    Retorna a primeira instituição cadastrada, criando uma instituição
+    padrão caso nenhuma exista ainda.
+    """
+    instituicao = db.query(GrupoModel).order_by(GrupoModel.id).first()
+    if instituicao:
+        return instituicao
+
+    instituicao = GrupoModel(
+        nome_fantasia="Instituto Buko Kaesemodel",
+        cnpj="00000000000000",
+    )
+    db.add(instituicao)
+    db.commit()
+    db.refresh(instituicao)
+    return instituicao
+
 @registrar_auditoria(entidade="Grupo", acao="Criação")
 async def criar_grupo(db: Session, grupo_in: GrupoCreate):
     novo_grupo = GrupoModel(

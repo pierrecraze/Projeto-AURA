@@ -11,8 +11,24 @@
   <body>
     <!-- HEADER -->
     <header class="header">
+      <button type="button" class="btn-back-formulario" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Dashboard" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </button>
       <h1 class="header-title">AURA | FORMULÁRIO CLÍNICO</h1>
+      <button class="btn-logout-formulario" id="btnLogout" aria-label="Encerrar sessão">Sair</button>
     </header>
+
+    <div class="session-banner" id="sessionBanner" role="alert" aria-live="assertive">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <span>Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja continuar?</span>
+      <button class="btn-session-keep" id="btnKeepSession">Continuar sessão</button>
+    </div>
 
     <!-- MAIN -->
     <main class="main">
@@ -20,208 +36,178 @@
       <div id="tela-formulario" class="tela ativa">
         <div class="card">
           <h2 class="card-title">FORMULÁRIO CLÍNICO</h2>
+          <p class="card-subtitle">
+            Marque os sintomas que o paciente <strong>apresenta</strong>. O
+            score considera apenas o que for assinalado — não é necessário
+            responder a todos os campos.
+          </p>
+
           <div class="grid-campos">
-            <!-- coluna esquerda -->
             <div class="campo">
-              <span class="campo-label">DEFICIÊNCIA INTELECTUAL</span>
+              <span class="campo-label">Deficiência intelectual</span>
               <div class="opcoes">
-                <label
-                  ><input
-                    type="radio"
-                    name="deficiencia_intelectual"
-                    value="sim"
-                  />
-                  SIM</label
-                >
-                <label
-                  ><input
-                    type="radio"
-                    name="deficiencia_intelectual"
-                    value="nao"
-                  />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="deficiencia_intelectual" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="deficiencia_intelectual" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">MACROORQUIDISMO</span>
+              <span class="campo-label">Macroorquidismo</span>
               <div class="opcoes">
-                <input type="radio" name="macroorquidismo" value="sim" /> SIM
-                <input type="radio" name="macroorquidismo" value="nao" /> NÃO
+                <label class="pill pill-sim">
+                  <input type="radio" name="macroorquidismo" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="macroorquidismo" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">DIFICULDADES DE APRENDIZAGEM</span>
+              <span class="campo-label">Dificuldades de aprendizagem</span>
               <div class="opcoes">
-                <label
-                  ><input
-                    type="radio"
-                    name="dificuldades_aprendizagem"
-                    value="sim"
-                  />
-                  SIM</label
-                >
-                <label
-                  ><input
-                    type="radio"
-                    name="dificuldades_aprendizagem"
-                    value="nao"
-                  />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="dificuldades_aprendizagem" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="dificuldades_aprendizagem" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
               <span class="campo-label">Movimentos repetitivos</span>
               <div class="opcoes">
-                <label
-                  ><input
-                    type="radio"
-                    name="movimentos_repetitivos"
-                    value="sim"
-                  />
-                  SIM</label
-                >
-                <label
-                  ><input
-                    type="radio"
-                    name="movimentos_repetitivos"
-                    value="nao"
-                  />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="movimentos_repetitivos" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="movimentos_repetitivos" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">HIPERATIVIDADE</span>
+              <span class="campo-label">Hiperatividade</span>
               <div class="opcoes">
-                <label
-                  ><input type="radio" name="hiperatividade" value="sim" />
-                  SIM</label
-                >
-                <label
-                  ><input type="radio" name="hiperatividade" value="nao" />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="hiperatividade" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="hiperatividade" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">EVITA CONTATO FÍSICO</span>
+              <span class="campo-label">Evita contato físico</span>
               <div class="opcoes">
-                <label
-                  ><input
-                    type="radio"
-                    name="evita_contato_fisico"
-                    value="sim"
-                  />
-                  SIM</label
-                >
-                <label
-                  ><input
-                    type="radio"
-                    name="evita_contato_fisico"
-                    value="nao"
-                  />
-                  NÃO</label
-                >
-              </div>
-            </div>
-
-            <!-- coluna direita -->
-            <div class="campo">
-              <span class="campo-label">FACE ALONGADA/ORELHAS</span>
-              <div class="opcoes">
-                <label
-                  ><input type="radio" name="face_alongada" value="sim" />
-                  SIM</label
-                >
-                <label
-                  ><input type="radio" name="face_alongada" value="nao" />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="evita_contato_fisico" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="evita_contato_fisico" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">HIPERMOBILIDADE ARTICULAR</span>
+              <span class="campo-label">Face alongada / orelhas</span>
               <div class="opcoes">
-                <label
-                  ><input type="radio" name="hipermobilidade" value="sim" />
-                  SIM</label
-                >
-                <label
-                  ><input type="radio" name="hipermobilidade" value="nao" />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="face_alongada" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="face_alongada" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">DÉFICIT DE ATENÇÃO</span>
+              <span class="campo-label">Hipermobilidade articular</span>
               <div class="opcoes">
-                <label
-                  ><input type="radio" name="deficit_atencao" value="sim" />
-                  SIM</label
-                >
-                <label
-                  ><input type="radio" name="deficit_atencao" value="nao" />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="hipermobilidade" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="hipermobilidade" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">ATRASO NA FALA</span>
+              <span class="campo-label">Déficit de atenção</span>
               <div class="opcoes">
-                <label
-                  ><input type="radio" name="atraso_fala" value="sim" />
-                  SIM</label
-                >
-                <label
-                  ><input type="radio" name="atraso_fala" value="nao" />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="deficit_atencao" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="deficit_atencao" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">EVITA CONTATO VISUAL</span>
+              <span class="campo-label">Atraso na fala</span>
               <div class="opcoes">
-                <label
-                  ><input
-                    type="radio"
-                    name="evita_contato_visual"
-                    value="sim"
-                  />
-                  SIM</label
-                >
-                <label
-                  ><input
-                    type="radio"
-                    name="evita_contato_visual"
-                    value="nao"
-                  />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="atraso_fala" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="atraso_fala" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
 
             <div class="campo">
-              <span class="campo-label">AGRESSIVIDADE</span>
+              <span class="campo-label">Evita contato visual</span>
               <div class="opcoes">
-                <label
-                  ><input type="radio" name="agressividade" value="sim" />
-                  SIM</label
-                >
-                <label
-                  ><input type="radio" name="agressividade" value="nao" />
-                  NÃO</label
-                >
+                <label class="pill pill-sim">
+                  <input type="radio" name="evita_contato_visual" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="evita_contato_visual" value="nao" />
+                  <span>NÃO</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="campo">
+              <span class="campo-label">Agressividade</span>
+              <div class="opcoes">
+                <label class="pill pill-sim">
+                  <input type="radio" name="agressividade" value="sim" />
+                  <span>SIM</span>
+                </label>
+                <label class="pill pill-nao">
+                  <input type="radio" name="agressividade" value="nao" />
+                  <span>NÃO</span>
+                </label>
               </div>
             </div>
           </div>
@@ -236,7 +222,7 @@
               CANCELAR
             </button>
             <button class="btn btn-confirmar" onclick="confirmarDados()">
-              CONFIRMAR<br />DADOS
+              CONFIRMAR DADOS
             </button>
           </div>
         </div>
@@ -308,6 +294,8 @@
       <!-- /tela-resultado -->
     </main>
 
-    <script src="server/formulario.js"></script>
+    <script src="/server/home.js?v=20260612a"></script>
+    <script src="server/relatorio.js?v=20260612a"></script>
+    <script src="server/formulario.js?v=20260612a"></script>
   </body>
 </html>

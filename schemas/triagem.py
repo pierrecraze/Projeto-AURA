@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
 
@@ -12,10 +13,33 @@ class TriagemMetadata(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+# Resumo para a página de Avaliações do profissional de saúde:
+# metadados + score e conduta, para exibir na lista.
+class TriagemResumo(TriagemMetadata):
+    score_total: int
+    recomendacao_encaminhamento: bool
+
+
+# Atualização da conduta de uma avaliação já registrada
+# (encaminhar para FMR1 ou monitoramento)
+class TriagemCondutaUpdate(BaseModel):
+    recomendacao_encaminhamento: bool
+
+
+# Detalhe completo de uma avaliação — usado pelo profissional de saúde
+# para gerar o relatório PDF (score, sintomas assinalados e conduta).
+class TriagemDetalhe(TriagemMetadata):
+    score_total: int
+    recomendacao_encaminhamento: bool
+    sintomas: Optional[List[str]] = None
+    medico_nome: Optional[str] = None
+    medico_crm: Optional[str] = None
+
+
+# Dados enviados pelo front-end ao concluir uma avaliação no formulário clínico
 class TriagemCreate(BaseModel):
-    # Campos que o médico preenche
     paciente_id: UUID
     score_total: int = Field(..., ge=0, le=100)  # ge=0 le=100 = entre 0 e 100
     recomendacao_encaminhamento: bool
-
-    model_config = ConfigDict(from_attributes=True)
+    sintomas: Optional[List[str]] = None

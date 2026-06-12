@@ -23,8 +23,12 @@ body {
 .header {
   background: #a8d8ea;
   padding: 18px 24px;
-  text-align: center;
   border-bottom: 2px solid #8cc8e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
 }
 
 .header-title {
@@ -33,6 +37,90 @@ body {
   color: #fff;
   letter-spacing: 2px;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.btn-back-formulario,
+.btn-logout-formulario {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-back-formulario:hover,
+.btn-logout-formulario:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.btn-back-formulario {
+  left: 24px;
+  padding: 8px;
+}
+
+.btn-logout-formulario {
+  right: 24px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+/* ===========================
+   SESSION BANNER
+=========================== */
+.session-banner {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.session-banner.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.session-banner svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  stroke: #d64045;
+}
+
+.btn-session-keep {
+  background: #856404;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 /* ===========================
@@ -73,12 +161,13 @@ body {
    CARD
 =========================== */
 .card {
-  background: #b8dff0;
+  background: #ffffff;
   border-radius: 18px;
-  padding: 32px 36px 28px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.13);
+  padding: 30px 34px 26px;
+  box-shadow: 0 10px 34px rgba(35, 90, 130, 0.16);
+  border: 1px solid #e3eef6;
   width: 100%;
-  max-width: 420px;
+  max-width: 680px;
 }
 
 .card-resultado {
@@ -86,13 +175,27 @@ body {
 }
 
 .card-title {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 900;
-  color: #fff;
+  color: #1f6f9c;
   text-align: center;
   letter-spacing: 1.5px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.18);
-  margin-bottom: 24px;
+  margin-bottom: 6px;
+}
+
+.card-subtitle {
+  font-family: Arial, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: #5a6b78;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 480px;
+  margin: 0 auto 22px;
+}
+
+.card-subtitle strong {
+  color: #1f6f9c;
 }
 
 /* ===========================
@@ -101,46 +204,96 @@ body {
 .grid-campos {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 24px;
-  margin-bottom: 18px;
+  gap: 12px 16px;
+  margin-bottom: 22px;
 }
 
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  background: #f5f9fc;
+  border: 1px solid #e3eef6;
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.campo:hover {
+  border-color: #bcdcef;
+  box-shadow: 0 2px 8px rgba(35, 90, 130, 0.08);
 }
 
 .campo-label {
-  font-size: 0.63rem;
-  font-weight: 900;
-  color: #555;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  line-height: 1.2;
+  font-family: Arial, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #37474f;
+  letter-spacing: 0.2px;
+  line-height: 1.25;
+  min-height: 1.85em;
+  display: flex;
+  align-items: center;
 }
 
+/* ===========================
+   PÍLULAS SIM / NÃO
+=========================== */
 .opcoes {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #444;
+  gap: 8px;
 }
 
-.opcoes label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.pill {
+  position: relative;
+  flex: 1;
   cursor: pointer;
 }
 
-.opcoes input[type="radio"] {
-  accent-color: #3a9fd6;
-  width: 14px;
-  height: 14px;
+.pill input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
   cursor: pointer;
+}
+
+.pill > span {
+  display: block;
+  text-align: center;
+  padding: 7px 0;
+  border-radius: 8px;
+  border: 1.5px solid #cdd9e3;
+  background: #fff;
+  color: #7a8a96;
+  font-family: Arial, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+
+.pill:hover > span {
+  border-color: #9fb6c6;
+}
+
+.pill-sim input:checked + span {
+  background: #27ae60;
+  border-color: #27ae60;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(39, 174, 96, 0.3);
+}
+
+.pill-nao input:checked + span {
+  background: #e74c3c;
+  border-color: #e74c3c;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+}
+
+.pill input:focus-visible + span {
+  outline: 2px solid #3a9fd6;
+  outline-offset: 2px;
 }
 
 /* ===========================
@@ -164,29 +317,26 @@ body {
 .botoes {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
   margin-top: 4px;
 }
 
 .btn {
-  font-family: "Arial Black", Arial, sans-serif;
-  font-size: 0.72rem;
-  font-weight: 900;
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.5px;
-  padding: 10px 22px;
-  border-radius: 8px;
+  padding: 12px 30px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
   text-transform: uppercase;
   transition:
     filter 0.15s,
-    transform 0.1s;
+    transform 0.1s,
+    box-shadow 0.15s;
   line-height: 1.3;
   text-align: center;
-}
-
-.btn:hover {
-  filter: brightness(1.08);
 }
 
 .btn:active {
@@ -194,14 +344,25 @@ body {
 }
 
 .btn-cancelar {
-  background: #e74c3c;
-  color: #fff;
+  background: #fff;
+  color: #e74c3c;
+  border: 2px solid #f0c4be;
+}
+
+.btn-cancelar:hover {
+  background: #fdf0ee;
+  border-color: #e74c3c;
 }
 
 .btn-confirmar {
-  background: #fff;
-  color: #27ae60;
-  border: 2px solid #27ae60;
+  background: #27ae60;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.btn-confirmar:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.38);
 }
 
 /* ===========================

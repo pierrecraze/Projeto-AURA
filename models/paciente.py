@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import Column, String, Date, Integer, ForeignKey, DateTime, CheckConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from datetime import datetime
 from database.db import Base
 
@@ -14,7 +14,17 @@ class PacienteModel(Base):
     sexo_biologico = Column(String(1), CheckConstraint("sexo_biologico IN ('M', 'F')"), nullable=False)
     instituicao_id = Column(Integer, ForeignKey("instituicao.id"), nullable=False)
     cadastrado_por_id = Column(Integer, ForeignKey("profissional_saude.id"), nullable=False)
-    
+
+    # Filiação e endereço (exibidos na ficha do paciente)
+    nome_mae = Column(String(150), nullable=True)
+    nome_pai = Column(String(150), nullable=True)
+    cidade = Column(String(100), nullable=True)
+    estado = Column(String(2), nullable=True)
+    pais = Column(String(100), nullable=True)
+
+    # Snapshot do checklist clínico do formulário: {nome_do_sintoma: bool}
+    sintomas = Column(JSONB, nullable=True)
+
     data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
     deletado_em = Column(DateTime, nullable=True)
 
@@ -23,6 +33,7 @@ class ResponsavelModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String(150), nullable=False)
+    cpf = Column(String(14), nullable=True)
     telefone = Column(String(20), nullable=True)
     email = Column(String(255), nullable=True)
     deletado_em = Column(DateTime, nullable=True)

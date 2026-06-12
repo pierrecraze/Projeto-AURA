@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA | Todos os Pacientes</title>
+    <title>AURA | Avaliações</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
@@ -15,6 +15,33 @@
     <link rel="stylesheet" href="css/listaPaciente.css" />
 
     <link rel="icon" href="favicon.ico" />
+
+    <style>
+      /* Badge de score na lista de avaliações */
+      .score-pill {
+        display: inline-block;
+        min-width: 52px;
+        text-align: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: #fff;
+      }
+      .score-pill--alto { background: #e74c3c; }
+      .score-pill--medio { background: #f0a500; }
+      .score-pill--baixo { background: #27ae60; }
+
+      /* Botão de excluir avaliação */
+      .btn-acao--danger {
+        color: #c0392b;
+        border-color: #e7b6b0;
+      }
+      .btn-acao--danger:hover {
+        background: #fdf0ee;
+        border-color: #e74c3c;
+      }
+    </style>
   </head>
 
   <body>
@@ -42,21 +69,18 @@
         </a>
       </div>
 
-
-
       <div class="header-center">
         <nav class="header-nav">
           <ul>
             <li><a href="estatisticasPacientes.html" class="btn-center">Estatísticas</a></li>
             <li><a href="dashboardMedico.html" class="btn-center">Início</a></li>
+            <li><a href="todosPacientes.html" class="btn-center">Pacientes</a></li>
           </ul>
         </nav>
-    </div>
-
-
+      </div>
 
       <div class="header-right">
-        <span class="header-sub">Instituto Buko Kaesemodel</span>
+        <a class="header-sub" href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" title="Visitar o site do Instituto Buko Kaesemodel" style="text-decoration:none;color:inherit;cursor:pointer;">Instituto Buko Kaesemodel</a>
         <div class="header-user">
           <div class="user-avatar" aria-hidden="true">DR</div>
           <div class="user-info">
@@ -81,3 +105,286 @@
         </button>
       </div>
     </header>
+
+    <div
+      class="session-banner"
+      id="sessionBanner"
+      role="alert"
+      aria-live="assertive"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      <span
+        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja
+        continuar?</span
+      >
+      <button class="btn-session-keep" id="btnKeepSession">
+        Continuar sessão
+      </button>
+    </div>
+
+    <main>
+      <div class="page-wrapper">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Avaliações</h2>
+            <p class="section-sub">Avaliações de X-Frágil registradas na plataforma, com score e relatório em PDF</p>
+          </div>
+        </div>
+
+        <div class="search-bar">
+          <div class="search-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+              />
+            </svg>
+            <input
+              class="search-input"
+              type="text"
+              id="searchInput"
+              placeholder="Buscar por nome do paciente…"
+              oninput="filtrar()"
+            />
+          </div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Data da avaliação</th>
+                <th>Horário</th>
+                <th>Score</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaBody"></tbody>
+          </table>
+
+          <div id="emptyState" class="empty-state" style="display: none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"
+              />
+            </svg>
+            <p>Nenhuma avaliação encontrada.</p>
+          </div>
+
+          <div class="pagination">
+            <span class="pagination-info" id="paginacaoInfo"></span>
+            <div class="pagination-btns" id="paginacaoBtns"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/server/home.js?v=20260612a"></script>
+    <script src="/server/relatorio.js?v=20260612a"></script>
+    <script>
+      const POR_PAGINA = 10;
+      let paginaAtual = 1;
+      let relatorios = [];
+
+      function iniciais(nome) {
+        const partes = String(nome || "").trim().split(/\s+/).filter(Boolean);
+        if (partes.length === 0) return "??";
+        return partes.length >= 2
+          ? (partes[0][0] + partes[1][0]).toUpperCase()
+          : partes[0][0].toUpperCase();
+      }
+
+      function getRelatoriosFiltrados() {
+        const q = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+        if (!q) return relatorios;
+        return relatorios.filter(r => (r.pacienteNome || "").toLowerCase().includes(q));
+      }
+
+      function filtrar() {
+        paginaAtual = 1;
+        renderizar();
+      }
+
+      function renderizar() {
+        const filtrados = getRelatoriosFiltrados();
+        const total = filtrados.length;
+        const totalPag = Math.max(1, Math.ceil(total / POR_PAGINA));
+        if (paginaAtual > totalPag) paginaAtual = totalPag;
+
+        const inicio = (paginaAtual - 1) * POR_PAGINA;
+        const pagina = filtrados.slice(inicio, inicio + POR_PAGINA);
+
+        const tbody = document.getElementById("tabelaBody");
+        const empty = document.getElementById("emptyState");
+
+        if (pagina.length === 0) {
+          tbody.innerHTML = "";
+          empty.style.display = "block";
+        } else {
+          empty.style.display = "none";
+          tbody.innerHTML = pagina.map((r) => {
+            const data = new Date(r.data_hora);
+            const dataBr = data.toLocaleDateString('pt-BR');
+            const horaBr = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const { classe, categoria } = classificarScorePct(r.score_total);
+            const scoreBadge = `<span class="score-pill score-pill--${classe}" title="${categoria}">${r.score_total}%</span>`;
+            return `
+              <tr class="row-click" onclick="window.location.href='paciente.html?id=${r.paciente_id}'">
+                <td>
+                  <span class="patient-name">
+                    <span class="patient-initials">${iniciais(r.pacienteNome)}</span>
+                    ${r.pacienteNome || "Paciente removido"}
+                  </span>
+                </td>
+                <td>${dataBr}</td>
+                <td>${horaBr}</td>
+                <td>${scoreBadge}</td>
+                <td>
+                  <div class="actions-cell">
+                    <button class="btn-acao" onclick="event.stopPropagation(); gerarPDFAvaliacao('${r.id}')">Relatório PDF</button>
+                    <button class="btn-acao" onclick="event.stopPropagation(); window.location.href='paciente.html?id=${r.paciente_id}'">Ver paciente</button>
+                    <button class="btn-acao btn-acao--danger" onclick="event.stopPropagation(); excluirAvaliacao('${r.id}', '${(r.pacienteNome || "este paciente").replace(/'/g, "\\'")}')">Excluir</button>
+                  </div>
+                </td>
+              </tr>`;
+          }).join("");
+        }
+
+        renderPaginacao(total, totalPag);
+      }
+
+      function renderPaginacao(total, totalPag) {
+        const info = document.getElementById("paginacaoInfo");
+        const btnsDiv = document.getElementById("paginacaoBtns");
+
+        const inicio = total === 0 ? 0 : (paginaAtual - 1) * POR_PAGINA + 1;
+        const fim = Math.min(paginaAtual * POR_PAGINA, total);
+        info.textContent = `Exibindo ${inicio}-${fim} de ${total}`;
+
+        let btns = `<button class="pg-btn" onclick="irPara(${paginaAtual - 1})" ${paginaAtual === 1 ? "disabled" : ""}>‹</button>`;
+        const start = Math.max(1, paginaAtual - 2);
+        const end = Math.min(totalPag, paginaAtual + 2);
+        for (let p = start; p <= end; p++) {
+          btns += `<button class="pg-btn ${p === paginaAtual ? "active" : ""}" onclick="irPara(${p})">${p}</button>`;
+        }
+        btns += `<button class="pg-btn" onclick="irPara(${paginaAtual + 1})" ${paginaAtual === totalPag ? "disabled" : ""}>›</button>`;
+        btnsDiv.innerHTML = btns;
+      }
+
+      function irPara(p) {
+        const total = Math.max(1, Math.ceil(getRelatoriosFiltrados().length / POR_PAGINA));
+        if (p < 1 || p > total) return;
+        paginaAtual = p;
+        renderizar();
+      }
+
+      async function gerarPDFAvaliacao(id) {
+        const rel = relatorios.find((r) => r.id === id);
+
+        // Abre a janela JÁ no clique (gesto do usuário) para o navegador não
+        // bloquear o pop-up — só depois buscamos os dados e a preenchemos.
+        const janela = window.open("", "_blank");
+        if (janela) janela.document.write("<p style='font-family:sans-serif;padding:24px'>Gerando relatório…</p>");
+
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch(`/api/triagens/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const det = await res.json();
+
+          gerarRelatorioPDF({
+            pacienteNome: rel?.pacienteNome || "Paciente removido",
+            dataHora: det.data_hora,
+            scorePct: det.score_total,
+            sintomas: det.sintomas, // null em avaliações antigas (sem registro individual)
+            conduta: det.recomendacao_encaminhamento,
+            medicoNome: det.medico_nome,
+            medicoCrm: det.medico_crm,
+          }, janela);
+        } catch (err) {
+          console.error("Erro ao gerar relatório:", err);
+          if (janela) janela.close();
+          alert("Não foi possível gerar o relatório desta avaliação.");
+        }
+      }
+
+      async function excluirAvaliacao(id, nome) {
+        if (!confirm(`Excluir definitivamente a avaliação de ${nome}?\n\nEsta ação não pode ser desfeita.`)) {
+          return;
+        }
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch(`/api/triagens/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+          // Remove da lista em memória e re-renderiza
+          relatorios = relatorios.filter((r) => r.id !== id);
+          renderizar();
+        } catch (err) {
+          console.error("Erro ao excluir avaliação:", err);
+          alert("Não foi possível excluir a avaliação.");
+        }
+      }
+
+      async function carregarRelatorios() {
+        try {
+          const token = localStorage.getItem('aura_token');
+          const headers = { 'Authorization': `Bearer ${token}` };
+
+          const [resTri, resPac] = await Promise.all([
+            fetch('/api/triagens/resumo', { headers }),
+            fetch('/api/pacientes/', { headers })
+          ]);
+
+          const triagens = resTri.ok ? await resTri.json() : [];
+          const pacientes = resPac.ok ? await resPac.json() : [];
+          const nomesPorId = {};
+          pacientes.forEach(p => { nomesPorId[p.id] = p.nome; });
+
+          relatorios = triagens
+            .map(t => ({ ...t, pacienteNome: nomesPorId[t.paciente_id] }))
+            .sort((a, b) => new Date(b.data_hora) - new Date(a.data_hora));
+
+          renderizar();
+        } catch (err) {
+          console.error("Erro ao carregar relatórios:", err);
+        }
+      }
+
+      carregarRelatorios();
+    </script>
+  </body>
+</html>

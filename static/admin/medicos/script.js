@@ -1,5 +1,5 @@
 /* ─── Configuração da API ──────────────────────────────────── */
-const API_URL = "http://localhost:8000/api";
+const API_URL = "/api";
 
 /* ─── Dados (preenchidos pela API) ─────────────────────────── */
 let medicos    = [];
@@ -18,8 +18,10 @@ let state = {
     statusFilter: '',
     searchQuery: '',
     editingId: null,        // id do médico sendo editado no modal
-    senhaSufixo: ''         // sufixo dinâmico para a senha do médico
+    senhaSufixo: '',        // sufixo dinâmico para a senha do médico
+    pfTab: 'pacientes'       // aba ativa no perfil: 'pacientes' | 'triagens'
 };
+let medicosFiltrados = [];
 
 /* ─── Utilitários ───────────────────────────────────────────── */
 const initials  = n  => n.replace(/^Dr[a]?\. /, "").split(" ").slice(0, 2).map(p => p[0]).join("").toUpperCase();
@@ -64,7 +66,7 @@ async function carregarDados() {
             cidade:       m.cidade     || "—",
             uf:           m.uf         || "—",
             ingresso:     m.ingresso   || "—",
-            status:       m.status     || "Ativo",
+            status:       m.deletado_em ? "Inativo" : "Ativo",
             convenios:    (m.grupos || []).map(nome => {
                 const g = convenios.find(c => c.nome === nome);
                 return g ? g.id : null;
@@ -196,7 +198,7 @@ function renderApp() {
 }
 
 /* ─── Tela 1: Lista ─────────────────────────────────────────── */
-function renderLista() {
+function getMedicosFiltrados() {
     let lista = medicos;
 
     // Filtro KPI
@@ -217,6 +219,13 @@ function renderLista() {
             (m.cpf && m.cpf.toLowerCase().includes(state.searchQuery))
         );
     }
+
+    return lista;
+}
+
+function renderLista() {
+    const lista = getMedicosFiltrados();
+    medicosFiltrados = lista;
 
     updateMedicosKPIs();
     document.getElementById("table-count").innerHTML = `Exibindo <strong>${lista.length}</strong> médico${lista.length !== 1 ? 's' : ''}`;
@@ -328,6 +337,7 @@ function renderCards(lista) {
 function openPerfil(id) {
     state.activeMedicoId = id;
     state.view = 'perfil';
+    state.pfTab = 'pacientes';
     renderApp();
     window.scrollTo(0, 0);
 }
@@ -387,9 +397,55 @@ function renderPerfil() {
             </div>`).join("");
     }
 
-    // Pacientes
+    // Pacientes / Triagens
+    const triList = triagens.filter(t => t.medicoId === m.id);
     document.getElementById("badge-pf-pacientes").textContent = pacList.length;
-    const tbody = document.getElementById("pf-pacientes-tbody");
+    document.getElementById("badge-pf-triagens").textContent  = triList.length;
+
+    // Esconde a senha provisória gerada anteriormente ao trocar de médico
+    document.getElementById("pf-senha-gerada").classList.add("hidden");
+
+    renderPfTable();
+}
+
+function renderPfTable() {
+    const m = medicos.find(x => x.id === state.activeMedicoId);
+    if (!m) return;
+
+    const thead = document.getElementById("pf-dynamic-thead");
+    const tbody = document.getElementById("pf-dynamic-tbody");
+
+    if (state.pfTab === 'triagens') {
+        const triList = triagens.filter(t => t.medicoId === m.id)
+            .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+
+        thead.innerHTML = `<tr><th>Paciente</th><th>Data</th><th>Horário</th></tr>`;
+
+        if (triList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:32px;color:#94A3B8;">Nenhuma triagem registrada.</td></tr>`;
+        } else {
+            tbody.innerHTML = triList.map(t => {
+                const p  = pacientes.find(x => x.id === t.pacienteId);
+                const dt = new Date(t.dataHora);
+                return `<tr>
+                    <td>
+                        <div class="td-flex">
+                            <div class="user-avatar" style="background:${avatarBg(t.pacienteId)}">${p ? initials(p.nome) : "—"}</div>
+                            <p class="user-name">${p ? p.nome : "Paciente removido"}</p>
+                        </div>
+                    </td>
+                    <td>${dt.toLocaleDateString('pt-BR')}</td>
+                    <td>${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+                </tr>`;
+            }).join("");
+        }
+        return;
+    }
+
+    const pacList = pacientes.filter(p => p.medicoId === m.id);
+
+    thead.innerHTML = `<tr><th>Paciente</th><th>Documento</th><th>Convênios</th><th>Status</th></tr>`;
+
     if (pacList.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum paciente vinculado.</td></tr>`;
     } else {
@@ -414,13 +470,85 @@ function renderPerfil() {
     }
 }
 
-/* ─── Toggle Status (perfil) ────────────────────────────────── */
-window.toggleStatus = function() {
+/* ─── Tabs do Perfil (Pacientes / Triagens) ─────────────────── */
+window.switchPfTab = function(tab) {
+    state.pfTab = tab;
+    document.getElementById("tab-pf-pacientes").className = `tab ${tab === 'pacientes' ? 'active' : ''}`;
+    document.getElementById("tab-pf-triagens").className  = `tab ${tab === 'triagens' ? 'active' : ''}`;
+    renderPfTable();
+};
+
+/* ─── Reset de Senha (perfil) ───────────────────────────────── */
+window.resetarSenhaMedico = async function() {
     const m = medicos.find(x => x.id === state.activeMedicoId);
     if (!m) return;
-    m.status = m.status === "Ativo" ? "Inativo" : "Ativo";
-    showToast(`${m.nome} marcado como ${m.status}.`);
-    renderApp();
+
+    if (!confirm(`Gerar uma nova senha provisória para ${m.nome}? A senha atual deixará de funcionar imediatamente.`)) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem("aura_token");
+        const response = await fetch(`${API_URL}/medicos/${m.id}/resetar-senha`, {
+            method: "POST",
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById("pf-senha-gerada-valor").value = data.senha;
+            document.getElementById("pf-senha-gerada").classList.remove("hidden");
+            lucide.createIcons();
+            showToast("Nova senha provisória gerada com sucesso.");
+        } else {
+            const errData = await response.json();
+            showToast(`Erro: ${errData.detail || 'Não foi possível gerar a senha.'}`, "error");
+        }
+    } catch (err) {
+        console.error("Erro ao resetar senha:", err);
+        showToast("Erro de conexão.", "error");
+    }
+};
+
+window.copiarSenhaGerada = function() {
+    const input = document.getElementById("pf-senha-gerada-valor");
+    navigator.clipboard.writeText(input.value).then(() => {
+        showToast("Senha copiada!");
+    }).catch(() => {
+        input.select();
+        document.execCommand("copy");
+        showToast("Senha copiada!");
+    });
+};
+
+/* ─── Toggle Status (perfil) ────────────────────────────────── */
+window.toggleStatus = async function() {
+    const m = medicos.find(x => x.id === state.activeMedicoId);
+    if (!m) return;
+
+    const ativando = m.status !== "Ativo";
+    const url = `${API_URL}/medicos/${m.id}${ativando ? "/reativar" : ""}`;
+    const token = localStorage.getItem('aura_token');
+
+    try {
+        const response = await fetch(url, {
+            method: ativando ? "PATCH" : "DELETE",
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            showToast(`Erro: ${errData.detail || 'Não foi possível atualizar o status.'}`, "error");
+            return;
+        }
+
+        m.status = ativando ? "Ativo" : "Inativo";
+        showToast(`${m.nome} marcado como ${m.status}.`);
+        renderApp();
+    } catch (err) {
+        console.error("Erro ao atualizar status:", err);
+        showToast("Erro de conexão.", "error");
+    }
 };
 
 /* ─── Filtro e Visualização ─────────────────────────────────── */
@@ -639,6 +767,43 @@ window.saveVincular = function() {
     renderApp();
 };
 
+/* ─── Exportação CSV ────────────────────────────────────────── */
+function downloadCSV(header, rows, filename) {
+    const csv = [header, ...rows].map(r => r.map(v => `"${String(v ?? "—").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+}
+
+window.exportarPerfilCSV = function() {
+    const m = medicos.find(x => x.id === state.activeMedicoId);
+    if (!m) return;
+
+    const nomeArquivo = m.nome.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, "_").toLowerCase();
+
+    if (state.pfTab === 'triagens') {
+        const triList = triagens.filter(t => t.medicoId === m.id)
+            .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+        const header = ["ID", "Paciente", "Data", "Horário"];
+        const rows = triList.map(t => {
+            const p  = pacientes.find(x => x.id === t.pacienteId);
+            const dt = new Date(t.dataHora);
+            return [t.id, p ? p.nome : "Paciente removido", dt.toLocaleDateString('pt-BR'), dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })];
+        });
+        downloadCSV(header, rows, `triagens_${nomeArquivo}.csv`);
+    } else {
+        const pacList = pacientes.filter(p => p.medicoId === m.id);
+        const header = ["ID", "Nome", "Documento", "Convênios", "Status"];
+        const rows = pacList.map(p => {
+            const cvNomes = p.convenios.map(id => convenios.find(c => c.id === id)?.nome).filter(Boolean);
+            return [`#${String(p.id).padStart(4, '0')}`, p.nome, p.doc, cvNomes.join(" | "), p.status];
+        });
+        downloadCSV(header, rows, `pacientes_${nomeArquivo}.csv`);
+    }
+};
+
 /* ─── Helpers ───────────────────────────────────────────────── */
 window.toggleChk = function(input) {
     input.parentElement.classList.toggle("checked", input.checked);
@@ -686,6 +851,7 @@ function setupNotificacoes() {
 function setupProfile() {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nomeFull = user.nome || "Admin Principal";
+    const cargo = user.cargo || "Administrador";
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
@@ -698,6 +864,7 @@ function setupProfile() {
         const el = document.getElementById(id);
         if (el) el.textContent = iniciais;
     });
+    document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
 }
 
 // Logout
@@ -707,6 +874,76 @@ if (btnLogout) {
         localStorage.removeItem('aura_token');
         localStorage.removeItem('aura_user');
         window.location.replace('/login.html');
+    });
+}
+
+// ==========================================
+// EXPORTAÇÃO E MODAL DE PREVIEW
+// ==========================================
+function getDataHoraAtual() {
+    const now = new Date();
+    return `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+}
+
+function exportarCSV() {
+    const header = ["ID", "Nome", "CPF", "CRM", "Status"];
+    const rows = medicosFiltrados.map(m => [m.id, m.nome, m.cpf, m.crm, m.status]);
+    const metadata = `"Relatório de Médicos - Instituto Buko Kaesemodel"\n"Baixado em: ${getDataHoraAtual()}"\n\n`;
+    const csv = metadata + [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `medicos_aura_${new Date().getTime()}.csv`; a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportarPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF) return showToast("Erro: Biblioteca PDF não carregada.", "error");
+    const { jsPDF } = window.jspdf; const doc = new jsPDF('landscape');
+    doc.setFontSize(14); doc.text("Relatório de Médicos - Instituto Buko Kaesemodel", 14, 15);
+    doc.setFontSize(10); doc.setTextColor(100, 116, 139); doc.text(`Baixado em: ${getDataHoraAtual()}`, 14, 22);
+    const rows = medicosFiltrados.map(m => [m.id, m.nome, m.cpf, m.crm, m.status]);
+    doc.autoTable({ head: [["ID", "Nome", "CPF", "CRM", "Status"]], body: rows, startY: 28, styles: { fontSize: 9 }, headStyles: { fillColor: [13, 27, 53] } });
+    doc.save(`medicos_aura_${new Date().getTime()}.pdf`);
+}
+
+function setupExportModal() {
+    const btnModal = document.getElementById("btnExportModal");
+    const overlay = document.getElementById("modalExportOverlay");
+    if (!btnModal || !overlay) return;
+    let selectedFormat = 'pdf';
+    function fecharExport() { overlay.style.display = "none"; document.body.style.overflow = ""; }
+    function gerarLivePreview() {
+        const amostra = medicosFiltrados.slice(0, 5);
+        const previewArea = document.getElementById("exportLivePreview");
+        if (selectedFormat === 'pdf') {
+            previewArea.className = "export-live-preview";
+            let html = `<div class="preview-doc-title">Relatório de Médicos</div><div style="text-align:center; font-size:10px; color:#64748B; margin-bottom: 14px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">Baixado em: ${getDataHoraAtual()}</div>`;
+            html += `<table class="preview-doc-table"><thead><tr><th>ID</th><th>Nome</th><th>CRM</th><th>Status</th></tr></thead><tbody>`;
+            if (amostra.length === 0) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">Nenhum dado encontrado</td></tr>`;
+            else { amostra.forEach(m => { html += `<tr><td>#${m.id}</td><td>${m.nome}</td><td>${m.crm}</td><td>${m.status}</td></tr>`; });
+            if (medicosFiltrados.length > 5) html += `<tr><td colspan="4" style="text-align:center; color:#94A3B8;">... e mais ${medicosFiltrados.length - 5} médicos</td></tr>`; }
+            previewArea.innerHTML = html + `</tbody></table>`;
+        } else {
+            previewArea.className = "export-live-preview csv-mode";
+            let txt = `"Relatório de Médicos - Instituto Buko Kaesemodel"\n"Baixado em: ${getDataHoraAtual()}"\n\nID,Nome,CPF,CRM,Status\n`;
+            amostra.forEach(m => { txt += `"${m.id}","${m.nome}","${m.cpf}","${m.crm}","${m.status}"\n`; });
+            if (medicosFiltrados.length > 5) txt += `\n... e mais ${medicosFiltrados.length - 5} linhas omitidas`;
+            previewArea.textContent = txt;
+        }
+    }
+    btnModal.addEventListener("click", () => { overlay.style.display = "flex"; document.body.style.overflow = "hidden"; gerarLivePreview(); });
+    [document.getElementById("modalExportClose"), document.getElementById("btnExportCancel")].forEach(b => b.addEventListener("click", fecharExport));
+    overlay.addEventListener("click", e => { if (e.target === overlay) fecharExport(); });
+    ['pdf', 'csv'].forEach(fmt => {
+        document.getElementById(`format${fmt.charAt(0).toUpperCase() + fmt.slice(1)}`).addEventListener("click", () => {
+            selectedFormat = fmt;
+            document.getElementById("formatPdf").classList.toggle("active", fmt === 'pdf');
+            document.getElementById("formatCsv").classList.toggle("active", fmt === 'csv');
+            gerarLivePreview();
+        });
+    });
+    document.getElementById("btnExportConfirm").addEventListener("click", () => {
+        fecharExport(); if (selectedFormat === 'csv') { showToast("Baixando CSV..."); exportarCSV(); } else { showToast("Gerando PDF..."); exportarPDF(); }
     });
 }
 
@@ -798,3 +1035,4 @@ function setupLocalidadesEvents() {
         }
     });
 }
+document.addEventListener("DOMContentLoaded", setupExportModal);

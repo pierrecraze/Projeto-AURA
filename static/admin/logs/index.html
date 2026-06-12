@@ -1,306 +1,264 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA Admin - Auditoria de Logs</title>
-    <link rel="stylesheet" href="style.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/lucide@latest"></script>
-  </head>
-  <body>
-    <script src="/core/authGuard.js" data-role="admin"></script>
-    <div class="app-container">
-      <!-- Nova Sidebar Colapsável -->
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="brand">
-            <div class="brand-icon"><i data-lucide="activity"></i></div>
-            <div class="brand-text">
-              <p class="brand-title">Instituto Buko</p>
-              <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
-            </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Admin - Auditoria de Logs</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="/core/authGuard.js" data-role="admin"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Nova Sidebar Colapsável -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i data-lucide="activity"></i></div>
+          <div class="brand-text">
+            <p class="brand-title">Instituto Buko</p>
+            <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
           </div>
-          <button
-            class="sidebar-toggle"
-            id="sidebarToggle"
-            aria-label="Alternar menu"
-          >
-            <i data-lucide="menu" id="toggleIcon"></i>
-          </button>
         </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Alternar menu">
+          <i data-lucide="menu" id="toggleIcon"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <p class="nav-title">Menu Principal</p>
+        <button class="nav-item" onclick="window.location.href='../dashboard/index.html'"><i data-lucide="layout-dashboard"></i><span class="nav-label"> Dashboard</span></button>
+        <button class="nav-item" onclick="window.location.href='../convenios/index.html'"><i data-lucide="building-2"></i><span class="nav-label"> Gestão de Convênios</span></button>
+        <button class="nav-item" onclick="window.location.href='../medicos/index.html'"><i data-lucide="stethoscope"></i><span class="nav-label"> Médicos</span></button>
+        <button class="nav-item" onclick="window.location.href='../pacientes/index.html'"><i data-lucide="users"></i><span class="nav-label"> Pacientes</span></button>
+        <p class="nav-title" style="margin-top: 14px;">Sistema</p>
+        <button class="nav-item" onclick="window.location.href='../usuarios/index.html'"><i data-lucide="user-cog"></i><span class="nav-label"> Usuários</span></button>
+        <button class="nav-item active"><i data-lucide="shield-check"></i><span class="nav-label"> Auditoria de Logs</span></button>
+        <button class="nav-item" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
+      </nav>
 
-        <nav class="sidebar-nav">
-          <p class="nav-title">Menu Principal</p>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../dashboard/index.html'"
-          >
-            <i data-lucide="layout-dashboard"></i
-            ><span class="nav-label"> Dashboard</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../convenios/index.html'"
-          >
-            <i data-lucide="building-2"></i
-            ><span class="nav-label"> Gestão de Convênios</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../medicos/index.html'"
-          >
-            <i data-lucide="stethoscope"></i
-            ><span class="nav-label"> Médicos</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../pacientes/index.html'"
-          >
-            <i data-lucide="users"></i><span class="nav-label"> Pacientes</span>
-          </button>
-          <p class="nav-title" style="margin-top: 14px">Sistema</p>
-          <button class="nav-item active">
-            <i data-lucide="shield-check"></i
-            ><span class="nav-label"> Auditoria de Logs</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../configuracoes/index.html'"
-          >
-            <i data-lucide="settings"></i
-            ><span class="nav-label"> Configurações</span>
-          </button>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="profile-card" id="profileCard">
-            <div class="profile-avatar" id="profileAvatar">AD</div>
-            <div class="profile-info">
-              <p class="profile-name" id="profileName">Admin Principal</p>
-              <p class="profile-role">Administrador · IBK</p>
-            </div>
-            <i data-lucide="more-vertical" class="profile-more"></i>
+      <div class="sidebar-footer">
+        <div class="profile-card" id="profileCard">
+          <div class="profile-avatar" id="profileAvatar">AD</div>
+          <div class="profile-info">
+            <p class="profile-name" id="profileName">Admin Principal</p>
+            <p class="profile-role">Administrador · IBK</p>
           </div>
-          <button class="nav-item logout" style="margin-top: 6px">
-            <i data-lucide="log-out"></i
-            ><span class="nav-label"> Sair da conta</span>
-          </button>
+          <i data-lucide="more-vertical" class="profile-more"></i>
         </div>
-      </aside>
+        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
+      </div>
+    </aside>
 
-      <div class="main-wrapper">
-        <!-- Nova Topbar Limpa -->
-        <header class="topbar">
-          <div class="topbar-left">
-            <div class="page-breadcrumb">
-              <div class="breadcrumb-icon">
-                <i data-lucide="shield-check"></i>
-              </div>
-              <span class="breadcrumb-label">Auditoria de Logs</span>
-              <span class="breadcrumb-sep">·</span>
-              <span class="breadcrumb-sub"
-                >Registro de eventos e segurança</span
-              >
-            </div>
+    <div class="main-wrapper">
+      
+      <!-- Nova Topbar Limpa -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="page-breadcrumb">
+            <div class="breadcrumb-icon"><i data-lucide="shield-check"></i></div>
+            <span class="breadcrumb-label">Auditoria de Logs</span>
+            <span class="breadcrumb-sep">·</span>
+            <span class="breadcrumb-sub">Registro de eventos e segurança</span>
           </div>
-          <div class="topbar-right">
-            <span class="date-chip">
-              <i data-lucide="calendar"></i>
-              <span id="current-date"></span>
-            </span>
-            <div class="topbar-divider"></div>
-            <div class="notif-wrapper">
-              <button
-                class="top-action-btn"
-                id="notifBtn"
-                aria-label="Notificações"
-              >
-                <i data-lucide="bell"></i>
-                <span class="notification-dot"></span>
-              </button>
-              <div class="notif-panel" id="notifPanel">
-                <div class="notif-panel-header">
-                  <p class="notif-panel-title">Notificações</p>
-                  <button class="notif-mark-read" id="markAllRead">
-                    Marcar tudo como lido
-                  </button>
-                </div>
-                <div class="notif-list" id="notifList"></div>
-                <div class="notif-panel-footer">
-                  <button class="notif-footer-btn">
-                    Ver todas as notificações →
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main class="content">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Auditoria e Segurança (Logs)</h1>
-              <p class="page-subtitle">
-                Registro imutável de todas as ações realizadas no sistema AURA
-              </p>
-            </div>
-            <button class="btn-export">
-              <i data-lucide="download"></i> Exportar Log
+        </div>
+        <div class="topbar-right">
+          <span class="date-chip">
+            <i data-lucide="calendar"></i>
+            <span id="current-date"></span>
+          </span>
+          <div class="topbar-divider"></div>
+          <div class="notif-wrapper">
+            <button class="top-action-btn" id="notifBtn" aria-label="Notificações">
+              <i data-lucide="bell"></i>
+              <span class="notification-dot"></span>
             </button>
-          </div>
-
-          <div class="kpi-grid">
-            <div class="kpi-card active" onclick="setKpiFilter('TODOS', this)">
-              <div class="kpi-header">
-                <span class="kpi-label">Total de Eventos</span>
-                <div class="kpi-icon icon-slate">
-                  <i data-lucide="file-text"></i>
-                </div>
+            <div class="notif-panel" id="notifPanel">
+              <div class="notif-panel-header">
+                <p class="notif-panel-title">Notificações</p>
+                <button class="notif-mark-read" id="markAllRead">Marcar tudo como lido</button>
               </div>
-              <p class="kpi-value" id="kpi-total">—</p>
-            </div>
-            <div
-              class="kpi-card border-red"
-              onclick="setKpiFilter('CRITICO', this)"
-            >
-              <div class="kpi-header">
-                <span class="kpi-label">Eventos Críticos</span>
-                <div class="kpi-icon icon-red">
-                  <i data-lucide="shield-alert"></i>
-                </div>
+              <div class="notif-list" id="notifList"></div>
+              <div class="notif-panel-footer">
+                <button class="notif-footer-btn">Ver todas as notificações →</button>
               </div>
-              <p class="kpi-value text-main" id="kpi-criticos">—</p>
-            </div>
-            <div
-              class="kpi-card border-yellow"
-              onclick="setKpiFilter('ALERTA', this)"
-            >
-              <div class="kpi-header">
-                <span class="kpi-label">Alertas do Sistema</span>
-                <div class="kpi-icon icon-yellow">
-                  <i data-lucide="alert-triangle"></i>
-                </div>
-              </div>
-              <p class="kpi-value text-main" id="kpi-alertas">—</p>
-            </div>
-            <div
-              class="kpi-card border-purple"
-              onclick="setKpiFilter('SISTEMA', this)"
-            >
-              <div class="kpi-header">
-                <span class="kpi-label">Eventos de Sistema</span>
-                <div class="kpi-icon icon-purple">
-                  <i data-lucide="database"></i>
-                </div>
-              </div>
-              <p class="kpi-value text-main" id="kpi-sistemas">—</p>
             </div>
           </div>
+        </div>
+      </header>
 
-          <div class="filter-panel">
-            <div class="filter-group">
-              <div class="filter-label">
-                <i data-lucide="filter"></i> Filtros
-              </div>
-
-              <div class="search-box">
-                <i data-lucide="search" class="search-icon"></i>
-                <input
-                  type="text"
-                  id="search-input"
-                  class="input-base"
-                  placeholder="Usuário, ação ou IP…"
-                />
-                <button id="clear-search" class="clear-search hidden">
-                  <i data-lucide="x"></i>
-                </button>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="date-filter">
-                <i data-lucide="calendar"></i>
-                <label>De</label>
-                <input type="date" id="filter-date-ini" class="input-base" />
-              </div>
-              <div class="date-filter">
-                <label>Até</label>
-                <input type="date" id="filter-date-fim" class="input-base" />
-              </div>
-
-              <button id="clear-all-filters" class="btn-clear hidden">
-                <i data-lucide="x"></i> Limpar Filtros
-              </button>
+      <main class="content">
+        <div class="kpi-grid">
+          <div class="kpi-card active" onclick="setKpiFilter('TODOS', this)">
+            <div class="kpi-header">
+              <span class="kpi-label">Total de Eventos</span>
+              <div class="kpi-icon icon-slate"><i data-lucide="file-text"></i></div>
             </div>
+            <p class="kpi-value" id="kpi-total">—</p>
           </div>
+          <div class="kpi-card border-red" onclick="setKpiFilter('CRITICO', this)">
+            <div class="kpi-header">
+              <span class="kpi-label">Eventos Críticos</span>
+              <div class="kpi-icon icon-red"><i data-lucide="shield-alert"></i></div>
+            </div>
+            <p class="kpi-value text-main" id="kpi-criticos">—</p>
+          </div>
+          <div class="kpi-card border-yellow" onclick="setKpiFilter('ALERTA', this)">
+            <div class="kpi-header">
+              <span class="kpi-label">Alertas do Sistema</span>
+              <div class="kpi-icon icon-yellow"><i data-lucide="alert-triangle"></i></div>
+            </div>
+            <p class="kpi-value text-main" id="kpi-alertas">—</p>
+          </div>
+          <div class="kpi-card border-purple" onclick="setKpiFilter('SISTEMA', this)">
+            <div class="kpi-header">
+              <span class="kpi-label">Eventos de Sistema</span>
+              <div class="kpi-icon icon-purple"><i data-lucide="database"></i></div>
+            </div>
+            <p class="kpi-value text-main" id="kpi-sistemas">—</p>
+          </div>
+        </div>
 
-          <div class="log-container">
-            <div class="log-status-bar">
-              <div class="log-status-left">
-                <div class="status-dot"></div>
-                <span>LOG STREAM — SISTEMA AURA / IBK — SOMENTE LEITURA</span>
-              </div>
-              <div class="log-status-right">
-                <i data-lucide="clock"></i>
-                <span id="log-count-display">0 entradas exibidas</span>
-              </div>
+        <div class="filter-panel">
+          <div class="filter-group">
+            <div class="filter-label"><i data-lucide="filter"></i> Filtros</div>
+            
+            <div class="search-box">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="search-input" class="input-base" placeholder="Usuário, ação ou IP…">
+              <button id="clear-search" class="clear-search hidden"><i data-lucide="x"></i></button>
             </div>
 
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data / Hora</th>
-                    <th>Usuário</th>
-                    <th>Entidade</th>
-                    <th>Ação Realizada</th>
-                    <th>Endereço IP</th>
-                    <th>Categoria</th>
-                  </tr>
-                </thead>
-                <tbody id="table-body"></tbody>
-              </table>
+            <div class="divider"></div>
+
+            <div class="ator-filters" id="ator-filters">
+              <button class="ator-pill" data-ator="admin_sistema"><i data-lucide="shield-check" style="color: #3B82F6;"></i> Admin</button>
+              <button class="ator-pill" data-ator="medico"><i data-lucide="stethoscope" style="color: #10B981;"></i> Médico</button>
+              <button class="ator-pill" data-ator="sistema"><i data-lucide="cpu" style="color: #7C3AED;"></i> Sistema</button>
             </div>
 
-            <div class="log-pagination">
-              <span id="pagination-info">rows 0..0 / 0</span>
-              <div class="pagination-controls" id="pagination-controls"></div>
+            <div class="divider"></div>
+
+            <div class="date-filter">
+              <i data-lucide="calendar"></i>
+              <label>De</label>
+              <input type="date" id="filter-date-ini" class="input-base">
+            </div>
+            <div class="date-filter">
+              <label>Até</label>
+              <input type="date" id="filter-date-fim" class="input-base">
+            </div>
+
+            <button id="clear-all-filters" class="btn-clear hidden"><i data-lucide="x"></i> Limpar Filtros</button>
+            <button id="btnExportModal" class="btn-clear" style="margin-left: auto; border: 1px solid #D1D5DB; color: #374151;"><i data-lucide="download"></i> Exportar</button>
+          </div>
+        </div>
+
+        <div class="log-container">
+          <div class="log-status-bar">
+            <div class="log-status-left">
+              <div class="status-dot"></div>
+              <span>LOG STREAM — SISTEMA AURA / IBK — SOMENTE LEITURA</span>
+            </div>
+            <div class="log-status-right">
+              <i data-lucide="clock"></i>
+              <span id="log-count-display">0 entradas exibidas</span>
             </div>
           </div>
 
-          <div class="compliance-footer">
-            <i data-lucide="shield-check"></i>
-            <p>
-              Logs são imutáveis e armazenados por no mínimo 5 anos em
-              conformidade com a LGPD e normas CFM. Exportação registrada
-              automaticamente neste log.
-            </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data / Hora</th>
+                  <th>Usuário</th>
+                  <th>Entidade</th> 
+                  <th>Ação Realizada</th>
+                  <th>Endereço IP</th>
+                  <th>Categoria</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                </tbody>
+            </table>
           </div>
-        </main>
+
+          <div class="log-pagination">
+            <span id="pagination-info">rows 0..0 / 0</span>
+            <div class="pagination-controls" id="pagination-controls">
+              </div>
+          </div>
+        </div>
+
+        <div class="compliance-footer">
+          <i data-lucide="shield-check"></i>
+          <p>Logs são imutáveis e armazenados por no mínimo 5 anos em conformidade com a LGPD e normas CFM. Exportação registrada automaticamente neste log.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: Exportar Dados -->
+  <div id="modalExportOverlay" style="position: fixed; inset: 0; background: rgba(15,27,53,0.45); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px;">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 850px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(15,27,53,0.18);">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #F1F5F9;">
+        <div>
+          <h2 style="font-size: 16px; font-weight: 700; color: #0F172A; margin: 0;">Exportar Dados</h2>
+          <p style="font-size: 12px; color: #94A3B8; margin: 2px 0 0;">Escolha o formato e visualize a amostra de dados que será baixada.</p>
+        </div>
+        <button id="modalExportClose" style="background: transparent; border: none; cursor: pointer; color: #64748B;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+      </div>
+      <div style="padding: 0; display: flex; height: 450px; overflow: hidden; flex: none;">
+        <div style="width: 260px; padding: 24px; border-right: 1px solid #E2E8F0; background: #FAFBFF; flex-shrink: 0; overflow-y: auto;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Formato do Arquivo</p>
+          <div class="export-format-card active" data-format="pdf" id="formatPdf">
+            <i data-lucide="file-text" style="color: #DC2626; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Documento PDF</span>
+              <span class="sub">Relatório formatado</span>
+            </div>
+          </div>
+          <div class="export-format-card" data-format="csv" id="formatCsv" style="margin-top: 10px;">
+            <i data-lucide="file-spreadsheet" style="color: #16A34A; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Planilha CSV</span>
+              <span class="sub">Dados brutos</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding: 24px; background: #F1F5F9; display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pré-visualização (Primeiras 5 linhas)</p>
+          <div id="exportLivePreview" class="export-live-preview"></div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #E2E8F0; background: white;">
+        <button id="btnExportCancel" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #E2E8F0; background: white; color: #374151; font-weight: 500; cursor: pointer;">Cancelar</button>
+        <button id="btnExportConfirm" style="padding: 8px 16px; border-radius: 8px; background: #1D4ED8; color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Confirmar Download</button>
       </div>
     </div>
+  </div>
 
-    <script src="script.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const notifBtn = document.getElementById("notifBtn");
-        const notifPanel = document.getElementById("notifPanel");
-        if (notifBtn && notifPanel) {
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const notifBtn = document.getElementById("notifBtn");
+      const notifPanel = document.getElementById("notifPanel");
+      if (notifBtn && notifPanel) {
           notifBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            notifPanel.classList.toggle("open");
+              e.stopPropagation();
+              notifPanel.classList.toggle("open");
           });
           document.addEventListener("click", (e) => {
-            if (!notifPanel.contains(e.target)) {
-              notifPanel.classList.remove("open");
-            }
+              if (!notifPanel.contains(e.target)) {
+                  notifPanel.classList.remove("open");
+              }
           });
-        }
-      });
-    </script>
-  </body>
+      }
+    });
+  </script>
+</body>
 </html>

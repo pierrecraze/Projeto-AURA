@@ -3,10 +3,11 @@ from typing import Optional
 from datetime import date, datetime
 from uuid import UUID
 
-# Sub-schema para aceitar responsáveis aninhados na criação
+# Sub-schema para aceitar responsáveis aninhados na criação/edição
 class ResponsavelBase(BaseModel):
     nome: str
     parentesco: str = "Não informado"
+    cpf: Optional[str] = None
     telefone: Optional[str] = None
 
 class PacienteBase(BaseModel):
@@ -14,19 +15,33 @@ class PacienteBase(BaseModel):
     cpf: Optional[str] = None
     data_nascimento: date
     sexo_biologico: str
-    instituicao_id: int
-    cadastrado_por_id: int
-    
+    nome_mae: Optional[str] = None
+    nome_pai: Optional[str] = None
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    pais: Optional[str] = None
+
 class PacienteCreate(PacienteBase):
     responsaveis: Optional[list[ResponsavelBase]] = None
+    # Checklist clínico {nome_do_sintoma: bool} — opcional na criação/edição
+    sintomas: Optional[dict] = None
 
 class Paciente(PacienteBase):
     id: UUID
+    instituicao_id: int
+    cadastrado_por_id: int
     data_cadastro: datetime
     deletado_em: Optional[datetime] = None
+    sintomas: Optional[dict] = None
+    # Responsáveis vinculados (preenchido pelas rotas de detalhe/atualização)
+    responsaveis: Optional[list[ResponsavelBase]] = None
 
     # Necessário para o Pydantic converter o PacienteModel do banco em JSON
     model_config = ConfigDict(from_attributes=True)
+
+# Payload enxuto para salvar apenas o formulário clínico (checkboxes de sintomas)
+class SintomasUpdate(BaseModel):
+    sintomas: dict
 
 class VinculoFamiliarCreate(BaseModel):
     paciente_destino_id: UUID

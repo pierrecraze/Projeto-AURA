@@ -1,354 +1,304 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA Admin — Gestão de Convênios</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
-  </head>
-  <body>
-    <script src="/core/authGuard.js" data-role="admin"></script>
-    <div class="app-container">
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="brand">
-            <div class="brand-icon"><i data-lucide="activity"></i></div>
-            <div class="brand-text">
-              <p class="brand-title">Instituto Buko</p>
-              <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
-            </div>
-          </div>
-          <button
-            class="sidebar-toggle"
-            id="sidebarToggle"
-            aria-label="Alternar menu"
-          >
-            <i data-lucide="menu" id="toggleIcon"></i>
-          </button>
-        </div>
-        <nav class="sidebar-nav">
-          <p class="nav-title">Menu Principal</p>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../dashboard/index.html'"
-          >
-            <i data-lucide="layout-dashboard"></i
-            ><span class="nav-label"> Dashboard</span>
-          </button>
-          <button class="nav-item active">
-            <i data-lucide="building-2"></i
-            ><span class="nav-label"> Gestão de Convênios</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../medicos/index.html'"
-          >
-            <i data-lucide="stethoscope"></i
-            ><span class="nav-label"> Médicos</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../pacientes/index.html'"
-          >
-            <i data-lucide="users"></i><span class="nav-label"> Pacientes</span>
-          </button>
-          <p class="nav-title" style="margin-top: 14px">Sistema</p>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../logs/index.html'"
-          >
-            <i data-lucide="shield-check"></i
-            ><span class="nav-label"> Auditoria de Logs</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../configuracoes/index.html'"
-          >
-            <i data-lucide="settings"></i
-            ><span class="nav-label"> Configurações</span>
-          </button>
-        </nav>
-        <div class="sidebar-footer">
-          <div class="profile-card" id="profileCard">
-            <div class="profile-avatar" id="profileAvatar">AD</div>
-            <div class="profile-info">
-              <p class="profile-name" id="profileName">Admin Principal</p>
-              <p class="profile-role">Administrador · IBK</p>
-            </div>
-            <i data-lucide="more-vertical" class="profile-more"></i>
-          </div>
-          <button class="nav-item logout" style="margin-top: 6px">
-            <i data-lucide="log-out"></i
-            ><span class="nav-label"> Sair da conta</span>
-          </button>
-        </div>
-      </aside>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Admin — Gestão de Convênios</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="/core/authGuard.js" data-role="admin"></script>
+  <style>
+    /* ====== MODAL EXPORT ====== */
+    .export-format-card { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; }
+    .export-format-card:hover { border-color: #93C5FD; }
+    .export-format-card.active { border-color: #3B82F6; background: #EFF6FF; box-shadow: 0 0 0 1px #3B82F6; }
+    .export-format-card .title { display: block; font-size: 13px; font-weight: 600; color: #0F172A; }
+    .export-format-card .sub { display: block; font-size: 11px; color: #64748B; margin-top: 2px; }
+    .export-live-preview { background: white; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); flex: 1; overflow-y: auto; overflow-x: auto; font-size: 11px; color: #374151; }
+    .export-live-preview.csv-mode { font-family: 'Courier New', monospace; white-space: pre; overflow-x: auto; background: #0F172A; color: #F8FAFC; padding: 12px; border-color: #0F172A; }
+    .preview-doc-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; color: #0F172A; }
+    .preview-doc-table { width: 100%; min-width: 480px; border-collapse: collapse; margin-top: 10px; }
+    .preview-doc-table th, .preview-doc-table td { padding: 6px 8px; border: 1px solid #E2E8F0; text-align: left; }
+    .preview-doc-table th { background: #F8FAFC; font-weight: 600; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
 
-      <div class="main-wrapper">
-        <header class="topbar">
-          <div class="topbar-left">
-            <div class="page-breadcrumb">
-              <div class="breadcrumb-icon">
-                <i data-lucide="building-2"></i>
-              </div>
-              <span class="breadcrumb-label">Gestão de Convênios</span>
-              <span class="breadcrumb-sep">·</span>
-              <span class="breadcrumb-sub"
-                >Administração de planos e operadores</span
-              >
-            </div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i data-lucide="activity"></i></div>
+          <div class="brand-text">
+            <p class="brand-title">Instituto Buko</p>
+            <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
           </div>
-          <div class="topbar-right">
-            <span class="date-chip">
-              <i data-lucide="calendar"></i>
-              <span id="current-date"></span>
-            </span>
-            <div class="topbar-divider"></div>
-            <div class="notif-wrapper">
-              <button
-                class="top-action-btn"
-                id="notifBtn"
-                aria-label="Notificações"
-              >
-                <i data-lucide="bell"></i>
-                <span class="notification-dot"></span>
-              </button>
-              <div class="notif-panel" id="notifPanel">
-                <div class="notif-panel-header">
-                  <p class="notif-panel-title">Notificações</p>
-                  <button class="notif-mark-read" id="markAllRead">
-                    Marcar tudo como lido
-                  </button>
-                </div>
-                <div class="notif-list" id="notifList"></div>
-                <div class="notif-panel-footer">
-                  <button class="notif-footer-btn">
-                    Ver todas as notificações →
-                  </button>
-                </div>
-              </div>
-            </div>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Alternar menu">
+          <i data-lucide="menu" id="toggleIcon"></i>
+        </button>
+      </div>
+      <nav class="sidebar-nav">
+        <p class="nav-title">Menu Principal</p>
+        <button class="nav-item" onclick="window.location.href='../dashboard/index.html'"><i data-lucide="layout-dashboard"></i><span class="nav-label"> Dashboard</span></button>
+        <button class="nav-item active"><i data-lucide="building-2"></i><span class="nav-label"> Gestão de Convênios</span></button>
+        <button class="nav-item" onclick="window.location.href='../medicos/index.html'"><i data-lucide="stethoscope"></i><span class="nav-label"> Médicos</span></button>
+        <button class="nav-item" onclick="window.location.href='../pacientes/index.html'"><i data-lucide="users"></i><span class="nav-label"> Pacientes</span></button>
+        <p class="nav-title" style="margin-top: 14px;">Sistema</p>
+        <button class="nav-item" onclick="window.location.href='../usuarios/index.html'"><i data-lucide="user-cog"></i><span class="nav-label"> Usuários</span></button>
+        <button class="nav-item" onclick="window.location.href='../logs/index.html'"><i data-lucide="shield-check"></i><span class="nav-label"> Auditoria de Logs</span></button>
+        <button class="nav-item" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="profile-card" id="profileCard">
+          <div class="profile-avatar" id="profileAvatar">AD</div>
+          <div class="profile-info">
+            <p class="profile-name" id="profileName">Admin Principal</p>
+            <p class="profile-role">Administrador · IBK</p>
           </div>
-        </header>
+          <i data-lucide="more-vertical" class="profile-more"></i>
+        </div>
+        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
+      </div>
+    </aside>
 
-        <main class="content">
-          <div id="view-convenios">
-            <div class="page-header">
-              <div>
-                <p class="page-eyebrow">Instituto Buko Kaesemodel</p>
-                <h1 class="page-title">Gestão de Convênios</h1>
-                <p class="page-subtitle" id="stats-convenios">
-                  Carregando convênios…
-                </p>
+    <div class="main-wrapper">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="page-breadcrumb">
+            <div class="breadcrumb-icon"><i data-lucide="building-2"></i></div>
+            <span class="breadcrumb-label">Gestão de Convênios</span>
+            <span class="breadcrumb-sep">·</span>
+            <span class="breadcrumb-sub">Administração de planos e operadores</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="date-chip">
+            <i data-lucide="calendar"></i>
+            <span id="current-date"></span>
+          </span>
+          <div class="topbar-divider"></div>
+          <div class="notif-wrapper">
+            <button class="top-action-btn" id="notifBtn" aria-label="Notificações">
+              <i data-lucide="bell"></i>
+              <span class="notification-dot"></span>
+            </button>
+            <div class="notif-panel" id="notifPanel">
+              <div class="notif-panel-header">
+                <p class="notif-panel-title">Notificações</p>
+                <button class="notif-mark-read" id="markAllRead">Marcar tudo como lido</button>
               </div>
+              <div class="notif-list" id="notifList"></div>
+              <div class="notif-panel-footer">
+                <button class="notif-footer-btn">Ver todas as notificações →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <div id="view-convenios">
+
+          <div class="page-header">
+            <div>
+              <p class="page-eyebrow">Instituto Buko Kaesemodel</p>
+              <h1 class="page-title">Gestão de Convênios</h1>
+              <p class="page-subtitle" id="stats-convenios">Carregando convênios…</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-primary" style="background: white; border: 1px solid #E2E8F0; color: #374151;" id="btnExportModal"><i data-lucide="download" style="color: #64748B;"></i> Exportar</button>
               <button class="btn-primary" onclick="openModalAddConvenio()">
                 <i data-lucide="plus"></i> Novo Convênio
               </button>
             </div>
-
-            <div class="stats-bar" id="stats-bar"></div>
-
-            <div class="convenios-grid" id="convenios-grid"></div>
           </div>
 
-          <div id="view-detalhes" class="hidden">
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 24px;
-              "
-            >
-              <div class="breadcrumb" style="margin-bottom: 0">
-                <span onclick="goBackToConvenios()" style="cursor: pointer">
-                  <i data-lucide="arrow-left"></i> Convênios
-                </span>
-                <i data-lucide="chevron-right" class="div"></i>
-                <strong id="detalhe-nome-convenio">—</strong>
-              </div>
-              <div style="display: flex; gap: 8px">
-                <button
-                  class="btn-outline-small"
-                  onclick="editarConvenioAtual()"
-                >
-                  <i data-lucide="edit-2"></i> Editar
-                </button>
-                <button
-                  class="btn-outline-small"
-                  id="btn-toggle-status"
-                  style="
-                    color: #dc2626;
-                    border-color: #fecaca;
-                    background: #fef2f2;
-                  "
-                  onclick="toggleStatusConvenioAtual()"
-                >
-                  <i data-lucide="trash-2"></i> Desativar
-                </button>
-              </div>
-            </div>
+          <div class="stats-bar" id="stats-bar"></div>
 
-            <div class="convenio-hero" id="convenio-hero">
-              <div class="hero-left">
-                <div class="hero-icon"><i data-lucide="building-2"></i></div>
-                <div>
-                  <p class="hero-eyebrow">Convênio</p>
-                  <h1 class="hero-title" id="detalhe-titulo">—</h1>
-                  <p class="hero-cnpj">
-                    CNPJ: <span id="detalhe-cnpj">—</span>
-                  </p>
-                </div>
-              </div>
-              <div class="hero-right">
-                <div class="hero-stat">
-                  <p class="hero-stat-val" id="hero-count-medicos">—</p>
-                  <p class="hero-stat-label">Médicos</p>
-                </div>
-                <div class="hero-divider"></div>
-                <div class="hero-stat">
-                  <p class="hero-stat-val" id="hero-count-pacientes">—</p>
-                  <p class="hero-stat-label">Pacientes</p>
-                </div>
-              </div>
-            </div>
+          <div class="convenios-grid" id="convenios-grid"></div>
 
-            <div class="card">
-              <div class="card-header">
-                <div class="tabs">
-                  <button
-                    class="tab active"
-                    id="tab-medicos"
-                    onclick="switchTab('medicos')"
-                  >
-                    Médicos Vinculados
-                    <span class="tab-badge" id="badge-tab-medicos">0</span>
-                  </button>
-                  <button
-                    class="tab"
-                    id="tab-pacientes"
-                    onclick="switchTab('pacientes')"
-                  >
-                    Pacientes Vinculados
-                    <span class="tab-badge" id="badge-tab-pacientes">0</span>
-                  </button>
-                </div>
-                <div>
-                  <button
-                    class="btn-outline-small"
-                    onclick="alert('Funcionalidade de vincular existente')"
-                  >
-                    <i data-lucide="link-2"></i> Vincular Existente
-                  </button>
-                </div>
-              </div>
-
-              <div class="table-container">
-                <table>
-                  <thead id="dynamic-thead"></thead>
-                  <tbody id="dynamic-tbody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="privacy-note mt-4">
-            <i data-lucide="shield-check"></i>
-            <p>
-              Alterações de perfil e vinculações são registradas imutavelmente
-              no log de auditoria (LGPD).
-            </p>
-          </div>
-        </main>
-      </div>
-    </div>
-
-    <div id="modal-convenio" class="modal-overlay hidden">
-      <div class="modal-content modal-md">
-        <div class="modal-header">
-          <div>
-            <h2 id="modal-convenio-title">Novo Convênio</h2>
-            <p id="modal-convenio-sub">
-              Adicione um novo convênio ou operadora de saúde
-            </p>
-          </div>
-          <button class="btn-close" onclick="closeModalConvenio()">
-            <i data-lucide="x"></i>
-          </button>
         </div>
-        <div class="modal-body">
+
+        <div id="view-detalhes" class="hidden">
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div class="breadcrumb" style="margin-bottom: 0;">
+              <span onclick="goBackToConvenios()" style="cursor: pointer;">
+                <i data-lucide="arrow-left"></i> Convênios
+              </span>
+              <i data-lucide="chevron-right" class="div"></i>
+              <strong id="detalhe-nome-convenio">—</strong>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-outline-small" onclick="editarConvenioAtual()">
+                <i data-lucide="edit-2"></i> Editar
+              </button>
+              <button class="btn-outline-small" id="btn-toggle-status" style="color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="toggleStatusConvenioAtual()">
+                <i data-lucide="trash-2"></i> Desativar
+              </button>
+            </div>
+          </div>
+
+          <div class="convenio-hero" id="convenio-hero">
+            <div class="hero-left">
+              <div class="hero-icon"><i data-lucide="building-2"></i></div>
+              <div>
+                <p class="hero-eyebrow">Convênio</p>
+                <h1 class="hero-title" id="detalhe-titulo">—</h1>
+                <p class="hero-cnpj">CNPJ: <span id="detalhe-cnpj">—</span></p>
+              </div>
+            </div>
+            <div class="hero-right">
+              <div class="hero-stat">
+              <p class="hero-stat-val" id="hero-count-medicos">—</p>
+                <p class="hero-stat-label">Médicos</p>
+              </div>
+              <div class="hero-divider"></div>
+              <div class="hero-stat">
+              <p class="hero-stat-val" id="hero-count-pacientes">—</p>
+                <p class="hero-stat-label">Pacientes</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="tabs">
+                <button class="tab active" id="tab-medicos" onclick="switchTab('medicos')">
+                  Médicos Vinculados
+                  <span class="tab-badge" id="badge-tab-medicos">0</span>
+                </button>
+                <button class="tab" id="tab-pacientes" onclick="switchTab('pacientes')">
+                  Pacientes Vinculados
+                  <span class="tab-badge" id="badge-tab-pacientes">0</span>
+                </button>
+              </div>
+              <div>
+                <button class="btn-outline-small" onclick="alert('Funcionalidade de vincular existente')">
+                  <i data-lucide="link-2"></i> Vincular Existente
+                </button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead id="dynamic-thead"></thead>
+                <tbody id="dynamic-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="privacy-note mt-4">
+          <i data-lucide="shield-check"></i>
+          <p>Alterações de perfil e vinculações são registradas imutavelmente no log de auditoria (LGPD).</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="modal-convenio" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-convenio-title">Novo Convênio</h2>
+          <p id="modal-convenio-sub">Adicione um novo convênio ou operadora de saúde</p>
+        </div>
+        <button class="btn-close" onclick="closeModalConvenio()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nome do Convênio <span class="required">*</span></label>
+          <input type="text" id="convenio-nome" class="form-input" placeholder="Ex: Unimed Paulista">
+        </div>
+        <div class="form-grid mt-3">
           <div class="form-group">
-            <label>Nome do Convênio <span class="required">*</span></label>
-            <input
-              type="text"
-              id="convenio-nome"
-              class="form-input"
-              placeholder="Ex: Unimed Paulista"
-            />
+            <label> CNPJ <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="convenio-cnpj" class="form-input" placeholder="00.000.000/0000-00">
           </div>
-          <div class="form-grid mt-3">
-            <div class="form-group">
-              <label> CNPJ <span style="color: #dc2626">*</span></label>
-              <input
-                type="text"
-                id="convenio-cnpj"
-                class="form-input"
-                placeholder="00.000.000/0000-00"
-              />
-            </div>
-            <div class="form-group">
-              <label>Status</label>
-              <select id="convenio-status" class="form-input" disabled>
-                <option value="Ativo">Ativo</option>
-                <option value="Inativo">Inativo</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-grid mt-3">
-            <div class="form-group">
-              <label>Cor de Destaque</label>
-              <div class="color-picker-wrap">
-                <input
-                  type="color"
-                  id="convenio-cor"
-                  class="form-input color-input"
-                  value="#1746C8"
-                  oninput="
-                    document.getElementById('convenio-cor-hex').textContent =
-                      this.value.toUpperCase()
-                  "
-                />
-                <span class="color-hex" id="convenio-cor-hex">#1746C8</span>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Logo (Imagem)</label>
-              <input
-                type="file"
-                id="convenio-logo"
-                class="form-input file-input"
-                accept="image/*"
-              />
-            </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="convenio-status" class="form-input" disabled>
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+            </select>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" onclick="closeModalConvenio()">
-            Cancelar
-          </button>
-          <button class="btn-primary" onclick="saveConvenio()">
-            <i data-lucide="save"></i> Salvar Convênio
-          </button>
+        <div class="form-grid mt-3">
+          <div class="form-group">
+            <label>Cor de Destaque</label>
+            <div class="color-picker-wrap">
+              <input type="color" id="convenio-cor" class="form-input color-input" value="#1746C8" oninput="document.getElementById('convenio-cor-hex').textContent = this.value.toUpperCase()">
+              <span class="color-hex" id="convenio-cor-hex">#1746C8</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Logo (Imagem)</label>
+            <input type="file" id="convenio-logo" class="form-input file-input" accept="image/*">
+          </div>
         </div>
       </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModalConvenio()">Cancelar</button>
+        <button class="btn-primary" onclick="saveConvenio()">
+          <i data-lucide="save"></i> Salvar Convênio
+        </button>
+      </div>
     </div>
+  </div>
 
-    <div id="toast" class="toast hidden">
-      <i data-lucide="check-circle" id="toast-icon"></i>
-      <span id="toast-msg"></span>
+  <!-- MODAL: Exportar Dados -->
+  <div id="modalExportOverlay" style="position: fixed; inset: 0; background: rgba(15,27,53,0.45); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px;">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 850px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(15,27,53,0.18);">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #F1F5F9;">
+        <div>
+          <h2 style="font-size: 16px; font-weight: 700; color: #0F172A; margin: 0;">Exportar Dados</h2>
+          <p style="font-size: 12px; color: #94A3B8; margin: 2px 0 0;">Escolha o formato e visualize a amostra de dados que será baixada.</p>
+        </div>
+        <button id="modalExportClose" style="background: transparent; border: none; cursor: pointer; color: #64748B;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+      </div>
+      <div style="padding: 0; display: flex; height: 450px; overflow: hidden; flex: none;">
+        <div style="width: 260px; padding: 24px; border-right: 1px solid #E2E8F0; background: #FAFBFF; flex-shrink: 0; overflow-y: auto;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Formato do Arquivo</p>
+          <div class="export-format-card active" data-format="pdf" id="formatPdf">
+            <i data-lucide="file-text" style="color: #DC2626; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Documento PDF</span>
+              <span class="sub">Relatório formatado</span>
+            </div>
+          </div>
+          <div class="export-format-card" data-format="csv" id="formatCsv" style="margin-top: 10px;">
+            <i data-lucide="file-spreadsheet" style="color: #16A34A; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Planilha CSV</span>
+              <span class="sub">Dados brutos</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding: 24px; background: #F1F5F9; display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pré-visualização (Primeiras 5 linhas)</p>
+          <div id="exportLivePreview" class="export-live-preview"></div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #E2E8F0; background: white;">
+        <button id="btnExportCancel" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #E2E8F0; background: white; color: #374151; font-weight: 500; cursor: pointer;">Cancelar</button>
+        <button id="btnExportConfirm" style="padding: 8px 16px; border-radius: 8px; background: #1D4ED8; color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Confirmar Download</button>
+      </div>
     </div>
+  </div>
 
-    <script src="script.js"></script>
-  </body>
+  <div id="toast" class="toast hidden">
+    <i data-lucide="check-circle" id="toast-icon"></i>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>

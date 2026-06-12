@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA | Todos os Pacientes</title>
+    <title>AURA | Estatísticas</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
@@ -42,21 +42,18 @@
         </a>
       </div>
 
-
-
       <div class="header-center">
         <nav class="header-nav">
           <ul>
+            <li><a href="todosPacientes.html" class="btn-center">Pacientes</a></li>
             <li><a href="dashboardMedico.html" class="btn-center">Início</a></li>
-            <li><a href="relatoriosPacientes.html" class="btn-center">Relatórios</a></li>
+            <li><a href="relatoriosPacientes.html" class="btn-center">Avaliações</a></li>
           </ul>
         </nav>
-    </div>
-
-
+      </div>
 
       <div class="header-right">
-        <span class="header-sub">Instituto Buko Kaesemodel</span>
+        <a class="header-sub" href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" title="Visitar o site do Instituto Buko Kaesemodel" style="text-decoration:none;color:inherit;cursor:pointer;">Instituto Buko Kaesemodel</a>
         <div class="header-user">
           <div class="user-avatar" aria-hidden="true">DR</div>
           <div class="user-info">
@@ -81,3 +78,222 @@
         </button>
       </div>
     </header>
+
+    <div
+      class="session-banner"
+      id="sessionBanner"
+      role="alert"
+      aria-live="assertive"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      <span
+        >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja
+        continuar?</span
+      >
+      <button class="btn-session-keep" id="btnKeepSession">
+        Continuar sessão
+      </button>
+    </div>
+
+    <main>
+      <div class="dashboard">
+        <section class="welcome-row">
+          <div>
+            <h1 class="welcome-title">Estatísticas</h1>
+            <p class="welcome-sub">Indicadores gerais sobre os pacientes e avaliações registradas.</p>
+          </div>
+        </section>
+
+        <section class="metrics-grid" aria-label="Indicadores gerais">
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Pacientes ativos</span>
+              <span class="metric-value" id="statTotalPacientes">—</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="19" y1="8" x2="19" y2="14"/>
+                <line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Novos pacientes este mês</span>
+              <span class="metric-value" id="statNovosPacientes">—</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Avaliações este mês</span>
+              <span class="metric-value" id="statAvaliacoesMes">—</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--purple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Total de avaliações</span>
+              <span class="metric-value" id="statTotalAvaliacoes">—</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="sexo-title">
+          <div class="panel-header">
+            <h2 id="sexo-title">Distribuição por sexo biológico</h2>
+          </div>
+          <div class="stat-bars" id="barsSexo"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="idade-title">
+          <div class="panel-header">
+            <h2 id="idade-title">Distribuição por faixa etária</h2>
+          </div>
+          <div class="stat-bars" id="barsIdade"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="/server/home.js"></script>
+    <script>
+      const ORDEM_FAIXAS = ["0-2 anos", "3-5 anos", "6-11 anos", "12-17 anos", "18+ anos", "Não informado"];
+
+      function calcularFaixaEtaria(dataNascimento) {
+        if (!dataNascimento) return "Não informado";
+        const nascimento = new Date(dataNascimento);
+        if (isNaN(nascimento.getTime())) return "Não informado";
+
+        const agora = new Date();
+        let idade = agora.getFullYear() - nascimento.getFullYear();
+        const aindaNaoFezAniversario = (agora.getMonth() < nascimento.getMonth()) ||
+          (agora.getMonth() === nascimento.getMonth() && agora.getDate() < nascimento.getDate());
+        if (aindaNaoFezAniversario) idade--;
+
+        if (idade <= 2) return "0-2 anos";
+        if (idade <= 5) return "3-5 anos";
+        if (idade <= 11) return "6-11 anos";
+        if (idade <= 17) return "12-17 anos";
+        return "18+ anos";
+      }
+
+      function montarBarras(container, dados, total, ordem) {
+        container.innerHTML = "";
+        let entradas = Object.entries(dados);
+        entradas = ordem
+          ? ordem.filter(k => dados[k] !== undefined).map(k => [k, dados[k]])
+          : entradas.sort((a, b) => b[1] - a[1]);
+
+        if (entradas.length === 0) {
+          container.innerHTML = '<p class="table-empty">Sem dados suficientes.</p>';
+          return;
+        }
+
+        entradas.forEach(([rotulo, valor]) => {
+          const pct = total > 0 ? Math.round((valor / total) * 100) : 0;
+          const row = document.createElement("div");
+          row.className = "stat-bar-row";
+          row.innerHTML = `
+            <span class="stat-bar-label">${rotulo}</span>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${pct}%"></div></div>
+            <span class="stat-bar-value">${valor} (${pct}%)</span>
+          `;
+          container.appendChild(row);
+        });
+      }
+
+      async function carregarEstatisticas() {
+        try {
+          const token = localStorage.getItem('aura_token');
+          const headers = { 'Authorization': `Bearer ${token}` };
+
+          const [resPac, resTri] = await Promise.all([
+            fetch('/api/pacientes/', { headers }),
+            fetch('/api/triagens/', { headers })
+          ]);
+
+          if (resPac.ok) {
+            const pacientes = await resPac.json();
+            const ativos = pacientes.filter(p => !p.deletado_em);
+            const agora = new Date();
+
+            document.getElementById('statTotalPacientes').textContent = ativos.length;
+
+            const novos = ativos.filter(p => {
+              if (!p.data_cadastro) return false;
+              const d = new Date(p.data_cadastro);
+              return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            });
+            document.getElementById('statNovosPacientes').textContent = novos.length;
+
+            const porSexo = {};
+            const porIdade = {};
+            ativos.forEach(p => {
+              const sexo = p.sexoBiologico || p.sexo_biologico;
+              const rotuloSexo = sexo === 'M' ? 'Masculino' : sexo === 'F' ? 'Feminino' : 'Não informado';
+              porSexo[rotuloSexo] = (porSexo[rotuloSexo] || 0) + 1;
+
+              const nascimento = p.dataNascimento || p.data_nascimento;
+              const faixa = calcularFaixaEtaria(nascimento);
+              porIdade[faixa] = (porIdade[faixa] || 0) + 1;
+            });
+
+            montarBarras(document.getElementById('barsSexo'), porSexo, ativos.length);
+            montarBarras(document.getElementById('barsIdade'), porIdade, ativos.length, ORDEM_FAIXAS);
+          }
+
+          if (resTri.ok) {
+            const triagens = await resTri.json();
+            const agora = new Date();
+            const esteMes = triagens.filter(t => {
+              const d = new Date(t.data_hora);
+              return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+            });
+
+            document.getElementById('statTotalAvaliacoes').textContent = triagens.length;
+            document.getElementById('statAvaliacoesMes').textContent = esteMes.length;
+          }
+        } catch (err) {
+          console.error("Erro ao carregar estatísticas:", err);
+        }
+      }
+
+      carregarEstatisticas();
+    </script>
+  </body>
+</html>

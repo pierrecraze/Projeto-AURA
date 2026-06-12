@@ -288,39 +288,60 @@
   text-transform: uppercase;
   color: var(--text);
   text-align: left;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
   padding-right: 100px;
+}
+
+.clinical-embed .card-subtitle {
+  font-family: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 18px;
+  padding-right: 100px;
+}
+
+.clinical-embed .card-subtitle strong {
+  color: var(--primary);
+  font-weight: 600;
 }
 
 .clinical-embed .grid-campos {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 22px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .clinical-embed .campo {
   display: flex;
-  padding: 12px;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-sm);
+  background: #fbfdff;
 }
 
 .clinical-embed .campo-checkbox {
   position: relative;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.18s ease, background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .clinical-embed .campo-checkbox:hover {
+  border-color: var(--primary);
   background: var(--surface);
-  border-color: var(--primary, #4A90C4);
-  box-shadow: 0 2px 8px rgba(74, 144, 196, 0.1);
+  box-shadow: 0 2px 8px rgba(26, 111, 181, 0.1);
+}
+
+.clinical-embed .campo-checkbox:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: inset 0 0 0 1px var(--primary);
 }
 
 .clinical-embed .campo-checkbox input[type="checkbox"] {
@@ -332,41 +353,40 @@
 }
 
 .clinical-embed .campo-label {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 500;
   color: var(--text);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  line-height: 1.25;
-  transition: color 0.2s ease;
+  line-height: 1.3;
+  transition: color 0.18s ease, font-weight 0.18s ease;
 }
 
-.clinical-embed .campo-checkbox input[type="checkbox"]:checked ~ .campo-label {
-  color: var(--primary, #4A90C4);
+.clinical-embed .campo-checkbox:has(input:checked) .campo-label {
+  color: var(--primary);
+  font-weight: 600;
 }
 
 .clinical-embed .custom-check {
-  width: 22px;
-  height: 22px;
-  border: 2px solid #cbd5e1;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   background: #fff;
   flex-shrink: 0;
 }
 
-.clinical-embed .campo-checkbox input[type="checkbox"]:checked ~ .custom-check {
-  background: var(--primary, #4A90C4);
-  border-color: var(--primary, #4A90C4);
+.clinical-embed .campo-checkbox:has(input:checked) .custom-check {
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
-.clinical-embed .campo-checkbox input[type="checkbox"]:checked ~ .custom-check::after {
+.clinical-embed .campo-checkbox:has(input:checked) .custom-check::after {
   content: "";
   width: 5px;
-  height: 10px;
+  height: 9px;
   border: solid #fff;
   border-width: 0 2.5px 2.5px 0;
   transform: rotate(45deg);
@@ -395,16 +415,23 @@
 .clinical-embed .btn {
   font: inherit;
   font-weight: 600;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  transition: all 0.18s ease;
 }
 
 .clinical-embed .btn-cancelar {
   background: transparent;
+  color: var(--text-muted);
+}
+
+.clinical-embed .btn-cancelar:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
 }
 
 .clinical-embed .btn-confirmar {
@@ -413,82 +440,134 @@
   color: #fff;
 }
 
+.clinical-embed .btn-confirmar:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-btn);
+}
+
 .clinical-embed .resultado-corpo {
   display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 14px;
-  align-items: start;
-  margin-bottom: 14px;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+.clinical-embed .score-bloco {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fbfdff;
 }
 
 .clinical-embed .score-label,
 .clinical-embed .indicacao-label {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .clinical-embed .score-box {
-  font-size: 1.6rem;
+  font-size: 2.7rem;
   font-weight: 800;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--border);
-  padding: 10px 14px;
-  background: var(--surface);
-  width: fit-content;
-  min-width: 120px;
-  text-align: center;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
 
 .clinical-embed .score-box.alto {
-  border-color: #e74c3c;
   color: #e74c3c;
 }
 
 .clinical-embed .score-box.medio {
-  border-color: #f0a500;
   color: #f0a500;
 }
 
 .clinical-embed .score-box.baixo {
-  border-color: #27ae60;
   color: #27ae60;
 }
 
+.clinical-embed .score-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 13px;
+  border-radius: 999px;
+  text-align: center;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.clinical-embed .score-badge.alto {
+  background: #e74c3c;
+}
+
+.clinical-embed .score-badge.medio {
+  background: #f0a500;
+}
+
+.clinical-embed .score-badge.baixo {
+  background: #27ae60;
+}
+
+.clinical-embed .indicacao-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .clinical-embed .indicacao-texto {
+  flex: 1;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.02);
+  padding: 14px 16px;
+  background: #fbfdff;
   line-height: 1.55;
+  font-size: 0.9rem;
+  color: var(--text);
 }
 
 .clinical-embed .indicacao-texto .destaque-alto {
   color: #e74c3c;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .clinical-embed .indicacao-texto .destaque-medio {
   color: #f0a500;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .clinical-embed .indicacao-texto .destaque-baixo {
   color: #27ae60;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .clinical-embed .asterisco-info {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
-  font-size: 0.9rem;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text);
+}
+
+.clinical-embed .asterisco-info.alto {
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.35);
+  color: #c0392b;
+}
+
+.clinical-embed .asterisco-info.baixo {
+  background: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.35);
+  color: #1e8449;
 }
 
 .clinical-embed .botoes-resultado {
@@ -518,6 +597,17 @@
   color: #fff;
 }
 
+.clinical-embed .btn-acao.relatorio {
+  background: transparent;
+  border: 1px dashed var(--primary);
+  color: var(--primary);
+}
+
+.clinical-embed .btn-acao.relatorio:hover {
+  background: var(--primary-light);
+  border-style: solid;
+}
+
 .clinical-embed .btn-voltar {
   display: inline-block;
   margin-top: 14px;
@@ -531,13 +621,13 @@
   font-weight: 600;
 }
 
-/* Métrica (markup já existe no formulário) */
+/* Barra de probabilidade */
 .clinical-embed .metrica-bloco {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.02);
-  margin: 12px 0;
+  padding: 14px 16px;
+  background: #fbfdff;
+  margin-bottom: 14px;
 }
 
 .clinical-embed .metrica-header {
@@ -545,65 +635,141 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .clinical-embed .metrica-titulo {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .clinical-embed .metrica-contagem {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .clinical-embed .metrica-barra-wrap {
   position: relative;
-  height: 10px;
+  height: 12px;
   border-radius: 999px;
-  border: 1px solid var(--border);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
-  margin-bottom: 18px;
+  background: #e6eef5;
 }
 
 .clinical-embed .metrica-barra {
   height: 100%;
   width: 0%;
+  border-radius: 999px;
   background: var(--primary);
+  transition: width 0.5s ease;
 }
 
-.clinical-embed .metrica-marcadores {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 12px;
-  height: 18px;
+.clinical-embed .metrica-barra.alto {
+  background: #e74c3c;
 }
 
-.clinical-embed .metrica-marcadores .marcador {
+.clinical-embed .metrica-barra.medio {
+  background: #f0a500;
+}
+
+.clinical-embed .metrica-barra.baixo {
+  background: #27ae60;
+}
+
+/* Limiares de decisão (40% e 56%) sobre a barra */
+.clinical-embed .limiar {
   position: absolute;
   top: 0;
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 1;
 }
 
 .clinical-embed .metrica-legenda {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   margin-top: 10px;
 }
 
+.clinical-embed .legenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clinical-embed .legenda-item::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.clinical-embed .legenda-baixo::before {
+  background: #27ae60;
+}
+
+.clinical-embed .legenda-medio::before {
+  background: #f0a500;
+}
+
+.clinical-embed .legenda-alto::before {
+  background: #e74c3c;
+}
+
+/* Sintomas apresentados (chips) */
+.clinical-embed .sintomas-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
 .clinical-embed .metrica-pontos {
-  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clinical-embed .sintoma-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.clinical-embed .sintoma-chip.alto {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.3);
+  color: #c0392b;
+}
+
+.clinical-embed .sintoma-chip.medio {
+  background: rgba(240, 165, 0, 0.12);
+  border-color: rgba(240, 165, 0, 0.35);
+  color: #b9770b;
+}
+
+.clinical-embed .sintoma-chip.baixo {
+  background: rgba(39, 174, 96, 0.1);
+  border-color: rgba(39, 174, 96, 0.3);
+  color: #1e8449;
+}
+
+.clinical-embed .sem-sintomas {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .row-click {

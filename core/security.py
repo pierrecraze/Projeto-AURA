@@ -1,6 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
+from passlib.exc import UnknownHashError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -14,7 +15,10 @@ token_expiration_minutes = 60
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verificar_senha(senha, senha_hash):
-    return pwd_context.verify(senha, senha_hash)
+    try:
+        return pwd_context.verify(senha, senha_hash)
+    except (ValueError, UnknownHashError):
+        return False
 
 def gerar_hash_senha(senha):
     return pwd_context.hash(senha)

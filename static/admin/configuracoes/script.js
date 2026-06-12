@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api/auth";
+const API_URL = "/api/auth";
 
 document.addEventListener("DOMContentLoaded", () => {
     // Carrega os ícones primeiro para garantir a renderização visual da tela
@@ -52,6 +52,7 @@ function loadProfileData() {
 
     const nomeFull = user.nome || "Admin Principal";
     const email = user.email || "admin@admin.com";
+    const cargo = user.cargo || "Administrador";
     
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
@@ -76,6 +77,13 @@ function loadProfileData() {
 
     const iEmail = document.getElementById("inputEmail");
     if (iEmail) iEmail.value = email;
+
+    const iCargo = document.getElementById("inputCargo");
+    if (iCargo) {
+        iCargo.value = cargo;
+        iCargo.disabled = !user.is_superadmin;
+    }
+    document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
 }
 
 function setupTabs() {
@@ -98,6 +106,7 @@ function setupForms() {
         const btn = document.getElementById("btnSalvarPerfil");
         const nome = document.getElementById("inputNome").value.trim();
         const email = document.getElementById("inputEmail").value.trim();
+        const cargo = document.getElementById("inputCargo").value.trim();
         
         btn.disabled = true;
         try {
@@ -105,7 +114,7 @@ function setupForms() {
             const res = await fetch(`${API_URL}/perfil`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify({ nome, email })
+                body: JSON.stringify({ nome, email, cargo })
             });
             
             const data = await res.json();

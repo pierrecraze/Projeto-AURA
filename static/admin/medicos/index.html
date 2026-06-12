@@ -1,638 +1,486 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA Admin — Médicos</title>
-    <link rel="stylesheet" href="style.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/lucide@latest"></script>
-  </head>
-  <body>
-    <script src="/core/authGuard.js" data-role="admin"></script>
-    <div class="app-container">
-      <!-- ── Sidebar ── -->
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="brand">
-            <div class="brand-icon"><i data-lucide="activity"></i></div>
-            <div class="brand-text">
-              <p class="brand-title">Instituto Buko</p>
-              <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
-            </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Admin — Médicos</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="/core/authGuard.js" data-role="admin"></script>
+  <style>
+    /* ====== MODAL EXPORT ====== */
+    .export-format-card { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #E2E8F0; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; }
+    .export-format-card:hover { border-color: #93C5FD; }
+    .export-format-card.active { border-color: #3B82F6; background: #EFF6FF; box-shadow: 0 0 0 1px #3B82F6; }
+    .export-format-card .title { display: block; font-size: 13px; font-weight: 600; color: #0F172A; }
+    .export-format-card .sub { display: block; font-size: 11px; color: #64748B; margin-top: 2px; }
+    .export-live-preview { background: white; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); flex: 1; overflow-y: auto; overflow-x: auto; font-size: 11px; color: #374151; }
+    .export-live-preview.csv-mode { font-family: 'Courier New', monospace; white-space: pre; overflow-x: auto; background: #0F172A; color: #F8FAFC; padding: 12px; border-color: #0F172A; }
+    .preview-doc-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; text-align: center; color: #0F172A; }
+    .preview-doc-table { width: 100%; min-width: 480px; border-collapse: collapse; margin-top: 10px; }
+    .preview-doc-table th, .preview-doc-table td { padding: 6px 8px; border: 1px solid #E2E8F0; text-align: left; }
+    .preview-doc-table th { background: #F8FAFC; font-weight: 600; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon"><i data-lucide="activity"></i></div>
+          <div class="brand-text">
+            <p class="brand-title">Instituto Buko</p>
+            <p class="brand-subtitle">Kaesemodel · Projeto AURA</p>
           </div>
-          <button
-            class="sidebar-toggle"
-            id="sidebarToggle"
-            aria-label="Alternar menu"
-          >
-            <i data-lucide="menu" id="toggleIcon"></i>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Alternar menu">
+          <i data-lucide="menu" id="toggleIcon"></i>
+        </button>
+      </div>
+      <nav class="sidebar-nav">
+        <p class="nav-title">Menu Principal</p>
+        <button class="nav-item" onclick="window.location.href='../dashboard/index.html'"><i data-lucide="layout-dashboard"></i><span class="nav-label"> Dashboard</span></button>
+        <button class="nav-item" onclick="window.location.href='../convenios/index.html'"><i data-lucide="building-2"></i><span class="nav-label"> Gestão de Convênios</span></button>
+        <button class="nav-item active"><i data-lucide="stethoscope"></i><span class="nav-label"> Médicos</span></button>
+        <button class="nav-item" onclick="window.location.href='../pacientes/index.html'"><i data-lucide="users"></i><span class="nav-label"> Pacientes</span></button>
+        <p class="nav-title" style="margin-top: 14px;">Sistema</p>
+        <button class="nav-item" onclick="window.location.href='../usuarios/index.html'"><i data-lucide="user-cog"></i><span class="nav-label"> Usuários</span></button>
+        <button class="nav-item" onclick="window.location.href='../logs/index.html'"><i data-lucide="shield-check"></i><span class="nav-label"> Auditoria de Logs</span></button>
+        <button class="nav-item" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="profile-card" id="profileCard">
+          <div class="profile-avatar" id="profileAvatar">AD</div>
+          <div class="profile-info">
+            <p class="profile-name" id="profileName">Admin Principal</p>
+            <p class="profile-role">Administrador · IBK</p>
+          </div>
+          <i data-lucide="more-vertical" class="profile-more"></i>
+        </div>
+        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+
+      <!-- ── Topbar ── -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="page-breadcrumb">
+            <div class="breadcrumb-icon"><i data-lucide="stethoscope"></i></div>
+            <span class="breadcrumb-label">Médicos</span>
+            <span class="breadcrumb-sep">·</span>
+            <span class="breadcrumb-sub">Gestão e cadastro de profissionais</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="date-chip">
+            <i data-lucide="calendar"></i>
+            <span id="current-date"></span>
+          </span>
+          <div class="topbar-divider"></div>
+          <button class="top-action-btn" id="notifBtn" aria-label="Notificações">
+            <i data-lucide="bell"></i>
+            <span class="notification-dot" id="notifDot"></span>
           </button>
         </div>
-        <nav class="sidebar-nav">
-          <p class="nav-title">Menu Principal</p>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../dashboard/index.html'"
-          >
-            <i data-lucide="layout-dashboard"></i
-            ><span class="nav-label"> Dashboard</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../convenios/index.html'"
-          >
-            <i data-lucide="building-2"></i
-            ><span class="nav-label"> Gestão de Convênios</span>
-          </button>
-          <button class="nav-item active">
-            <i data-lucide="stethoscope"></i
-            ><span class="nav-label"> Médicos</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../pacientes/index.html'"
-          >
-            <i data-lucide="users"></i><span class="nav-label"> Pacientes</span>
-          </button>
-          <p class="nav-title" style="margin-top: 14px">Sistema</p>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../logs/index.html'"
-          >
-            <i data-lucide="shield-check"></i
-            ><span class="nav-label"> Auditoria de Logs</span>
-          </button>
-          <button
-            class="nav-item"
-            onclick="window.location.href = '../configuracoes/index.html'"
-          >
-            <i data-lucide="settings"></i
-            ><span class="nav-label"> Configurações</span>
-          </button>
-        </nav>
-        <div class="sidebar-footer">
-          <div class="profile-card" id="profileCard">
-            <div class="profile-avatar" id="profileAvatar">AD</div>
-            <div class="profile-info">
-              <p class="profile-name" id="profileName">Admin Principal</p>
-              <p class="profile-role">Administrador · IBK</p>
-            </div>
-            <i data-lucide="more-vertical" class="profile-more"></i>
-          </div>
-          <button class="nav-item logout" style="margin-top: 6px">
-            <i data-lucide="log-out"></i
-            ><span class="nav-label"> Sair da conta</span>
-          </button>
-        </div>
-      </aside>
+      </header>
 
-      <div class="main-wrapper">
-        <!-- ── Topbar ── -->
-        <header class="topbar">
-          <div class="topbar-left">
-            <div class="page-breadcrumb">
-              <div class="breadcrumb-icon">
-                <i data-lucide="stethoscope"></i>
-              </div>
-              <span class="breadcrumb-label">Médicos</span>
-              <span class="breadcrumb-sep">·</span>
-              <span class="breadcrumb-sub"
-                >Gestão e cadastro de profissionais</span
-              >
-            </div>
-          </div>
-          <div class="topbar-right">
-            <span class="date-chip">
-              <i data-lucide="calendar"></i>
-              <span id="current-date"></span>
-            </span>
-            <div class="topbar-divider"></div>
-            <button
-              class="top-action-btn"
-              id="notifBtn"
-              aria-label="Notificações"
-            >
-              <i data-lucide="bell"></i>
-              <span class="notification-dot" id="notifDot"></span>
-            </button>
-          </div>
-        </header>
+      <!-- ── Main ── -->
+      <main class="content">
 
-        <!-- ── Main ── -->
-        <main class="content">
-          <!-- ════ VIEW: LISTA ════ -->
-          <div id="view-lista">
-            <!-- KPIs -->
-            <div class="med-kpi-grid">
-              <div class="med-kpi active" onclick="setKpiFilter('Todos', this)">
-                <div class="med-kpi-icon" style="background: #eff6ff">
-                  <i data-lucide="stethoscope" style="color: #1d4ed8"></i>
-                </div>
-                <div>
-                  <p class="med-kpi-label">Total de Médicos</p>
-                  <p class="med-kpi-value" id="kpiMedTotal">—</p>
-                </div>
-              </div>
-              <div class="med-kpi" onclick="setKpiFilter('Ativo', this)">
-                <div class="med-kpi-icon" style="background: #ecfdf5">
-                  <i data-lucide="user-check" style="color: #059669"></i>
-                </div>
-                <div>
-                  <p class="med-kpi-label">Ativos</p>
-                  <p class="med-kpi-value" id="kpiMedAtivos">—</p>
-                </div>
-              </div>
-              <div class="med-kpi" onclick="setKpiFilter('Inativo', this)">
-                <div class="med-kpi-icon" style="background: #fef9ec">
-                  <i data-lucide="user-x" style="color: #d97706"></i>
-                </div>
-                <div>
-                  <p class="med-kpi-label">Inativos</p>
-                  <p class="med-kpi-value" id="kpiMedInativos">—</p>
-                </div>
-              </div>
-              <div class="med-kpi" onclick="setKpiFilter('Novos', this)">
-                <div class="med-kpi-icon" style="background: #f5f3ff">
-                  <i data-lucide="user-plus" style="color: #6d28d9"></i>
-                </div>
-                <div>
-                  <p class="med-kpi-label">Novos este mês</p>
-                  <p class="med-kpi-value" id="kpiMedNovos">—</p>
-                </div>
+        <!-- ════ VIEW: LISTA ════ -->
+        <div id="view-lista">
+          
+          <!-- KPIs -->
+          <div class="med-kpi-grid">
+            <div class="med-kpi active" onclick="setKpiFilter('Todos', this)">
+              <div class="med-kpi-icon" style="background:#EFF6FF"><i data-lucide="stethoscope" style="color:#1D4ED8"></i></div>
+              <div>
+                <p class="med-kpi-label">Total de Médicos</p>
+                <p class="med-kpi-value" id="kpiMedTotal">—</p>
               </div>
             </div>
-
-            <!-- Barra de ações idêntica à Pacientes -->
-            <div class="med-toolbar">
-              <div class="med-search-wrap">
-                <i data-lucide="search" class="med-search-icon"></i>
-                <input
-                  type="text"
-                  id="search-input"
-                  class="med-search"
-                  placeholder="Buscar por nome, CPF ou CRM..."
-                />
-                <span class="med-search-shortcut">Ctrl K</span>
+            <div class="med-kpi" onclick="setKpiFilter('Ativo', this)">
+              <div class="med-kpi-icon" style="background:#ECFDF5"><i data-lucide="user-check" style="color:#059669"></i></div>
+              <div>
+                <p class="med-kpi-label">Ativos</p>
+                <p class="med-kpi-value" id="kpiMedAtivos">—</p>
               </div>
-              <div class="med-toolbar-right">
-                <div class="med-filter-group">
-                  <select
-                    id="filterStatus"
-                    class="med-select"
-                    onchange="setStatusFilter(this.value)"
-                  >
-                    <option value="">Todos os status</option>
-                    <option value="Ativo">Ativo</option>
-                    <option value="Inativo">Inativo</option>
-                  </select>
-                </div>
-                <button class="btn-primary" onclick="openModalAdd()">
-                  <i data-lucide="user-plus"></i> Novo Médico
+            </div>
+            <div class="med-kpi" onclick="setKpiFilter('Inativo', this)">
+              <div class="med-kpi-icon" style="background:#FEF9EC"><i data-lucide="user-x" style="color:#D97706"></i></div>
+              <div>
+                <p class="med-kpi-label">Inativos</p>
+                <p class="med-kpi-value" id="kpiMedInativos">—</p>
+              </div>
+            </div>
+            <div class="med-kpi" onclick="setKpiFilter('Novos', this)">
+              <div class="med-kpi-icon" style="background:#F5F3FF"><i data-lucide="user-plus" style="color:#6D28D9"></i></div>
+              <div>
+                <p class="med-kpi-label">Novos este mês</p>
+                <p class="med-kpi-value" id="kpiMedNovos">—</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de ações idêntica à Pacientes -->
+          <div class="med-toolbar">
+            <div class="med-search-wrap">
+              <i data-lucide="search" class="med-search-icon"></i>
+              <input type="text" id="search-input" class="med-search" placeholder="Buscar por nome, CPF ou CRM...">
+              <span class="med-search-shortcut">Ctrl K</span>
+            </div>
+            <div class="med-toolbar-right">
+              <div class="med-filter-group">
+                <select id="filterStatus" class="med-select" onchange="setStatusFilter(this.value)">
+                  <option value="">Todos os status</option>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
+              </div>
+              <button id="btnExportModal" style="display: flex; align-items: center; gap: 6px; padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 8px; border: 1px solid #D1D5DB; background: white; color: #374151; cursor: pointer; font-family: 'Inter', sans-serif;"><i data-lucide="download" style="width: 15px; height: 15px;"></i> Exportar</button>
+              <button class="btn-primary" onclick="openModalAdd()"><i data-lucide="user-plus"></i> Novo Médico</button>
+            </div>
+          </div>
+
+          <!-- Tabela -->
+          <div class="card">
+            <div class="card-header">
+              <div class="tabs">
+                <button class="tab active" id="tab-tabela" onclick="setView('tabela')">
+                  <i data-lucide="table-2" style="width:13px;height:13px;"></i> Tabela
+                </button>
+                <button class="tab" id="tab-cards" onclick="setView('cards')">
+                  <i data-lucide="layout-grid" style="width:13px;height:13px;"></i> Cards
                 </button>
               </div>
+              <span class="table-count" id="table-count">Exibindo <strong>0</strong> médicos</span>
             </div>
 
-            <!-- Tabela -->
-            <div class="card">
-              <div class="card-header">
-                <div class="tabs">
-                  <button
-                    class="tab active"
-                    id="tab-tabela"
-                    onclick="setView('tabela')"
-                  >
-                    <i
-                      data-lucide="table-2"
-                      style="width: 13px; height: 13px"
-                    ></i>
-                    Tabela
-                  </button>
-                  <button class="tab" id="tab-cards" onclick="setView('cards')">
-                    <i
-                      data-lucide="layout-grid"
-                      style="width: 13px; height: 13px"
-                    ></i>
-                    Cards
-                  </button>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center">
-                  <span class="table-count" id="table-count"
-                    >Exibindo <strong>0</strong> médicos</span
-                  >
-                  <button class="btn-outline-small">
-                    <i data-lucide="download"></i> Exportar
-                  </button>
-                </div>
-              </div>
-
-              <!-- Visualização Tabela -->
-              <div id="vis-tabela" class="table-container">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Médico</th>
-                      <th>CRM</th>
-                      <th>Convênios</th>
-                      <th>Pacientes</th>
-                      <th>Status</th>
-                      <th style="text-align: right">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody id="medicos-tbody"></tbody>
-                </table>
-              </div>
-
-              <!-- Visualização Cards -->
-              <div
-                id="vis-cards"
-                class="hidden medicos-cards-grid"
-                id="medicos-cards"
-              ></div>
+            <!-- Visualização Tabela -->
+            <div id="vis-tabela" class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Médico</th>
+                    <th>CRM</th>
+                    <th>Convênios</th>
+                    <th>Pacientes</th>
+                    <th>Status</th>
+                    <th style="text-align:right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="medicos-tbody"></tbody>
+              </table>
             </div>
 
-            <div class="privacy-note mt-4">
-              <i data-lucide="shield-check"></i>
-              <p>
-                Alterações de perfil e vinculações são registradas imutavelmente
-                no log de auditoria (LGPD).
-              </p>
-            </div>
+            <!-- Visualização Cards -->
+            <div id="vis-cards" class="hidden medicos-cards-grid" id="medicos-cards"></div>
           </div>
 
-          <!-- ════ VIEW: PERFIL ════ -->
-          <div id="view-perfil" class="hidden">
-            <div class="breadcrumb">
-              <span onclick="goBackToLista()"
-                ><i data-lucide="arrow-left"></i> Voltar para Médicos</span
-              >
-              <i data-lucide="chevron-right" class="div"></i>
-              <strong id="perfil-breadcrumb-nome">—</strong>
-            </div>
-
-            <div class="perfil-layout mt-4">
-              <!-- Coluna esquerda: card identidade -->
-              <div class="perfil-sidebar-card card">
-                <div class="perfil-avatar-wrap">
-                  <div class="perfil-avatar-lg" id="pf-avatar-lg">CM</div>
-                  <div class="perfil-avatar-status" id="pf-status-dot"></div>
-                </div>
-                <h2 class="perfil-nome" id="pf-nome">—</h2>
-                <p class="perfil-crm" id="pf-crm">—</p>
-
-                <div class="perfil-info-list">
-                  <div class="perfil-info-row">
-                    <i data-lucide="phone"></i>
-                    <span id="pf-telefone">—</span>
-                  </div>
-                  <div class="perfil-info-row">
-                    <i data-lucide="mail"></i>
-                    <span id="pf-email">—</span>
-                  </div>
-                  <div class="perfil-info-row">
-                    <i data-lucide="map-pin"></i>
-                    <span id="pf-cidade">—</span>
-                  </div>
-                  <div class="perfil-info-row">
-                    <i data-lucide="calendar"></i>
-                    <span id="pf-ingresso">—</span>
-                  </div>
-                </div>
-
-                <div class="perfil-actions">
-                  <button
-                    class="btn-primary"
-                    style="width: 100%; justify-content: center"
-                    onclick="openModalEdit()"
-                  >
-                    <i data-lucide="edit-3"></i> Editar Perfil
-                  </button>
-                  <button
-                    class="btn-export"
-                    style="
-                      width: 100%;
-                      justify-content: center;
-                      margin-top: 8px;
-                    "
-                    onclick="toggleStatus()"
-                  >
-                    <i data-lucide="power"></i>
-                    <span id="btn-toggle-status-label">Desativar</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Coluna direita: detalhes + convênios + pacientes -->
-              <div class="perfil-main">
-                <!-- KPIs rápidos -->
-                <div class="perfil-kpis">
-                  <div class="perfil-kpi-card">
-                    <p class="perfil-kpi-val" id="pf-kpi-pacientes">—</p>
-                    <p class="perfil-kpi-label">Pacientes vinculados</p>
-                  </div>
-                  <div class="perfil-kpi-card">
-                    <p class="perfil-kpi-val" id="pf-kpi-convenios">—</p>
-                    <p class="perfil-kpi-label">Convênios ativos</p>
-                  </div>
-                  <div class="perfil-kpi-card">
-                    <p class="perfil-kpi-val" id="pf-kpi-status">—</p>
-                    <p class="perfil-kpi-label">Status atual</p>
-                  </div>
-                </div>
-
-                <!-- Convênios vinculados -->
-                <div class="card mt-4">
-                  <div class="card-header" style="padding: 14px 18px">
-                    <h3 class="section-title" style="margin: 0">
-                      <i data-lucide="building"></i> Convênios Vinculados
-                    </h3>
-                    <button
-                      class="btn-outline-small"
-                      onclick="openModalVincular()"
-                    >
-                      <i data-lucide="link"></i> Gerenciar
-                    </button>
-                  </div>
-                  <div
-                    class="convenios-vinculados-list"
-                    id="pf-convenios-list"
-                  ></div>
-                </div>
-
-                <!-- Pacientes do médico -->
-                <div class="card mt-4">
-                  <div class="card-header">
-                    <div class="tabs">
-                      <button
-                        class="tab active"
-                        id="tab-pf-pacientes"
-                        onclick="switchPfTab('pacientes')"
-                      >
-                        Pacientes
-                        <span class="tab-badge" id="badge-pf-pacientes">0</span>
-                      </button>
-                      <button
-                        class="tab"
-                        id="tab-pf-triagens"
-                        onclick="switchPfTab('triagens')"
-                      >
-                        Últimas Triagens
-                        <span class="tab-badge" id="badge-pf-triagens">0</span>
-                      </button>
-                    </div>
-                    <button class="btn-outline-small">
-                      <i data-lucide="download"></i> Exportar
-                    </button>
-                  </div>
-                  <div class="table-container">
-                    <table>
-                      <thead id="pf-dynamic-thead"></thead>
-                      <tbody id="pf-dynamic-tbody"></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="privacy-note mt-4">
-              <i data-lucide="shield-check"></i>
-              <p>
-                Alterações de perfil e vinculações são registradas imutavelmente
-                no log de auditoria (LGPD).
-              </p>
-            </div>
+          <div class="privacy-note mt-4">
+            <i data-lucide="shield-check"></i>
+            <p>Alterações de perfil e vinculações são registradas imutavelmente no log de auditoria (LGPD).</p>
           </div>
-        </main>
-      </div>
-    </div>
-
-    <!-- ══════════ MODAL: NOVO / EDITAR MÉDICO ══════════ -->
-    <div id="modal-medico" class="modal-overlay hidden">
-      <div class="modal-content modal-lg">
-        <div class="modal-header">
-          <div>
-            <h2 id="modal-medico-title">Novo Médico</h2>
-            <p id="modal-medico-sub">
-              Preencha os dados e selecione os convênios vinculados
-            </p>
-          </div>
-          <button class="btn-close" onclick="closeModalMedico()">
-            <i data-lucide="x"></i>
-          </button>
         </div>
-        <div class="modal-body">
-          <h3 class="section-title">
-            <i data-lucide="user"></i> Dados Pessoais
-          </h3>
-          <p class="section-sub">
-            Informações de identificação e contato do médico.
-          </p>
 
-          <div class="form-grid">
-            <div class="form-group" style="grid-column: 1/-1">
-              <label>Nome Completo <span class="required">*</span></label>
-              <input
-                type="text"
-                id="medico-nome"
-                class="form-input"
-                placeholder="Dr. Nome Completo"
-              />
-            </div>
-            <div class="form-group">
-              <label>CPF <span style="color: #dc2626">*</span></label>
-              <input
-                type="text"
-                id="medico-cpf"
-                class="form-input"
-                placeholder="000.000.000-00"
-              />
-            </div>
-            <div class="form-group">
-              <label>CRM <span style="color: #dc2626">*</span></label>
-              <input
-                type="text"
-                id="medico-crm"
-                class="form-input"
-                placeholder="CRM e Estado"
-              />
-            </div>
-            <div class="form-group">
-              <label
-                >Data de Nascimento <span style="color: #dc2626">*</span></label
-              >
-              <input
-                type="date"
-                id="medico-data-nascimento"
-                class="form-input"
-              />
-            </div>
-            <div class="form-group">
-              <label>Telefone</label>
-              <input
-                type="text"
-                id="medico-telefone"
-                class="form-input"
-                placeholder="(41) 99999-9999"
-              />
-            </div>
-            <div class="form-group">
-              <label>E-mail <span style="color: #dc2626">*</span></label>
-              <input
-                type="email"
-                id="medico-email"
-                class="form-input"
-                placeholder="medico@email.com"
-              />
-            </div>
-            <div class="form-group">
-              <label>UF</label>
-              <input
-                list="lista-ufs"
-                id="medico-uf"
-                class="form-input"
-                placeholder="Ex: SP"
-                maxlength="2"
-                style="text-transform: uppercase"
-              />
-              <datalist id="lista-ufs"></datalist>
-            </div>
-            <div class="form-group">
-              <label>Cidade</label>
-              <input
-                list="lista-cidades"
-                id="medico-cidade"
-                class="form-input"
-                placeholder="Digite a cidade..."
-              />
-              <datalist id="lista-cidades"></datalist>
-            </div>
-            <div
-              class="form-group"
-              id="grupo-status-medico"
-              style="display: none"
-            >
-              <label>Status</label>
-              <select id="m-status" class="form-input">
-                <option value="Ativo">Ativo</option>
-                <option value="Inativo">Inativo</option>
-              </select>
-            </div>
-            <div
-              class="form-group"
-              id="grupo-senha-medico"
-              style="display: none"
-            >
-              <label>Senha Provisória</label>
-              <div style="display: flex; gap: 8px">
-                <input
-                  type="text"
-                  id="medico-senha"
-                  class="form-input"
-                  readonly
-                  style="
-                    background-color: #f8fafc;
-                    color: #64748b;
-                    font-family: monospace;
-                    font-weight: bold;
-                    letter-spacing: 1px;
-                  "
-                />
-                <button
-                  class="btn-outline-small"
-                  type="button"
-                  onclick="copiarSenhaMedico()"
-                  title="Copiar Senha"
-                  style="padding: 0 10px"
-                >
-                  <i data-lucide="copy" style="width: 14px; height: 14px"></i>
+        <!-- ════ VIEW: PERFIL ════ -->
+        <div id="view-perfil" class="hidden">
+
+          <div class="breadcrumb">
+            <span onclick="goBackToLista()"><i data-lucide="arrow-left"></i> Voltar para Médicos</span>
+            <i data-lucide="chevron-right" class="div"></i>
+            <strong id="perfil-breadcrumb-nome">—</strong>
+          </div>
+
+          <div class="perfil-layout mt-4">
+
+            <!-- Coluna esquerda: card identidade -->
+            <div class="perfil-sidebar-card card">
+              <div class="perfil-avatar-wrap">
+                <div class="perfil-avatar-lg" id="pf-avatar-lg">CM</div>
+                <div class="perfil-avatar-status" id="pf-status-dot"></div>
+              </div>
+              <h2 class="perfil-nome" id="pf-nome">—</h2>
+              <p class="perfil-crm" id="pf-crm">—</p>
+
+              <div class="perfil-info-list">
+                <div class="perfil-info-row">
+                  <i data-lucide="phone"></i>
+                  <span id="pf-telefone">—</span>
+                </div>
+                <div class="perfil-info-row">
+                  <i data-lucide="mail"></i>
+                  <span id="pf-email">—</span>
+                </div>
+                <div class="perfil-info-row">
+                  <i data-lucide="map-pin"></i>
+                  <span id="pf-cidade">—</span>
+                </div>
+                <div class="perfil-info-row">
+                  <i data-lucide="calendar"></i>
+                  <span id="pf-ingresso">—</span>
+                </div>
+              </div>
+
+              <div class="perfil-actions">
+                <button class="btn-primary" style="width:100%;justify-content:center;" onclick="openModalEdit()">
+                  <i data-lucide="edit-3"></i> Editar Perfil
+                </button>
+                <button class="btn-outline-small" style="width:100%;justify-content:center;margin-top:8px;" onclick="resetarSenhaMedico()">
+                  <i data-lucide="key-round"></i> Gerar Nova Senha
+                </button>
+                <button class="btn-export" style="width:100%;justify-content:center;margin-top:8px;" onclick="toggleStatus()">
+                  <i data-lucide="power"></i> <span id="btn-toggle-status-label">Desativar</span>
                 </button>
               </div>
-              <span style="font-size: 10px; color: #94a3b8; margin-top: 4px"
-                >Forneça esta senha para o primeiro acesso.</span
-              >
+
+              <div class="form-group hidden" id="pf-senha-gerada" style="margin-top:12px;">
+                <label>Nova Senha Provisória</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="pf-senha-gerada-valor" class="form-input" readonly style="background-color: #F8FAFC; color: #64748B; font-family: monospace; font-weight: bold; letter-spacing: 1px;">
+                  <button class="btn-outline-small" type="button" onclick="copiarSenhaGerada()" title="Copiar Senha" style="padding: 0 10px;"><i data-lucide="copy" style="width: 14px; height: 14px;"></i></button>
+                </div>
+                <span style="font-size: 10px; color: #94A3B8; margin-top: 4px;">Forneça esta nova senha ao médico. A senha anterior deixou de funcionar.</span>
+              </div>
+            </div>
+
+            <!-- Coluna direita: detalhes + convênios + pacientes -->
+            <div class="perfil-main">
+
+              <!-- KPIs rápidos -->
+              <div class="perfil-kpis">
+                <div class="perfil-kpi-card">
+                  <p class="perfil-kpi-val" id="pf-kpi-pacientes">—</p>
+                  <p class="perfil-kpi-label">Pacientes vinculados</p>
+                </div>
+                <div class="perfil-kpi-card">
+                  <p class="perfil-kpi-val" id="pf-kpi-convenios">—</p>
+                  <p class="perfil-kpi-label">Convênios ativos</p>
+                </div>
+                <div class="perfil-kpi-card">
+                  <p class="perfil-kpi-val" id="pf-kpi-status">—</p>
+                  <p class="perfil-kpi-label">Status atual</p>
+                </div>
+              </div>
+
+              <!-- Convênios vinculados -->
+              <div class="card mt-4">
+                <div class="card-header" style="padding:14px 18px;">
+                  <h3 class="section-title" style="margin:0;"><i data-lucide="building"></i> Convênios Vinculados</h3>
+                  <button class="btn-outline-small" onclick="openModalVincular()">
+                    <i data-lucide="link"></i> Gerenciar
+                  </button>
+                </div>
+                <div class="convenios-vinculados-list" id="pf-convenios-list"></div>
+              </div>
+
+              <!-- Pacientes do médico -->
+              <div class="card mt-4">
+                <div class="card-header">
+                  <div class="tabs">
+                  <button class="tab active" id="tab-pf-pacientes" onclick="switchPfTab('pacientes')">
+                    Pacientes <span class="tab-badge" id="badge-pf-pacientes">0</span>
+                  </button>
+                  <button class="tab" id="tab-pf-triagens" onclick="switchPfTab('triagens')">
+                    Últimas Triagens <span class="tab-badge" id="badge-pf-triagens">0</span>
+                    </button>
+                  </div>
+                  <button class="btn-outline-small" onclick="exportarPerfilCSV()"><i data-lucide="download"></i> Exportar</button>
+                </div>
+                <div class="table-container">
+                  <table>
+                  <thead id="pf-dynamic-thead"></thead>
+                  <tbody id="pf-dynamic-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div class="divider mt-4 mb-4"></div>
-
-          <h3 class="section-title">
-            <i data-lucide="building"></i> Convênios Vinculados
-          </h3>
-          <p class="section-sub">
-            Selecione um ou mais convênios em que este médico atua.
-          </p>
-          <div class="checkbox-grid" id="m-convenios-list"></div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" onclick="closeModalMedico()">
-            Cancelar
-          </button>
-          <button class="btn-primary" onclick="saveMedico()">
-            <i data-lucide="save"></i> Salvar
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════ MODAL: GERENCIAR CONVÊNIOS (perfil) ══════════ -->
-    <div id="modal-vincular" class="modal-overlay hidden">
-      <div class="modal-content modal-md">
-        <div class="modal-header">
-          <div>
-            <h2>Gerenciar Convênios</h2>
-            <p id="modal-vincular-sub">Convênios vinculados ao médico</p>
+          <div class="privacy-note mt-4">
+            <i data-lucide="shield-check"></i>
+            <p>Alterações de perfil e vinculações são registradas imutavelmente no log de auditoria (LGPD).</p>
           </div>
-          <button class="btn-close" onclick="closeModalVincular()">
-            <i data-lucide="x"></i>
-          </button>
         </div>
-        <div class="modal-body">
-          <p class="section-sub">
-            Marque ou desmarque os convênios em que este médico atua.
-          </p>
-          <div class="checkbox-grid" id="vincular-convenios-list"></div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ══════════ MODAL: NOVO / EDITAR MÉDICO ══════════ -->
+  <div id="modal-medico" class="modal-overlay hidden">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-medico-title">Novo Médico</h2>
+          <p id="modal-medico-sub">Preencha os dados e selecione os convênios vinculados</p>
         </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" onclick="closeModalVincular()">
-            Cancelar
-          </button>
-          <button class="btn-primary" onclick="saveVincular()">
-            <i data-lucide="save"></i> Salvar Vínculos
-          </button>
+        <button class="btn-close" onclick="closeModalMedico()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <h3 class="section-title"><i data-lucide="user"></i> Dados Pessoais</h3>
+        <p class="section-sub">Informações de identificação e contato do médico.</p>
+
+        <div class="form-grid">
+          <div class="form-group" style="grid-column:1/-1">
+            <label>Nome Completo <span class="required">*</span></label>
+            <input type="text" id="medico-nome" class="form-input" placeholder="Dr. Nome Completo">
+          </div>
+          <div class="form-group">
+            <label>CPF <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="medico-cpf" class="form-input" placeholder="000.000.000-00">
+          </div>
+          <div class="form-group">
+            <label>CRM <span style="color: #DC2626;">*</span></label>
+            <input type="text" id="medico-crm" class="form-input" placeholder="CRM e Estado">
+          </div>
+          <div class="form-group">
+            <label>Data de Nascimento <span style="color: #DC2626;">*</span></label>
+            <input type="date" id="medico-data-nascimento" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" id="medico-telefone" class="form-input" placeholder="(41) 99999-9999">
+          </div>
+          <div class="form-group">
+            <label>E-mail <span style="color: #DC2626;">*</span></label>
+            <input type="email" id="medico-email" class="form-input" placeholder="medico@email.com">
+          </div>
+          <div class="form-group">
+            <label>UF</label>
+            <input list="lista-ufs" id="medico-uf" class="form-input" placeholder="Ex: SP" maxlength="2" style="text-transform: uppercase;">
+            <datalist id="lista-ufs"></datalist>
+          </div>
+          <div class="form-group">
+            <label>Cidade</label>
+            <input list="lista-cidades" id="medico-cidade" class="form-input" placeholder="Digite a cidade...">
+            <datalist id="lista-cidades"></datalist>
+          </div>
+          <div class="form-group" id="grupo-status-medico" style="display: none;">
+            <label>Status</label>
+            <select id="m-status" class="form-input">
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+          </div>
+          <div class="form-group" id="grupo-senha-medico" style="display: none;">
+            <label>Senha Provisória</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="medico-senha" class="form-input" readonly style="background-color: #F8FAFC; color: #64748B; font-family: monospace; font-weight: bold; letter-spacing: 1px;">
+              <button class="btn-outline-small" type="button" onclick="copiarSenhaMedico()" title="Copiar Senha" style="padding: 0 10px;"><i data-lucide="copy" style="width: 14px; height: 14px;"></i></button>
+            </div>
+            <span style="font-size: 10px; color: #94A3B8; margin-top: 4px;">Forneça esta senha para o primeiro acesso.</span>
+          </div>
         </div>
+
+        <div class="divider mt-4 mb-4"></div>
+
+        <h3 class="section-title"><i data-lucide="building"></i> Convênios Vinculados</h3>
+        <p class="section-sub">Selecione um ou mais convênios em que este médico atua.</p>
+        <div class="checkbox-grid" id="m-convenios-list"></div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModalMedico()">Cancelar</button>
+        <button class="btn-primary" onclick="saveMedico()"><i data-lucide="save"></i> Salvar</button>
       </div>
     </div>
+  </div>
 
-    <!-- Toast -->
-    <div id="toast" class="toast hidden">
-      <i data-lucide="check-circle" id="toast-icon"></i>
-      <span id="toast-msg"></span>
+  <!-- ══════════ MODAL: GERENCIAR CONVÊNIOS (perfil) ══════════ -->
+  <div id="modal-vincular" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <div>
+          <h2>Gerenciar Convênios</h2>
+          <p id="modal-vincular-sub">Convênios vinculados ao médico</p>
+        </div>
+        <button class="btn-close" onclick="closeModalVincular()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="section-sub">Marque ou desmarque os convênios em que este médico atua.</p>
+        <div class="checkbox-grid" id="vincular-convenios-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModalVincular()">Cancelar</button>
+        <button class="btn-primary" onclick="saveVincular()"><i data-lucide="save"></i> Salvar Vínculos</button>
+      </div>
     </div>
+  </div>
 
-    <script src="script.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const sidebar = document.getElementById("sidebar");
-        const toggleBtn = document.getElementById("sidebarToggle");
-        const toggleIcon = document.getElementById("toggleIcon");
-        let collapsed = false;
-        if (toggleBtn) {
+  <!-- MODAL: Exportar Dados -->
+  <div id="modalExportOverlay" style="position: fixed; inset: 0; background: rgba(15,27,53,0.45); backdrop-filter: blur(3px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px;">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 850px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(15,27,53,0.18);">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #F1F5F9;">
+        <div>
+          <h2 style="font-size: 16px; font-weight: 700; color: #0F172A; margin: 0;">Exportar Dados</h2>
+          <p style="font-size: 12px; color: #94A3B8; margin: 2px 0 0;">Escolha o formato e visualize a amostra de dados que será baixada.</p>
+        </div>
+        <button id="modalExportClose" style="background: transparent; border: none; cursor: pointer; color: #64748B;"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+      </div>
+      <div style="padding: 0; display: flex; height: 450px; overflow: hidden; flex: none;">
+        <div style="width: 260px; padding: 24px; border-right: 1px solid #E2E8F0; background: #FAFBFF; flex-shrink: 0; overflow-y: auto;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Formato do Arquivo</p>
+          <div class="export-format-card active" data-format="pdf" id="formatPdf">
+            <i data-lucide="file-text" style="color: #DC2626; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Documento PDF</span>
+              <span class="sub">Relatório formatado</span>
+            </div>
+          </div>
+          <div class="export-format-card" data-format="csv" id="formatCsv" style="margin-top: 10px;">
+            <i data-lucide="file-spreadsheet" style="color: #16A34A; width: 24px; height: 24px;"></i>
+            <div>
+              <span class="title">Planilha CSV</span>
+              <span class="sub">Dados brutos</span>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; padding: 24px; background: #F1F5F9; display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+          <p style="font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pré-visualização (Primeiras 5 linhas)</p>
+          <div id="exportLivePreview" class="export-live-preview"></div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #E2E8F0; background: white;">
+        <button id="btnExportCancel" style="padding: 8px 16px; border-radius: 8px; border: 1px solid #E2E8F0; background: white; color: #374151; font-weight: 500; cursor: pointer;">Cancelar</button>
+        <button id="btnExportConfirm" style="padding: 8px 16px; border-radius: 8px; background: #1D4ED8; color: white; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i data-lucide="download" style="width: 16px; height: 16px;"></i> Confirmar Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden">
+    <i data-lucide="check-circle" id="toast-icon"></i>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sidebar = document.getElementById("sidebar");
+      const toggleBtn = document.getElementById("sidebarToggle");
+      const toggleIcon = document.getElementById("toggleIcon");
+      let collapsed = false;
+      if (toggleBtn) {
           toggleBtn.addEventListener("click", () => {
-            collapsed = !collapsed;
-            sidebar.classList.toggle("collapsed", collapsed);
-            if (toggleIcon) {
-              toggleIcon.setAttribute(
-                "data-lucide",
-                collapsed ? "panel-left-open" : "menu",
-              );
-              lucide.createIcons();
-            }
+              collapsed = !collapsed;
+              sidebar.classList.toggle("collapsed", collapsed);
+              if (toggleIcon) {
+                toggleIcon.setAttribute("data-lucide", collapsed ? "panel-left-open" : "menu");
+                lucide.createIcons();
+              }
           });
-        }
-      });
-    </script>
-  </body>
+      }
+    });
+  </script>
+</body>
 </html>

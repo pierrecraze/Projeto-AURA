@@ -126,36 +126,52 @@ function mascaraCpf(input) {
   input.value = v;
 }
 
-function serializeForm(existingId = null) {
+const SEXO_PARA_API = { Feminino: "F", Masculino: "M" };
+const SEXO_DA_API = { F: "Feminino", M: "Masculino" };
+
+function serializeForm() {
   const payload = {
     nome: $("nomePaciente").value.trim(),
-    dataNascimento: $("dataNascimento").value.trim(),
-    sexoBiologico: $("sexoBiologico").value.trim(),
-    nomeMae: $("nomeMae").value.trim(),
-    nomePai: $("nomePai").value.trim(),
-    responsavel: $("responsavel").value.trim(),
-    grauParentesco: $("grauParentesco").value.trim(),
-    cpfResponsavel: $("cpfResponsavel").value.trim(),
-    cidade: $("cidade").value.trim(),
-    estado: $("estado").value.trim(),
-    pais: $("pais").value.trim()
+    data_nascimento: $("dataNascimento").value.trim(),
+    sexo_biologico: SEXO_PARA_API[$("sexoBiologico").value.trim()] || "",
+    nome_mae: $("nomeMae").value.trim() || null,
+    nome_pai: $("nomePai").value.trim() || null,
+    cidade: $("cidade").value.trim() || null,
+    estado: $("estado").value.trim() || null,
+    pais: $("pais").value.trim() || null,
   };
-  if (existingId) payload.id = existingId;
+
+  const responsavel = $("responsavel").value.trim();
+  if (responsavel) {
+    payload.responsaveis = [
+      {
+        nome: responsavel,
+        parentesco: $("grauParentesco").value.trim() || "Não informado",
+        cpf: $("cpfResponsavel").value.trim() || null,
+      },
+    ];
+  }
+
   return payload;
 }
 
 function fillForm(p) {
   $("nomePaciente").value = p.nome || "";
   $("dataNascimento").value = p.dataNascimento || p.data_nascimento || "";
-  $("sexoBiologico").value = p.sexoBiologico || p.sexo_biologico || "";
-  $("nomeMae").value = p.nomeMae || "";
-  $("nomePai").value = p.nomePai || "";
-  $("responsavel").value = p.responsavel || "";
-  $("grauParentesco").value = p.grauParentesco || "";
-  $("cpfResponsavel").value = p.cpfResponsavel || "";
+  const sexo = p.sexoBiologico || p.sexo_biologico || "";
+  $("sexoBiologico").value = SEXO_DA_API[sexo] || sexo || "";
+  $("nomeMae").value = p.nome_mae || "";
+  $("nomePai").value = p.nome_pai || "";
   $("cidade").value = p.cidade || "";
   $("estado").value = p.estado || "";
   $("pais").value = p.pais || "";
+
+  const resp = (p.responsaveis && p.responsaveis[0]) || null;
+  if (resp) {
+    $("responsavel").value = resp.nome || "";
+    $("grauParentesco").value = resp.parentesco || "";
+    $("cpfResponsavel").value = resp.cpf || "";
+  }
 }
 
 (async function init() {
@@ -207,7 +223,7 @@ function fillForm(p) {
       }
     }
 
-    const payload = serializeForm(editingId);
+    const payload = serializeForm();
 
     try {
       const token = localStorage.getItem('aura_token');
@@ -225,7 +241,11 @@ function fillForm(p) {
         mostrarToast("Paciente salvo com sucesso!");
         setTimeout(() => window.location.href = ret, 1200);
       } else {
-        mostrarToast("Erro ao salvar paciente no servidor.");
+        const erro = await res.json().catch(() => null);
+        const detalhe = erro?.detail
+          ? (Array.isArray(erro.detail) ? erro.detail.map(d => d.msg).join(", ") : erro.detail)
+          : "Erro ao salvar paciente no servidor.";
+        mostrarToast(detalhe);
       }
     } catch (err) {
       mostrarToast("Erro de conexão com o servidor.");

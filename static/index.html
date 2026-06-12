@@ -1,43 +1,139 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="/static/css/index.css" />
-    <link rel="stylesheet" href="/static/css/styles.css" />
+    <title>AURA | Plataforma de Triagem Clínica</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/index.css" />
   </head>
   <body>
-    <div id="app">
-      <div id="text">
-        <h1 class="title">Bem-vindo!</h1>
-        <h2 class="description">
-          Seja bem-vindo a
-          <span>AURA</span>!
-        </h2>
+    <!-- formas decorativas de fundo -->
+    <div class="bg-decor" aria-hidden="true">
+      <span class="blob blob-1"></span>
+      <span class="blob blob-2"></span>
+      <span class="blob blob-3"></span>
+    </div>
 
-        <div class="paragraph">
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-            auctor, nisl eget consectetur sagittis, nisl nunc consectetur nisi,
-            euismod aliquam nisl nunc euismod nisi. Donec auctor Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit. Donec auctor, nisl eget
-            consectetur sagittis, nisl nunc consectetur nisi, euismod aliquam
-            nisl nunc euismod nisi.
-          </p>
-          <p>
-            Lorem ipsum dolor sit amet,consectetur adipiscing elit. Donec
-            auctor, nisl eget consectetur sagittis, nisl nunc consectetur nisi,
-            euismod aliquam nisl nunc euismod nisi. Donec auctor Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit.
-          </p>
+    <!-- TOPO -->
+    <header class="landing-header">
+      <div class="brand">
+        <div class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M6 3c0 4 12 3 12 9S6 18 6 21M18 3C18 7 6 6 6 12s12 6 12 9"
+              stroke="white"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              fill="none"
+            />
+          </svg>
         </div>
-        <div class="buttons">
-          <a href="/login.html">
-            <button class="button">Login</button>
+        <span class="brand-name">AURA</span>
+      </div>
+      <a
+        class="institute-link"
+        href="https://institutobk.org.br/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Instituto Buko Kaesemodel
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+      </a>
+    </header>
+
+    <!-- HERO -->
+    <main class="hero">
+      <div class="hero-text">
+        <span class="eyebrow">Síndrome do X Frágil · Gene FMR1</span>
+        <h1 class="hero-title">
+          Triagem clínica<br />
+          <span class="accent">inteligente e assistida</span>
+        </h1>
+        <p class="hero-sub">
+          A <strong>AURA</strong> apoia profissionais de saúde do
+          Instituto Buko Kaesemodel na avaliação de pacientes com sinais da
+          Síndrome do X Frágil — do checklist clínico ao score de
+          probabilidade e ao relatório formal em PDF.
+        </p>
+
+        <div class="hero-cta">
+          <a href="/login.html" class="btn btn-primary">
+            Acessar a plataforma
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+          <a href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+            Conhecer o instituto
           </a>
         </div>
+
+        <ul class="trust-row" aria-label="Recursos da plataforma">
+          <li><span class="dot"></span> Score clínico automático</li>
+          <li><span class="dot"></span> Relatórios em PDF</li>
+          <li><span class="dot"></span> Histórico de avaliações</li>
+        </ul>
       </div>
-    </div>
+
+      <!-- cartões de recursos -->
+      <div class="feature-grid" aria-label="Como a AURA ajuda">
+        <article class="feature-card">
+          <div class="feature-icon icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </div>
+          <h3>Checklist clínico</h3>
+          <p>Marque apenas os sintomas que o paciente apresenta — simples e objetivo.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <h3>Score de probabilidade</h3>
+          <p>Cálculo ponderado que classifica o risco e orienta a conduta.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </div>
+          <h3>Relatório formal</h3>
+          <p>Documento em PDF com sintomas, score e espaço para assinatura.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon icon-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <h3>Acompanhamento</h3>
+          <p>Histórico de avaliações por paciente, com conduta e monitoramento.</p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="landing-footer">
+      <span>© 2026 Instituto Buko Kaesemodel · Plataforma AURA</span>
+      <span class="footer-tag">Programa Eu Digo X</span>
+    </footer>
   </body>
 </html>

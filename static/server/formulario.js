@@ -27,19 +27,23 @@ const PESOS = {
   agressividade: 0.03,
 };
 
+// Os rótulos legíveis dos sintomas (SINTOMAS_LABELS) vivem em relatorio.js,
+// carregado antes deste script nas páginas que usam o formulário.
+
+// Aceita tanto ?paciente_id= (formulario.html) quanto ?id= (paciente.html)
+const _params = new URLSearchParams(window.location.search);
+const PACIENTE_ID = _params.get("paciente_id") || _params.get("id");
+
+let ultimoScore = 0;
+let ultimaTriagemId = null; // id da avaliação registrada ao calcular o score
+
 // ─────────────────────────────────────────────
 // Utilitários
 // ─────────────────────────────────────────────
 
 function getRespostaCampo(nome) {
-  // Agora que é checkbox, se estiver checado é "sim", senão é "nao".
-  const cb = document.querySelector(`input[name="${nome}"]`);
-  return cb && cb.checked ? "sim" : "nao";
-}
-
-function todosRespondidos() {
-  // Checkboxes dispensam validação de campos vazios (unchecked = "nao")
-  return true;
+  const selecionado = document.querySelector(`input[name="${nome}"]:checked`);
+  return selecionado ? selecionado.value : null;
 }
 
 function calcularScore() {
@@ -69,10 +73,10 @@ function mostrarTela(id) {
 // ─────────────────────────────────────────────
 
 function cancelarFormulario() {
-  // Limpa todos os checkboxes
+  // Limpa todas as respostas do formulário (suporta radios e checkboxes)
   document
-    .querySelectorAll('input[type="checkbox"]')
-    .forEach((c) => (c.checked = false));
+    .querySelectorAll('input[type="radio"], input[type="checkbox"]')
+    .forEach((r) => (r.checked = false));
   document.getElementById("erro-formulario").style.display = "none";
 }
 
@@ -83,15 +87,33 @@ function cancelarFormulario() {
 function confirmarDados() {
   const erroEl = document.getElementById("erro-formulario");
 
-  if (!todosRespondidos()) {
-    erroEl.style.display = "block";
-    erroEl.scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
+  // O score é calculado apenas com base no que o paciente apresenta.
+  // Itens não marcados são tratados como "não apresenta", portanto não é
+  // necessário responder a todos os campos para gerar o resultado.
+
+  // ── Dupla confirmação antes de calcular e registrar ──
+  const n = sintomasMarcados().length;
+  const confirmou = confirm(
+    `Calcular o score do paciente?\n\n` +
+      `${n} de 12 sintomas assinalados como "apresenta".\n` +
+      `A avaliação será registrada no sistema.`,
+  );
+  if (!confirmou) return;
 
   erroEl.style.display = "none";
   const score = calcularScore();
+  ultimoScore = score;
   exibirResultado(score);
+
+  // Registra automaticamente a avaliação (aparece na página de Avaliações).
+  // A conduta inicial segue a indicação do score e pode ser ajustada
+  // pelos botões de encaminhamento/monitoramento.
+  registrarTriagem(score >= 0.56).then((id) => {
+    ultimaTriagemId = id;
+    if (id && typeof mostrarToast === "function") {
+      mostrarToast("Avaliação registrada no sistema.");
+    }
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -100,84 +122,123 @@ function confirmarDados() {
 
 function exibirResultado(score) {
   const scoreBox = document.getElementById("score-box");
+  const scoreBadge = document.getElementById("score-badge");
   const indicacaoTexto = document.getElementById("indicacao-texto");
   const asteriscoInfo = document.getElementById("asterisco-info");
   const botoesRes = document.getElementById("botoes-resultado");
 
-  // 🌟 BONUS: Atualiza automaticamente a interface de contagem "x / 12 SIM" e a barra!
-  const count = document.querySelectorAll('input[type="checkbox"]:checked').length;
-  const countEl = document.getElementById("metrica-contagem");
-  if (countEl) countEl.textContent = `${count} / 12 SIM`;
-  const metricaBarra = document.getElementById("metrica-barra");
-  if (metricaBarra) metricaBarra.style.width = `${(count / 12) * 100}%`;
-
-  // Exibe score
-  scoreBox.textContent = score.toFixed(2);
-
-  // Remove classes anteriores
-  scoreBox.classList.remove("alto", "medio", "baixo");
-
-  // ── ALTA PROBABILIDADE ─────────────────────
+  // ── Categoria com base no score ────────────────
+  let classe, categoria;
   if (score >= 0.56) {
-    scoreBox.classList.add("alto");
+    classe = "alto";
+    categoria = "Alta probabilidade";
+  } else if (score >= 0.4) {
+    classe = "medio";
+    categoria = "Média probabilidade";
+  } else {
+    classe = "baixo";
+    categoria = "Baixa probabilidade";
+  }
 
-    indicacaoTexto.innerHTML = `O resultado do score do paciente é ≥ 0.56, dessa forma, representa
+  // ── Score apresentado como percentual ──────────
+  const pct = Math.round(score * 100);
+  scoreBox.textContent = `${pct}%`;
+  scoreBox.classList.remove("alto", "medio", "baixo");
+  scoreBox.classList.add(classe);
+
+  if (scoreBadge) {
+    scoreBadge.textContent = categoria;
+    scoreBadge.className = `score-badge ${classe}`;
+  }
+
+  // ── Barra de probabilidade (reflete o score) ───
+  const metricaBarra = document.getElementById("metrica-barra");
+  if (metricaBarra) {
+    metricaBarra.style.width = `${pct}%`;
+    metricaBarra.className = `metrica-barra ${classe}`;
+  }
+
+  // ── Sintomas apresentados (chips) ──────────────
+  const marcados = sintomasMarcados();
+
+  const countEl = document.getElementById("metrica-contagem");
+  if (countEl) {
+    const n = marcados.length;
+    countEl.textContent = `${n} de 12 ${n === 1 ? "sintoma" : "sintomas"}`;
+  }
+
+  const pontosEl = document.getElementById("metrica-pontos");
+  if (pontosEl) {
+    pontosEl.innerHTML = marcados.length
+      ? marcados
+          .map(
+            (nome) =>
+              `<span class="sintoma-chip ${classe}">${SINTOMAS_LABELS[nome] || nome}</span>`,
+          )
+          .join("")
+      : `<span class="sem-sintomas">Nenhum sintoma assinalado.</span>`;
+  }
+
+  // ── Indicação clínica + recomendação + ações ───
+  if (classe === "alto") {
+    indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (≥ 56%), o que representa
        <span class="destaque-alto">alta probabilidade clínica</span>.
-       Indicado priorizar realização de teste molecular (FMR1)!`;
+       Indicado priorizar a realização do teste molecular (FMR1).`;
 
     asteriscoInfo.style.display = "flex";
-    asteriscoInfo.innerHTML = `<span style="font-size:1.1rem;color:#c0392b;">★</span>
-       É RECOMENDADO ENCAMINHAR O PACIENTE PARA TESTE FMR1`;
+    asteriscoInfo.className = "asterisco-info alto";
+    asteriscoInfo.innerHTML = `★ Recomendado encaminhar o paciente para o teste FMR1`;
 
     botoesRes.innerHTML = `
       <button class="btn-acao primario" onclick="acaoEncaminhar()">
-        É RECOMENDADO ENCAMINHAR<br>O PACIENTE PARA TESTE FMR1
+        Encaminhar para teste FMR1
       </button>
       <button class="btn-acao secundario" onclick="acaoMonitoramento()">
-        COLOCAR PACIENTE EM<br>MONITORAMENTO
+        Colocar em monitoramento
       </button>`;
-
-    // ── MÉDIA PROBABILIDADE ────────────────────
-  } else if (score >= 0.4) {
-    scoreBox.classList.add("medio");
-
-    indicacaoTexto.innerHTML = `O resultado do score do paciente é ≥ 0.40, dessa forma, representa
+  } else if (classe === "medio") {
+    indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (entre 40% e 55%), o que representa
        <span class="destaque-medio">média probabilidade clínica</span>.
-       É indicado analisar mais detalhadamente para confirmar a situação
-       e se é preciso a realização do teste molecular (FMR1)!`;
+       Indicado analisar com mais detalhe para confirmar a necessidade do teste molecular (FMR1).`;
 
     asteriscoInfo.style.display = "none";
 
     botoesRes.innerHTML = `
       <button class="btn-acao secundario" onclick="acaoEncaminhar()">
-        RECOMENDAR PACIENTE<br>PARA TESTE FMR1?
+        Recomendar teste FMR1
       </button>
       <button class="btn-acao secundario" onclick="acaoMonitoramento()">
-        COLOCAR PACIENTE EM<br>ESPERA / MONITORAMENTO
+        Colocar em espera / monitoramento
       </button>`;
-
-    // ── BAIXA PROBABILIDADE ────────────────────
   } else {
-    scoreBox.classList.add("baixo");
-
-    indicacaoTexto.innerHTML = `O resultado do score do paciente é ≤ 0.40, dessa forma, o paciente representa
+    indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (&lt; 40%), o que representa
        <span class="destaque-baixo">baixa probabilidade clínica</span>.
        Indicado analisar e monitorar o paciente.`;
 
     asteriscoInfo.style.display = "flex";
-    asteriscoInfo.innerHTML = `<span style="font-size:1.1rem;color:#27ae60;">★</span>
-       <span style="color:#27ae60;">MONITORAMENTO RECOMENDADO</span>`;
+    asteriscoInfo.className = "asterisco-info baixo";
+    asteriscoInfo.innerHTML = `★ Monitoramento recomendado`;
 
     botoesRes.innerHTML = `
       <button class="btn-acao secundario" onclick="acaoEncaminhar()">
-        RECOMENDAR PACIENTE<br>PARA TESTE FMR1?
+        Recomendar teste FMR1
       </button>
       <button class="btn-acao primario" onclick="acaoMonitoramento()">
-        COLOCAR PACIENTE EM<br>ESPERA / MONITORAMENTO
+        Colocar em espera / monitoramento
       </button>`;
   }
 
-  // Botão voltar
+  // Botão de relatório formal (PDF), disponível em todas as categorias
+  botoesRes.insertAdjacentHTML(
+    "beforeend",
+    `<button class="btn-acao relatorio" onclick="gerarRelatorioResultado()">
+       Gerar relatório (PDF)
+     </button>`,
+  );
+
+  // Botão voltar (evita duplicatas em reavaliações)
+  const btnVoltarAntigo = document.querySelector(".btn-voltar");
+  if (btnVoltarAntigo) btnVoltarAntigo.remove();
   botoesRes.insertAdjacentHTML(
     "afterend",
     `<button class="btn-voltar" onclick="voltarFormulario()">← Voltar ao formulário</button>`,
@@ -187,19 +248,121 @@ function exibirResultado(score) {
 }
 
 // ─────────────────────────────────────────────
+// Relatório formal (PDF) a partir do resultado
+// ─────────────────────────────────────────────
+
+function sintomasMarcados() {
+  return Object.keys(PESOS)
+    .filter((nome) => getRespostaCampo(nome) === "sim")
+    .sort((a, b) => PESOS[b] - PESOS[a]);
+}
+
+function gerarRelatorioResultado() {
+  const usuario = JSON.parse(localStorage.getItem("aura_user") || "null") || {};
+
+  // Nome/nascimento do paciente: na página paciente.html vêm dos campos da ficha
+  const nomeInput = document.getElementById("nomePaciente");
+  const titleEl = document.getElementById("titleName");
+  const nascInput = document.getElementById("dataNascimento");
+  const pacienteNome =
+    (nomeInput && nomeInput.value.trim()) ||
+    (titleEl && titleEl.textContent.trim()) ||
+    "Não informado";
+
+  gerarRelatorioPDF({
+    pacienteNome,
+    pacienteNascimento: nascInput && nascInput.value ? nascInput.value : null,
+    dataHora: new Date(),
+    scorePct: Math.round(ultimoScore * 100),
+    sintomas: sintomasMarcados(),
+    conduta: null, // ainda não registrada neste momento
+    medicoNome: usuario.nome || null,
+    medicoCrm: usuario.crm || null,
+  });
+}
+
+// ─────────────────────────────────────────────
 // Ações dos botões de resultado
 // ─────────────────────────────────────────────
 
-function acaoEncaminhar() {
-  alert(
-    "✅ Paciente encaminhado para teste molecular FMR1.\nRegistre a solicitação no sistema.",
-  );
+async function registrarTriagem(recomendacaoEncaminhamento) {
+  if (!PACIENTE_ID) return null;
+
+  try {
+    const token = localStorage.getItem("aura_token");
+    const res = await fetch("/api/triagens/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        paciente_id: PACIENTE_ID,
+        score_total: Math.round(ultimoScore * 100),
+        recomendacao_encaminhamento: recomendacaoEncaminhamento,
+        sintomas: sintomasMarcados(),
+      }),
+    });
+    if (!res.ok) return null;
+    const criada = await res.json();
+    return criada.id || null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
-function acaoMonitoramento() {
+// Atualiza a conduta da avaliação registrada no cálculo do score.
+// Se por algum motivo ela não existir, registra uma nova.
+async function definirConduta(recomendacaoEncaminhamento) {
+  if (!ultimaTriagemId) {
+    ultimaTriagemId = await registrarTriagem(recomendacaoEncaminhamento);
+    return ultimaTriagemId !== null;
+  }
+
+  try {
+    const token = localStorage.getItem("aura_token");
+    const res = await fetch(`/api/triagens/${ultimaTriagemId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        recomendacao_encaminhamento: recomendacaoEncaminhamento,
+      }),
+    });
+    return res.ok;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+function irParaPaciente() {
+  window.location.href = PACIENTE_ID
+    ? `paciente.html?id=${PACIENTE_ID}`
+    : "dashboardMedico.html";
+}
+
+async function acaoEncaminhar() {
+  const ok = await definirConduta(true);
   alert(
-    "📋 Paciente colocado em monitoramento/espera.\nAcompanhe a evolução clínica.",
+    ok
+      ? "✅ Paciente encaminhado para teste molecular FMR1.\nConduta registrada na avaliação."
+      : "✅ Encaminhamento indicado.\n⚠️ Não foi possível registrar a conduta no sistema.",
   );
+  irParaPaciente();
+}
+
+async function acaoMonitoramento() {
+  const ok = await definirConduta(false);
+  alert(
+    ok
+      ? "📋 Paciente colocado em monitoramento/espera.\nConduta registrada na avaliação."
+      : "📋 Monitoramento indicado.\n⚠️ Não foi possível registrar a conduta no sistema.",
+  );
+  irParaPaciente();
 }
 
 function voltarFormulario() {

@@ -7,12 +7,28 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth
+from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth, admins
 
 # --- Configuração do Banco de Dados ---
 from database.db import engine, Base
 from models.admin import AdminModel # Importa o modelo para o SQLAlchemy conhecê-lo
 Base.metadata.create_all(bind=engine) # Cria a tabela admin_sistema automaticamente se não existir
+
+# Mini-migração: create_all não altera tabelas existentes, então garante a
+# coluna 'sintomas' em avaliacao (snapshot dos sintomas, usado no relatório PDF)
+from sqlalchemy import text
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE avaliacao ADD COLUMN IF NOT EXISTS sintomas TEXT"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS sintomas JSONB"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS nome_mae VARCHAR(150)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS nome_pai VARCHAR(150)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS cidade VARCHAR(100)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS estado VARCHAR(2)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS pais VARCHAR(100)"))
+        conn.execute(text("ALTER TABLE responsavel ADD COLUMN IF NOT EXISTS cpf VARCHAR(14)"))
+except Exception as e:
+    print(f"[AVISO] Não foi possível garantir as colunas extras (sintomas/ficha): {e}")
 
 # Inicialização do Aplicativo
 app = FastAPI(
@@ -38,8 +54,8 @@ app.include_router(logs.router, prefix="/api/logs", tags=["Logs"])
 app.include_router(dashboard.router)
 app.include_router(triagens.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(admins.router, prefix="/api/admins", tags=["Administradores"])
 
 # Servir arquivos estáticos
-# Servir arquivos estáticos
-app.mount("/core", StaticFiles(directory="core"), name="core")  # ← adiciona essa
+app.mount("/core", StaticFiles(directory="core"), name="core")
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

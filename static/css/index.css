@@ -1,85 +1,394 @@
-/* ---------- index.css ---------- */
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap");
+/* ===========================================================
+   index.css — Landing page da plataforma AURA
+   =========================================================== */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
 
 body {
-  font-family: "DM Sans", sans-serif;
-  background-image: url("/static/image/BackX.jpeg");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  font-family: "DM Sans", system-ui, sans-serif;
   color: var(--text);
-  min-height: 100vh;
   margin: 0;
-  padding: 20px;
-}
-
-#app {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background:
+    radial-gradient(1100px 600px at 85% -10%, #d6ecfb 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #e3f2fc 0%, transparent 55%),
+    linear-gradient(180deg, #f3f9fe 0%, #eaf5fc 100%);
+  overflow-x: hidden;
+}
+
+/* ---------- formas decorativas ---------- */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+
+.blob-1 {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  right: -80px;
+  background: radial-gradient(circle, #9fd0f0, transparent 70%);
+}
+
+.blob-2 {
+  width: 360px;
+  height: 360px;
+  bottom: -120px;
+  left: -100px;
+  background: radial-gradient(circle, #bfe0f5, transparent 70%);
+}
+
+.blob-3 {
+  width: 280px;
+  height: 280px;
+  top: 40%;
+  left: 55%;
+  background: radial-gradient(circle, #d4c8f5, transparent 70%);
+  opacity: 0.35;
+}
+
+/* ---------- header ---------- */
+.landing-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px clamp(20px, 5vw, 64px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-mid));
+  display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 8px 20px rgba(26, 111, 181, 0.32);
 }
 
-#text {
-  position: relative;
-  text-align: center;
-  font-size: 1rem;
-  margin-top: 11%;
-  height: 500px;
-  width: 600px;
+.logo-mark svg {
+  width: 26px;
+  height: 26px;
 }
 
-.title {
-  font-family: "Playfair Display", serif; /* mesma fonte do logo */
-  font-size: 2.5rem;
+.brand-name {
+  font-family: "Playfair Display", serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.institute-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--primary);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+
+.institute-link:hover {
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(26, 111, 181, 0.16);
+  transform: translateY(-1px);
+}
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  padding: clamp(24px, 5vw, 56px) clamp(20px, 5vw, 64px);
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 6px 14px;
+  border-radius: 999px;
   margin-bottom: 20px;
-  letter-spacing: 0.02em;
 }
 
-.description {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  color: var(--text-muted);
-}
-
-.description span {
-  color: var(--primary); /* remove o style inline do HTML */
-}
-
-.paragraph {
-  margin-top: 10%;
-  line-height: 1.6;
-  text-align: justify;
+.hero-title {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 0 18px;
   color: var(--text);
-  font-size: 0.95rem;
 }
 
-.paragraph p + p {
-  margin-top: 1rem;
+.hero-title .accent {
+  background: linear-gradient(120deg, var(--primary), var(--primary-mid));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.buttons {
+.hero-sub {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  max-width: 540px;
+  margin: 0 0 30px;
+}
+
+.hero-sub strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* ---------- botões ---------- */
+.hero-cta {
   display: flex;
-  justify-content: flex-start;
-  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 30px;
 }
 
-.button {
-  padding: 10px 24px;
-  font-family: "DM Sans", sans-serif;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
-  color: #fff;
-  background-color: var(--primary);
-  border: none;
-  border-radius: var(--radius-sm);
+  font-weight: 600;
+  padding: 13px 26px;
+  border-radius: 12px;
+  text-decoration: none;
   cursor: pointer;
-  box-shadow: var(--shadow-btn);
-  transition: background-color var(--transition);
+  border: 1.5px solid transparent;
+  transition: all var(--transition);
 }
 
-.button:hover {
-  background-color: var(--primary-hover);
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-mid));
+  color: #fff;
+  box-shadow: var(--shadow-btn);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(26, 111, 181, 0.42);
+}
+
+.btn-primary svg {
+  transition: transform var(--transition);
+}
+
+.btn-primary:hover svg {
+  transform: translateX(3px);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--primary);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  background: #fff;
+  border-color: var(--primary-mid);
+}
+
+/* ---------- linha de confiança ---------- */
+.trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.trust-row li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.trust-row .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(42, 157, 92, 0.18);
+}
+
+/* ---------- cartões de recursos ---------- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: 0 14px 40px rgba(26, 111, 181, 0.12);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 50px rgba(26, 111, 181, 0.2);
+}
+
+.feature-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.feature-icon svg {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
+.icon-blue { background: linear-gradient(135deg, #1a6fb5, #3a9bd5); }
+.icon-teal { background: linear-gradient(135deg, #109a8a, #36c2b0); }
+.icon-purple { background: linear-gradient(135deg, #6d5bd0, #9b8cf0); }
+.icon-amber { background: linear-gradient(135deg, #e09b1a, #f3bd55); }
+
+.feature-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+
+.feature-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ---------- rodapé ---------- */
+.landing-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 20px clamp(20px, 5vw, 64px);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.footer-tag {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* ---------- responsivo ---------- */
+@media (max-width: 880px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-cta,
+  .trust-row {
+    justify-content: center;
+  }
+
+  .feature-grid {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .landing-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-name {
+    font-size: 1.4rem;
+  }
+
+  .institute-link {
+    font-size: 0.82rem;
+  }
+
+  .landing-footer {
+    justify-content: center;
+    text-align: center;
+  }
 }
