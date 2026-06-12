@@ -20,7 +20,7 @@ router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Medico, status_code=status.HTTP_201_CREATED)
 async def cadastrar_medico(medico_in: MedicoCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
 
@@ -34,7 +34,7 @@ async def listar_medicos(db: Session = Depends(get_db)):
 
 @router.put("/{id}", response_model=Medico)
 async def atualizar_medico(id: int, medico_in: MedicoUpdate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
     medico_atualizado = await medico_service.atualizar_medico(db, id, medico_in, ator=ator)
@@ -51,7 +51,7 @@ async def resetar_senha_medico(id_medico: int, db: Session = Depends(get_db)):
 
 @router.delete("/{id_medico}", response_model=Medico)
 async def inativar_medico(id_medico: int, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
     medico_inativado = await medico_service.inativar_medico(db, id_medico, ator=ator)
@@ -66,7 +66,7 @@ async def inativar_medico(id_medico: int, db: Session = Depends(get_db), usuario
 
 @router.patch("/{id_medico}/reativar", response_model=Medico)
 async def reativar_medico(id_medico: int, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email).first()
+    ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email["email"]).first()
     if not ator:
         raise HTTPException(status_code=403, detail="Usuário ator não encontrado para auditoria.")
     medico_reativado = await medico_service.reativar_medico(db, id_medico, ator=ator)

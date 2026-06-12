@@ -7,12 +7,19 @@ from models.medico import MedicoModel
 from models.admin import AdminModel as AdminModelType
 from core.audit import registrar_auditoria
 from core.security import gerar_hash_senha
+from services import grupo_service
 
 async def listar_medicos(db: Session):
     return db.query(MedicoModel).all()
 
 @registrar_auditoria(entidade="Médico", acao="Criação")
 async def criar_medico(db: Session, medico_in: MedicoCreate, *, ator: AdminModelType):
+    # Define a instituição do médico (padrão, se não informada)
+    instituicao_id = medico_in.instituicao_id
+    if instituicao_id is None:
+        instituicao = await grupo_service.obter_instituicao_padrao(db)
+        instituicao_id = instituicao.id
+
     novo_medico = MedicoModel(
         nome=medico_in.nome,
         email=medico_in.email,
@@ -22,7 +29,8 @@ async def criar_medico(db: Session, medico_in: MedicoCreate, *, ator: AdminModel
         cidade=medico_in.cidade,
         uf=medico_in.uf,
         senha_hash=gerar_hash_senha(medico_in.senha),
-        data_nascimento=medico_in.data_nascimento
+        data_nascimento=medico_in.data_nascimento,
+        instituicao_id=instituicao_id
     )
     db.add(novo_medico)
     db.commit()

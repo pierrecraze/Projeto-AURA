@@ -13,9 +13,11 @@ class MedicoBase(BaseModel):
     uf: Optional[str] = Field(None, max_length=2, description="UF deve conter no máximo 2 caracteres.")
     data_nascimento: date
 
-# Usado para RECEBER dados (POST) 
+# Usado para RECEBER dados (POST)
 class MedicoCreate(MedicoBase):
     senha: str
+    # Instituição do médico — se omitida, entra na instituição padrão
+    instituicao_id: Optional[int] = None
 
 # Usado para ATUALIZAR dados (PUT) - Não exige a senha
 class MedicoUpdate(MedicoBase):
@@ -24,6 +26,7 @@ class MedicoUpdate(MedicoBase):
 # Usado para DEVOLVER dados (Tem o ID do banco) e omite a senha
 class Medico(MedicoBase):
     id: int
+    instituicao_id: Optional[int] = None
     tentativas_login: int
     bloqueado_ate: Optional[datetime] = None
     deletado_em: Optional[datetime] = None

@@ -21,14 +21,19 @@ router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Paciente, status_code=status.HTTP_201_CREATED)
 async def cadastrar_paciente(paciente_in: PacienteCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email).first()
+    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email["email"]).first()
     if not medico:
         raise HTTPException(status_code=403, detail="Apenas profissionais de saúde podem cadastrar pacientes.")
 
-    instituicao = await grupo_service.obter_instituicao_padrao(db)
+    # O paciente entra na instituição do médico (compartilhado com os colegas).
+    # Fallback para a instituição padrão se o médico ainda não tiver uma.
+    if medico.instituicao_id is None:
+        instituicao = await grupo_service.obter_instituicao_padrao(db)
+        medico.instituicao_id = instituicao.id
+        db.commit()
 
     novo_paciente = await paciente_service.criar_paciente(
-        db, paciente_in, instituicao_id=instituicao.id, cadastrado_por_id=medico.id, ator=medico
+        db, paciente_in, instituicao_id=medico.instituicao_id, cadastrado_por_id=medico.id, ator=medico
     )
     return novo_paciente
 
@@ -38,15 +43,23 @@ async def listar_pacientes(
     usuario_logado: dict = Depends(obter_usuario_atual)
 ):
     role = usuario_logado.get("role")
-    medico_id = usuario_logado.get("id")
 
-    # Admin vê todos; médico vê só os seus
+    # Admin vê todos os pacientes
     if role == "admin":
-        pacientes = await paciente_service.listar_pacientes(db, medico_id=None)
-    else:
-        pacientes = await paciente_service.listar_pacientes(db, medico_id=medico_id)
+        return await paciente_service.listar_pacientes(db, instituicao_id=None)
 
-    return pacientes
+    # Médico vê os pacientes da SUA instituição (compartilhados entre colegas)
+    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado.get("email")).first()
+    if not medico:
+        raise HTTPException(status_code=403, detail="Usuário não é um profissional de saúde válido.")
+
+    # Garantia para médicos antigos ainda sem instituição: entra na padrão
+    if medico.instituicao_id is None:
+        instituicao = await grupo_service.obter_instituicao_padrao(db)
+        medico.instituicao_id = instituicao.id
+        db.commit()
+
+    return await paciente_service.listar_pacientes(db, instituicao_id=medico.instituicao_id)
 
 @router.get("/{id_paciente}", response_model=Paciente)
 async def obter_paciente(id_paciente: UUID, db: Session = Depends(get_db)):
@@ -59,7 +72,7 @@ async def obter_paciente(id_paciente: UUID, db: Session = Depends(get_db)):
 
 @router.put("/{id_paciente}", response_model=Paciente)
 async def atualizar_paciente(id_paciente: UUID, paciente_in: PacienteCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email).first()
+    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email["email"]).first()
     paciente_atualizado = await paciente_service.atualizar_paciente(db, str(id_paciente), paciente_in, ator=medico)
     if paciente_atualizado:
         paciente_atualizado.responsaveis = paciente_service.listar_responsaveis(db, paciente_atualizado.id)

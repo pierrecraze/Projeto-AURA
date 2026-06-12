@@ -27,6 +27,13 @@ try:
         conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS estado VARCHAR(2)"))
         conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS pais VARCHAR(100)"))
         conn.execute(text("ALTER TABLE responsavel ADD COLUMN IF NOT EXISTS cpf VARCHAR(14)"))
+        # Médico pertence a uma instituição; pacientes são compartilhados na instituição
+        conn.execute(text("ALTER TABLE profissional_saude ADD COLUMN IF NOT EXISTS instituicao_id INTEGER REFERENCES instituicao(id)"))
+        # Backfill: médicos sem instituição entram na instituição padrão (a primeira)
+        conn.execute(text(
+            "UPDATE profissional_saude SET instituicao_id = (SELECT MIN(id) FROM instituicao) "
+            "WHERE instituicao_id IS NULL AND EXISTS (SELECT 1 FROM instituicao)"
+        ))
 except Exception as e:
     print(f"[AVISO] Não foi possível garantir as colunas extras (sintomas/ficha): {e}")
 
