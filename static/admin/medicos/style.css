@@ -470,3 +470,9 @@ tr:hover td { background: #FAFBFF !important; }
   table { display: block; overflow-x: auto; white-space: nowrap; width: 100%; border-collapse: collapse; }
   .table-container { overflow-x: auto; }
 }
+
+@media (max-width: 768px) {
+  #modalExportOverlay > div, .modal-overlay > div { width: 100% !important; max-width: 100% !important; margin: 10px !important; max-height: 90vh; overflow-y: auto; }
+  .export-format-card { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .export-live-preview { font-size: 10px !important; padding: 10px !important; }
+}

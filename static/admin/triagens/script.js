@@ -1,6 +1,6 @@
 const API_URL = "/api";
 	async function init() {
-    lucide.createIcons();
+    
     const token = localStorage.getItem('aura_token');
     const opts = { headers: { 'Authorization': `Bearer ${token}` } };
     
@@ -33,7 +33,7 @@ const API_URL = "/api";
             tr.innerHTML = `
                 <td>${new Date(t.data_hora).toLocaleString('pt-BR')}</td>
                 <td>${med.nome}</td>
-                <td>${pac.nome_completo}</td>
+                <td>${pac.nome}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -52,4 +52,7 @@ if(toggleBtn) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    init();
+});
