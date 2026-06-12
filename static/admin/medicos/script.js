@@ -666,10 +666,25 @@ window.saveMedico = async function() {
     const cidade = document.getElementById("medico-cidade").value.trim();
     const uf = document.getElementById("medico-uf").value.toUpperCase().trim();
     const dataNascimento = document.getElementById("medico-data-nascimento").value;
+    const inputDataNascimento = document.getElementById("medico-data-nascimento");
 
     if (!nome || !email || !cpf || !dataNascimento) {
         showToast("Preencha todos os campos obrigatórios básicos.", "error");
         return;
+    }
+
+    if (dataNascimento) {
+        const dataEscolhida = new Date(dataNascimento + "T00:00:00");
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        
+        if (dataEscolhida > hoje || dataEscolhida.getFullYear() < 1900) {
+            showToast("Verificar data de nascimento.", "error");
+            if (inputDataNascimento) inputDataNascimento.classList.add("input-error");
+            return;
+        } else {
+            if (inputDataNascimento) inputDataNascimento.classList.remove("input-error");
+        }
     }
 
     if (!crm || crm.length < 4) {
@@ -852,6 +867,7 @@ function setupProfile() {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nomeFull = user.nome || "Admin Principal";
     const cargo = user.cargo || "Administrador";
+    const email = user.email || "admin@instituto.org";
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
@@ -865,10 +881,33 @@ function setupProfile() {
         if (el) el.textContent = iniciais;
     });
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
+
+    // Povoando e ativando o Popup de Perfil
+    const popupName = document.getElementById("popupName");
+    const popupEmail = document.getElementById("popupEmail");
+    const popupRole = document.getElementById("popupRole");
+    if (popupName) popupName.textContent = nomeFull;
+    if (popupEmail) popupEmail.textContent = email;
+    if (popupRole) popupRole.textContent = cargo;
+
+    const profileCard = document.getElementById("profileCard");
+    const profilePopup = document.getElementById("profilePopup");
+    if (profileCard && profilePopup) {
+        profileCard.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profilePopup.classList.toggle("show");
+            lucide.createIcons();
+        });
+        document.addEventListener("click", (e) => {
+            if (!profilePopup.contains(e.target)) {
+                profilePopup.classList.remove("show");
+            }
+        });
+    }
 }
 
 // Logout
-const btnLogout = document.querySelector('.logout');
+const btnLogout = document.getElementById('popupLogout');
 if (btnLogout) {
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('aura_token');
@@ -954,6 +993,8 @@ function setupExportModal() {
 function setupMascarasMedicos() {
     const inputCpf = document.getElementById("medico-cpf");
     const inputTelefone = document.getElementById("medico-telefone");
+    const inputCrm = document.getElementById("medico-crm");
+    const inputDataNascimento = document.getElementById("medico-data-nascimento");
 
     if(inputCpf) {
         inputCpf.addEventListener("input", (e) => {
@@ -973,6 +1014,34 @@ function setupMascarasMedicos() {
             v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
             v = v.replace(/(\d{4,5})(\d{4})$/, "$1-$2");
             e.target.value = v;
+        });
+    }
+
+    if(inputCrm) {
+        inputCrm.addEventListener("input", (e) => {
+            let v = e.target.value.replace(/\D/g, ""); // Apenas números
+            if (v.length > 10) v = v.substring(0, 10);
+            e.target.value = v;
+        });
+    }
+
+    if(inputDataNascimento) {
+        inputDataNascimento.addEventListener("change", (e) => {
+            const val = e.target.value;
+            if (val) {
+                const dataEscolhida = new Date(val + "T00:00:00");
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
+                if (dataEscolhida > hoje || dataEscolhida.getFullYear() < 1900) {
+                    showToast("Verificar data de nascimento.", "error");
+                    e.target.classList.add("input-error");
+                } else {
+                    e.target.classList.remove("input-error");
+                }
+            } else {
+                e.target.classList.remove("input-error");
+            }
         });
     }
 }

@@ -29,13 +29,29 @@
         <button class="nav-item" onclick="window.location.href='../convenios/index.html'"><i data-lucide="building-2"></i><span class="nav-label"> Gestão de Convênios</span></button>
         <button class="nav-item" onclick="window.location.href='../medicos/index.html'"><i data-lucide="stethoscope"></i><span class="nav-label"> Médicos</span></button>
         <button class="nav-item" onclick="window.location.href='../pacientes/index.html'"><i data-lucide="users"></i><span class="nav-label"> Pacientes</span></button>
+        <button class="nav-item" onclick="window.location.href='../triagens/index.html'"><i data-lucide="clipboard-list"></i><span class="nav-label"> Triagens</span></button>
         <p class="nav-title" style="margin-top: 14px;">Sistema</p>
-        <button class="nav-item" onclick="window.location.href='../usuarios/index.html'"><i data-lucide="user-cog"></i><span class="nav-label"> Usuários</span></button>
+        <button class="nav-item" onclick="window.location.href='../usuarios/index.html'"><i data-lucide="user-cog"></i><span class="nav-label"> Administradores</span></button>
         <button class="nav-item" onclick="window.location.href='../logs/index.html'"><i data-lucide="shield-check"></i><span class="nav-label"> Auditoria de Logs</span></button>
         <button class="nav-item active"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
       </nav>
       <div class="sidebar-footer">
-        <div class="profile-card">
+        <div class="profile-popup" id="profilePopup">
+          <div class="popup-header">
+            <p class="popup-name" id="popupName">Admin Principal</p>
+            <p class="popup-email" id="popupEmail">admin@instituto.org</p>
+            <p class="popup-role" id="popupRole">Administrador</p>
+          </div>
+          <div class="popup-body">
+            <button class="popup-item" onclick="window.location.href='../configuracoes/index.html'">
+              <i data-lucide="user-cog"></i> Gerenciar Perfil
+            </button>
+            <button class="popup-item popup-logout" id="popupLogout">
+              <i data-lucide="log-out"></i> Sair da conta
+            </button>
+          </div>
+        </div>
+        <div class="profile-card" id="profileCard">
           <div class="profile-avatar" id="profileAvatar">AD</div>
           <div class="profile-info">
             <p class="profile-name" id="profileName">Admin Principal</p>
@@ -43,7 +59,6 @@
           </div>
           <i data-lucide="more-vertical" class="profile-more"></i>
         </div>
-        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
       </div>
     </aside>
 
