@@ -440,6 +440,7 @@ function setupProfile() {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nomeFull = user.nome || "Admin Principal";
     const cargo = user.cargo || "Administrador";
+    const email = user.email || "admin@instituto.org";
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
@@ -454,7 +455,30 @@ function setupProfile() {
     });
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
     
-    const btnLogout = document.querySelector('.logout');
+    // Povoando e ativando o Popup de Perfil
+    const popupName = document.getElementById("popupName");
+    const popupEmail = document.getElementById("popupEmail");
+    const popupRole = document.getElementById("popupRole");
+    if (popupName) popupName.textContent = nomeFull;
+    if (popupEmail) popupEmail.textContent = email;
+    if (popupRole) popupRole.textContent = cargo;
+
+    const profileCard = document.getElementById("profileCard");
+    const profilePopup = document.getElementById("profilePopup");
+    if (profileCard && profilePopup) {
+        profileCard.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profilePopup.classList.toggle("show");
+            lucide.createIcons();
+        });
+        document.addEventListener("click", (e) => {
+            if (!profilePopup.contains(e.target)) {
+                profilePopup.classList.remove("show");
+            }
+        });
+    }
+
+    const btnLogout = document.getElementById('popupLogout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
             localStorage.removeItem('aura_token');

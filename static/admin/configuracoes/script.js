@@ -27,15 +27,6 @@ function setupSidebar() {
             lucide.createIcons();
         });
     }
-
-    const btnLogout = document.querySelector('.logout');
-    if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
-            localStorage.removeItem('aura_token');
-            localStorage.removeItem('aura_user');
-            window.location.replace('/login.html');
-        });
-    }
 }
 
 function loadProfileData() {
@@ -84,6 +75,38 @@ function loadProfileData() {
         iCargo.disabled = !user.is_superadmin;
     }
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
+
+    // Povoando e ativando o Popup de Perfil
+    const popupName = document.getElementById("popupName");
+    const popupEmail = document.getElementById("popupEmail");
+    const popupRole = document.getElementById("popupRole");
+    if (popupName) popupName.textContent = nomeFull;
+    if (popupEmail) popupEmail.textContent = email;
+    if (popupRole) popupRole.textContent = cargo;
+
+    const profileCard = document.getElementById("profileCard");
+    const profilePopup = document.getElementById("profilePopup");
+    if (profileCard && profilePopup) {
+        profileCard.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profilePopup.classList.toggle("show");
+            lucide.createIcons();
+        });
+        document.addEventListener("click", (e) => {
+            if (!profilePopup.contains(e.target)) {
+                profilePopup.classList.remove("show");
+            }
+        });
+    }
+
+    const btnLogout = document.getElementById('popupLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('aura_token');
+            localStorage.removeItem('aura_user');
+            window.location.replace('/login.html');
+        });
+    }
 }
 
 function setupTabs() {

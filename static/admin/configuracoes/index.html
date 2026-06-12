@@ -35,7 +35,22 @@
         <button class="nav-item active"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
       </nav>
       <div class="sidebar-footer">
-        <div class="profile-card">
+        <div class="profile-popup" id="profilePopup">
+          <div class="popup-header">
+            <p class="popup-name" id="popupName">Admin Principal</p>
+            <p class="popup-email" id="popupEmail">admin@instituto.org</p>
+            <p class="popup-role" id="popupRole">Administrador</p>
+          </div>
+          <div class="popup-body">
+            <button class="popup-item" onclick="window.location.href='../configuracoes/index.html'">
+              <i data-lucide="user-cog"></i> Gerenciar Perfil
+            </button>
+            <button class="popup-item popup-logout" id="popupLogout">
+              <i data-lucide="log-out"></i> Sair da conta
+            </button>
+          </div>
+        </div>
+        <div class="profile-card" id="profileCard">
           <div class="profile-avatar" id="profileAvatar">AD</div>
           <div class="profile-info">
             <p class="profile-name" id="profileName">Admin Principal</p>
@@ -43,7 +58,6 @@
           </div>
           <i data-lucide="more-vertical" class="profile-more"></i>
         </div>
-        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
       </div>
     </aside>
 

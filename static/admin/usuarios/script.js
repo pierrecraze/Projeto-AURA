@@ -530,8 +530,48 @@ async function carregarLogsUsuario(adminId) {
 
 // --- Utilitários Globais ---
 function setupDate() { const d = document.getElementById("current-date"); if(d) d.textContent = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" }); }
-function setupSidebar() { const b = document.getElementById("sidebarToggle"), s = document.getElementById("sidebar"), i = document.getElementById("toggleIcon"); if(b) b.addEventListener("click", () => { s.classList.toggle("collapsed"); if(i) { i.setAttribute("data-lucide", s.classList.contains("collapsed") ? "panel-left-open" : "menu"); lucide.createIcons(); } }); const l = document.querySelector('.logout'); if(l) l.addEventListener('click', () => { localStorage.removeItem('aura_token'); localStorage.removeItem('aura_user'); window.location.replace('/login.html'); }); }
-function setupProfile() { const u = JSON.parse(localStorage.getItem("aura_user") || "{}"), n = u.nome || "Admin Principal", c = u.cargo || "Administrador", i = n.split(" ").slice(0, 2).map(x => x[0]).join("").toUpperCase() || "AD"; ["profileName", "topbarName"].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = n; }); ["profileAvatar", "topbarAvatar"].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = i; }); document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${c} · IBK`); }
+function setupSidebar() { const b = document.getElementById("sidebarToggle"), s = document.getElementById("sidebar"), i = document.getElementById("toggleIcon"); if(b) b.addEventListener("click", () => { s.classList.toggle("collapsed"); if(i) { i.setAttribute("data-lucide", s.classList.contains("collapsed") ? "panel-left-open" : "menu"); lucide.createIcons(); } }); }
+function setupProfile() { 
+  const u = JSON.parse(localStorage.getItem("aura_user") || "{}");
+  const n = u.nome || "Admin Principal";
+  const c = u.cargo || "Administrador";
+  const email = u.email || "admin@instituto.org";
+  const iniciais = n.split(" ").slice(0, 2).map(x => x[0]).join("").toUpperCase() || "AD"; 
+  ["profileName", "topbarName"].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = n; }); 
+  ["profileAvatar", "topbarAvatar"].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = iniciais; }); 
+  document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${c} · IBK`); 
+  
+  const popupName = document.getElementById("popupName");
+  const popupEmail = document.getElementById("popupEmail");
+  const popupRole = document.getElementById("popupRole");
+  if (popupName) popupName.textContent = n;
+  if (popupEmail) popupEmail.textContent = email;
+  if (popupRole) popupRole.textContent = c;
+  
+  const profileCard = document.getElementById("profileCard");
+  const profilePopup = document.getElementById("profilePopup");
+  if (profileCard && profilePopup) {
+      profileCard.addEventListener("click", (e) => {
+          e.stopPropagation();
+          profilePopup.classList.toggle("show");
+          lucide.createIcons();
+      });
+      document.addEventListener("click", (e) => {
+          if (!profilePopup.contains(e.target)) {
+              profilePopup.classList.remove("show");
+          }
+      });
+  }
+  
+  const btnLogout = document.getElementById('popupLogout');
+  if (btnLogout) {
+      btnLogout.addEventListener('click', () => {
+          localStorage.removeItem('aura_token');
+          localStorage.removeItem('aura_user');
+          window.location.replace('/login.html');
+      });
+  }
+}
 function showToast(m, t = "success") { const ts = document.getElementById("toast"), ms = document.getElementById("toast-msg"), ic = document.getElementById("toast-icon"); ts.className = `toast ${t}`; ms.textContent = m; ic.setAttribute("data-lucide", t === "success" ? "check-circle" : "alert-circle"); ts.style.display = "flex"; ts.classList.remove("hidden"); lucide.createIcons(); setTimeout(() => { ts.classList.add("hidden"); ts.style.display = "none"; }, 3500); }
 
 function setupNotificacoes() {
