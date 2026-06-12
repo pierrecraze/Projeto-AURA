@@ -29,14 +29,6 @@ let pacientes = [];
 let medicos = [];
 let grupos = [];
 
-const notificacoes = [
-  { id: 1, tipo: "alert", icon: "alert-triangle", bg: "#FEF9EC", cor: "#D97706", texto: "Backup automático com atenção — verificar logs", time: "Há 30 min", lida: false },
-  { id: 2, tipo: "info",  icon: "user-plus",      bg: "#EFF6FF", cor: "#1D4ED8", texto: "22 novos pacientes registrados este mês",          time: "Há 2h",    lida: false },
-  { id: 3, tipo: "success",icon:"check-circle",   bg: "#ECFDF5", cor: "#059669", texto: "Log de auditoria sincronizado com sucesso",        time: "Há 3h",    lida: false },
-  { id: 4, tipo: "alert", icon: "shield-alert",   bg: "#FEF2F2", cor: "#DC2626", texto: "Tentativa de acesso bloqueada — IP 192.168.4.22",  time: "Há 5h",    lida: true  },
-  { id: 5, tipo: "info",  icon: "building-2",     bg: "#EFF6FF", cor: "#1D4ED8", texto: "Grupo SulAmérica Premium configurado",             time: "Ontem",    lida: true  },
-];
-
 // ---------- ESTADO ----------
 let estadoFiltro = { busca: "", status: "", convenio: "", kpi: "Todos" };
 let paginaAtual = 1;
@@ -122,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupDate();
   setupSidebar();
   setupProfile();
-  setupNotificacoes();
   setupFiltros();
   setupViewToggle();
   setupModal();
@@ -169,69 +160,6 @@ function setupProfile() {
     localStorage.removeItem("aura_token");
     localStorage.removeItem("aura_user");
     window.location.replace("/login.html");
-  });
-}
-
-// ---------- NOTIFICAÇÕES ----------
-function setupNotificacoes() {
-  const btn = document.getElementById("notifBtn");
-  const panel = document.getElementById("notifPanel");
-  const backdrop = document.getElementById("notifBackdrop");
-  const markAll = document.getElementById("markAllRead");
-  const dot = document.getElementById("notifDot");
-  const list = document.getElementById("notifList");
-
-  function temNaoLidas() { return notificacoes.some(n => !n.lida); }
-
-  function renderDot() {
-    if (dot) dot.style.display = temNaoLidas() ? "block" : "none";
-  }
-
-  function renderNotificacoes() {
-    list.innerHTML = "";
-    notificacoes.forEach(n => {
-      const item = document.createElement("div");
-      item.className = "notif-item" + (n.lida ? "" : " unread");
-      item.innerHTML = `
-        <div class="notif-item-icon" style="background:${n.bg}">
-          <i data-lucide="${n.icon}" style="color:${n.cor}"></i>
-        </div>
-        <div class="notif-item-body">
-          <p class="notif-item-text">${n.texto}</p>
-          <p class="notif-item-time">${n.time}</p>
-        </div>
-        ${!n.lida ? '<span class="notif-unread-dot"></span>' : ''}
-      `;
-      item.addEventListener("click", () => {
-        n.lida = true;
-        renderNotificacoes();
-        renderDot();
-        lucide.createIcons();
-      });
-      list.appendChild(item);
-    });
-    lucide.createIcons();
-  }
-
-  renderDot();
-  renderNotificacoes();
-
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isOpen = panel.classList.contains("open");
-    panel.classList.toggle("open", !isOpen);
-    backdrop.classList.toggle("open", !isOpen);
-  });
-
-  backdrop.addEventListener("click", () => {
-    panel.classList.remove("open");
-    backdrop.classList.remove("open");
-  });
-
-  markAll.addEventListener("click", () => {
-    notificacoes.forEach(n => n.lida = true);
-    renderNotificacoes();
-    renderDot();
   });
 }
 

@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupDate();
     setupSidebar();
     setupProfile();
-    setupNotificacoes();
     setupCnpjMask();
     carregarConvenios();
 });
@@ -460,22 +459,6 @@ function setupProfile() {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
             window.location.replace('/login.html');
-        });
-    }
-}
-
-function setupNotificacoes() {
-    const notifBtn = document.getElementById("notifBtn");
-    const notifPanel = document.getElementById("notifPanel");
-    if (notifBtn && notifPanel) {
-        notifBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            notifPanel.classList.toggle("open");
-        });
-        document.addEventListener("click", (e) => {
-            if (!notifPanel.contains(e.target)) {
-                notifPanel.classList.remove("open");
-            }
         });
     }
 }

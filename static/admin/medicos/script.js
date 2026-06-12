@@ -145,7 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("current-date").textContent = today;
 
     setupProfile();
-    setupNotificacoes();
 
     // Busca live
     document.getElementById("search-input").addEventListener("input", e => {
@@ -830,22 +829,6 @@ function showToast(msg, type = "success") {
     
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 3500);
-}
-
-function setupNotificacoes() {
-    const notifBtn = document.getElementById("notifBtn");
-    const notifPanel = document.getElementById("notifPanel");
-    if (notifBtn && notifPanel) {
-        notifBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            notifPanel.classList.toggle("open");
-        });
-        document.addEventListener("click", (e) => {
-            if (!notifPanel.contains(e.target)) {
-                notifPanel.classList.remove("open");
-            }
-        });
-    }
 }
 
 function setupProfile() {
