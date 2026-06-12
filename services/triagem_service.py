@@ -10,6 +10,15 @@ async def listar_triagens(db: Session):
 async def obter_triagem(db: Session, triagem_id):
     return db.query(AvaliacaoModel).filter(AvaliacaoModel.id == triagem_id).first()
 
+async def excluir_triagem(db: Session, triagem_id):
+    """Remove definitivamente uma avaliação registrada."""
+    avaliacao = db.query(AvaliacaoModel).filter(AvaliacaoModel.id == triagem_id).first()
+    if avaliacao:
+        db.delete(avaliacao)
+        db.commit()
+        return True
+    return False
+
 async def atualizar_conduta(db: Session, triagem_id, recomendacao_encaminhamento: bool):
     """Atualiza a conduta (encaminhamento/monitoramento) de uma avaliação já registrada."""
     avaliacao = db.query(AvaliacaoModel).filter(AvaliacaoModel.id == triagem_id).first()

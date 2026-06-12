@@ -92,8 +92,10 @@ function _fmtHoraBR(d) {
  * @param {boolean|null}  [dados.conduta]           true = encaminhado p/ FMR1, false = monitoramento, null = não registrada
  * @param {string|null}   [dados.medicoNome]        Nome do profissional responsável
  * @param {string|null}   [dados.medicoCrm]         CRM do profissional responsável
+ * @param {Window|null}   [janela]  Janela já aberta no clique (evita bloqueio de pop-up
+ *                                  quando a geração ocorre após um await). Opcional.
  */
-function gerarRelatorioPDF(dados) {
+function gerarRelatorioPDF(dados, janela) {
   const { categoria, indicacao, classe } = classificarScorePct(dados.scorePct);
 
   const cores = { alto: "#c0392b", medio: "#b9770b", baixo: "#1e8449" };
@@ -275,11 +277,13 @@ function gerarRelatorioPDF(dados) {
 </body>
 </html>`;
 
-  const win = window.open("", "_blank");
+  // Usa a janela já aberta no clique (quando fornecida) ou tenta abrir agora.
+  const win = janela || window.open("", "_blank");
   if (!win) {
     alert("Não foi possível abrir o relatório. Verifique se o navegador está bloqueando pop-ups.");
     return;
   }
+  win.document.open();
   win.document.write(html);
   win.document.close();
 }

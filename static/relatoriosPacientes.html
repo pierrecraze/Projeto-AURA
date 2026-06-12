@@ -31,6 +31,16 @@
       .score-pill--alto { background: #e74c3c; }
       .score-pill--medio { background: #f0a500; }
       .score-pill--baixo { background: #27ae60; }
+
+      /* Botão de excluir avaliação */
+      .btn-acao--danger {
+        color: #c0392b;
+        border-color: #e7b6b0;
+      }
+      .btn-acao--danger:hover {
+        background: #fdf0ee;
+        border-color: #e74c3c;
+      }
     </style>
   </head>
 
@@ -70,7 +80,7 @@
       </div>
 
       <div class="header-right">
-        <span class="header-sub">Instituto Buko Kaesemodel</span>
+        <a class="header-sub" href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" title="Visitar o site do Instituto Buko Kaesemodel" style="text-decoration:none;color:inherit;cursor:pointer;">Instituto Buko Kaesemodel</a>
         <div class="header-user">
           <div class="user-avatar" aria-hidden="true">DR</div>
           <div class="user-info">
@@ -198,8 +208,8 @@
       </div>
     </main>
 
-    <script src="/server/home.js"></script>
-    <script src="/server/relatorio.js"></script>
+    <script src="/server/home.js?v=20260612a"></script>
+    <script src="/server/relatorio.js?v=20260612a"></script>
     <script>
       const POR_PAGINA = 10;
       let paginaAtual = 1;
@@ -262,6 +272,7 @@
                   <div class="actions-cell">
                     <button class="btn-acao" onclick="event.stopPropagation(); gerarPDFAvaliacao('${r.id}')">Relatório PDF</button>
                     <button class="btn-acao" onclick="event.stopPropagation(); window.location.href='paciente.html?id=${r.paciente_id}'">Ver paciente</button>
+                    <button class="btn-acao btn-acao--danger" onclick="event.stopPropagation(); excluirAvaliacao('${r.id}', '${(r.pacienteNome || "este paciente").replace(/'/g, "\\'")}')">Excluir</button>
                   </div>
                 </td>
               </tr>`;
@@ -298,6 +309,12 @@
 
       async function gerarPDFAvaliacao(id) {
         const rel = relatorios.find((r) => r.id === id);
+
+        // Abre a janela JÁ no clique (gesto do usuário) para o navegador não
+        // bloquear o pop-up — só depois buscamos os dados e a preenchemos.
+        const janela = window.open("", "_blank");
+        if (janela) janela.document.write("<p style='font-family:sans-serif;padding:24px'>Gerando relatório…</p>");
+
         try {
           const token = localStorage.getItem('aura_token');
           const res = await fetch(`/api/triagens/${id}`, {
@@ -314,10 +331,31 @@
             conduta: det.recomendacao_encaminhamento,
             medicoNome: det.medico_nome,
             medicoCrm: det.medico_crm,
-          });
+          }, janela);
         } catch (err) {
           console.error("Erro ao gerar relatório:", err);
+          if (janela) janela.close();
           alert("Não foi possível gerar o relatório desta avaliação.");
+        }
+      }
+
+      async function excluirAvaliacao(id, nome) {
+        if (!confirm(`Excluir definitivamente a avaliação de ${nome}?\n\nEsta ação não pode ser desfeita.`)) {
+          return;
+        }
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch(`/api/triagens/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+          // Remove da lista em memória e re-renderiza
+          relatorios = relatorios.filter((r) => r.id !== id);
+          renderizar();
+        } catch (err) {
+          console.error("Erro ao excluir avaliação:", err);
+          alert("Não foi possível excluir a avaliação.");
         }
       }
 
