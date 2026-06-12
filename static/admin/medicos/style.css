@@ -350,6 +350,7 @@ tr:hover td { background: #FAFBFF !important; }
 .form-group label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; }
 .form-input { width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #D1D5DB; border-radius: 8px; outline: none; font-family: 'Inter', sans-serif; transition: border-color 0.15s, box-shadow 0.15s; }
 .form-input:focus { border-color: #93C5FD; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+.form-input.input-error { border-color: #DC2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .required { color: #EF4444; }
 .divider { height: 1px; background: var(--border); width: 100%; }
