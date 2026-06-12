@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupDate();
     setupSidebar();
     setupProfile();
-    setupNotificacoes();
     setupCnpjMask();
     carregarConvenios();
 });
@@ -442,42 +441,39 @@ function setupProfile() {
     const cargo = user.cargo || "Administrador";
     const nameParts = nomeFull.trim().split(" ");
     const nomeExibicao = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : nomeFull;
+    const primeiroNome = nameParts[0];
+    const email = user.email || "admin@admin.com";
     const iniciais = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase() : nomeFull.substring(0, 2).toUpperCase() || "AD";
 
     ["profileName", "topbarName"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = nomeExibicao;
     });
-    ["profileAvatar", "topbarAvatar"].forEach(id => {
+    ["profileAvatar", "topbarAvatar", "popoverAvatar"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = iniciais;
     });
+    const popoverEmail = document.getElementById("popoverEmail"); if (popoverEmail) popoverEmail.textContent = email;
+    const popoverGreeting = document.getElementById("popoverGreeting"); if (popoverGreeting) popoverGreeting.textContent = `Olá, ${primeiroNome}!`;
+    const popoverRole = document.getElementById("popoverRole"); if (popoverRole) popoverRole.textContent = cargo;
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
+
+    const profileCard = document.getElementById("profileCard");
+    const profilePopover = document.getElementById("userProfilePopover");
+    const popoverClose = document.getElementById("popoverClose");
+    if (profileCard && profilePopover) {
+        profileCard.addEventListener("click", (e) => { e.stopPropagation(); profilePopover.classList.toggle("show"); });
+        if (popoverClose) popoverClose.addEventListener("click", (e) => { e.stopPropagation(); profilePopover.classList.remove("show"); });
+        document.addEventListener("click", (e) => { if (!profilePopover.contains(e.target) && !profileCard.contains(e.target)) profilePopover.classList.remove("show"); });
+    }
     
-    const btnLogout = document.querySelector('.logout');
-    if (btnLogout) {
+    document.querySelectorAll('.logout').forEach(btnLogout => {
         btnLogout.addEventListener('click', () => {
             localStorage.removeItem('aura_token');
             localStorage.removeItem('aura_user');
             window.location.replace('/login.html');
         });
-    }
-}
-
-function setupNotificacoes() {
-    const notifBtn = document.getElementById("notifBtn");
-    const notifPanel = document.getElementById("notifPanel");
-    if (notifBtn && notifPanel) {
-        notifBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            notifPanel.classList.toggle("open");
-        });
-        document.addEventListener("click", (e) => {
-            if (!notifPanel.contains(e.target)) {
-                notifPanel.classList.remove("open");
-            }
-        });
-    }
+    });
 }
 
 function setupCnpjMask() {

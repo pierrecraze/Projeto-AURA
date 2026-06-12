@@ -178,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (welcomeNameEl) welcomeNameEl.innerHTML = `${firstName} <span class="welcome-wave">👋</span>`;
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
 
-    initNotifications();
     initChart();
     initConvenioChart();
     renderTopMedicos();
@@ -308,76 +307,6 @@ function renderTopMedicos() {
             </div>`;
         list.appendChild(row);
     });
-}
-
-// --- Notificações ---
-const notificacoes = [
-    { icon: "alert-triangle", iconBg: "#FEF9EC", iconColor: "#D97706", text: "Tentativa de acesso bloqueada — IP 192.168.4.22", time: "5h atrás", unread: true },
-    { icon: "user-plus",      iconBg: "#F5F3FF", iconColor: "#6D28D9", text: "Novo paciente #1451 registrado na base", time: "22 min atrás", unread: true },
-    { icon: "check-circle",   iconBg: "#F0FDF4", iconColor: "#059669", text: "Vínculos do Dr. Carlos Mendes atualizados", time: "5 min atrás", unread: true },
-    { icon: "file-edit",      iconBg: "#FFF7ED", iconColor: "#B45309", text: "Perfil do Paciente #0047 editado por Admin", time: "1h atrás", unread: false },
-    { icon: "database",       iconBg: "#ECFDF5", iconColor: "#047857", text: "Log de auditoria LGPD sincronizado com sucesso", time: "3h atrás", unread: false }
-];
-
-function initNotifications() {
-    const btn = document.getElementById("notifBtn");
-    const panel = document.getElementById("notifPanel");
-    const list = document.getElementById("notifList");
-    const markAll = document.getElementById("markAllRead");
-    if (!btn || !panel || !list) return;
-
-    function renderNotifs() {
-        list.innerHTML = "";
-        notificacoes.forEach((n, idx) => {
-            const item = document.createElement("div");
-            item.className = "notif-item" + (n.unread ? " unread" : "");
-            item.innerHTML = `
-                <div class="notif-item-icon" style="background:${n.iconBg}">
-                    <i data-lucide="${n.icon}" style="color:${n.iconColor}"></i>
-                </div>
-                <div class="notif-item-body">
-                    <p class="notif-item-text">${n.text}</p>
-                    <p class="notif-item-time">${n.time}</p>
-                </div>
-                ${n.unread ? '<span class="notif-unread-dot"></span>' : ''}`;
-            item.addEventListener("click", () => {
-                notificacoes[idx].unread = false;
-                updateDot();
-                renderNotifs();
-                lucide.createIcons();
-            });
-            list.appendChild(item);
-        });
-        lucide.createIcons();
-    }
-
-    function updateDot() {
-        const dot = btn.querySelector(".notification-dot");
-        const hasUnread = notificacoes.some(n => n.unread);
-        if (dot) dot.style.display = hasUnread ? "" : "none";
-    }
-
-    btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        panel.classList.toggle("open");
-        if (panel.classList.contains("open")) {
-            renderNotifs();
-        }
-    });
-
-    markAll.addEventListener("click", () => {
-        notificacoes.forEach(n => n.unread = false);
-        updateDot();
-        renderNotifs();
-    });
-
-    document.addEventListener("click", (e) => {
-        if (!panel.contains(e.target) && e.target !== btn) {
-            panel.classList.remove("open");
-        }
-    });
-
-    updateDot();
 }
 
 // --- Logout ---

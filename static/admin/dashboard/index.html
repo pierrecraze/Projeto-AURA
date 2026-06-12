@@ -39,7 +39,23 @@
         <button class="nav-item" onclick="window.location.href='../configuracoes/index.html'"><i data-lucide="settings"></i><span class="nav-label"> Configurações</span></button>
       </nav>
 
-      <div class="sidebar-footer">
+      <div class="sidebar-footer" style="position: relative;">
+        <div class="user-profile-popover" id="userProfilePopover">
+          <div class="popover-top-bar">
+            <span class="popover-email" id="popoverEmail">admin@admin.com</span>
+            <button class="popover-close" id="popoverClose"><i data-lucide="x"></i></button>
+          </div>
+          <div class="popover-avatar-container">
+            <div class="popover-avatar" id="popoverAvatar">AD</div>
+            <div class="popover-avatar-cam"><i data-lucide="camera"></i></div>
+          </div>
+          <p class="popover-greeting" id="popoverGreeting">Olá, Admin!</p>
+          <p class="popover-role" id="popoverRole">Administrador</p>
+          <button class="popover-edit-btn" onclick="window.location.href='../configuracoes/index.html'">Editar informações</button>
+          <div class="popover-divider"></div>
+          <button class="popover-logout-btn logout"><i data-lucide="log-out"></i> Sair da conta</button>
+        </div>
+
         <div class="profile-card" id="profileCard">
           <div class="profile-avatar" id="profileAvatar">AD</div>
           <div class="profile-info">
@@ -48,7 +64,6 @@
           </div>
           <i data-lucide="more-vertical" class="profile-more"></i>
         </div>
-        <button class="nav-item logout" style="margin-top: 6px;"><i data-lucide="log-out"></i><span class="nav-label"> Sair da conta</span></button>
       </div>
     </aside>
 
@@ -68,23 +83,6 @@
             <i data-lucide="calendar"></i>
             <span id="current-date"></span>
           </span>
-          <div class="topbar-divider"></div>
-          <div class="notif-wrapper">
-            <button class="top-action-btn" id="notifBtn" aria-label="Notificações">
-              <i data-lucide="bell"></i>
-              <span class="notification-dot"></span>
-            </button>
-            <div class="notif-panel" id="notifPanel">
-              <div class="notif-panel-header">
-                <p class="notif-panel-title">Notificações</p>
-                <button class="notif-mark-read" id="markAllRead">Marcar tudo como lido</button>
-              </div>
-              <div class="notif-list" id="notifList"></div>
-              <div class="notif-panel-footer">
-                <button class="notif-footer-btn">Ver todas as notificações →</button>
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
