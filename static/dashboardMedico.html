@@ -275,14 +275,16 @@
           </div>
           
           <div class="search-bar">
-             <select id="filtroProbabilidade" class="search-input" style="padding: 0 1rem; height: 40px; background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.875rem; color: var(--text); cursor: pointer;">
-               <option value="todos">Todos os pacientes</option>
-               <option value="mes">Adicionados este mês</option>
+             <select id="filtroPeriodo" class="search-input" style="padding: 0 1rem; height: 40px; background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.875rem; color: var(--text); cursor: pointer;">
+               <option value="todos">Todo o período</option>
+               <option value="30d">Últimos 30 dias</option>
+               <option value="mes">Este mês</option>
+               <option value="6m">Últimos 6 meses</option>
              </select>
           </div>
         </section>
 
-        <section class="metrics-grid" aria-label="Resumo Estatístico" style="grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 0.5rem;">
+        <section class="metrics-grid" aria-label="Resumo Estatístico" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
           <div class="metric-card">
             <div class="metric-icon metric-icon--teal" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -326,14 +328,40 @@
               <span class="metric-trend trend-neutral">teste FMR1 recomendado</span>
             </div>
           </div>
+
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Score Médio</span>
+              <span class="metric-value" id="statsScoreMedio">—</span>
+              <span class="metric-trend trend-neutral">das avaliações no período</span>
+            </div>
+          </div>
         </section>
 
-        <section class="panel">
-          <div class="panel-header">
-            <h2>Distribuição de Probabilidade Clínica</h2>
+        <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.25rem;">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Distribuição de Probabilidade Clínica</h2>
+            </div>
+            <div style="max-width: 380px; margin: 0 auto; padding: 1rem;">
+              <canvas id="graficoProbabilidade"></canvas>
+            </div>
           </div>
-          <div style="max-width: 400px; margin: 0 auto; padding: 1rem;">
-            <canvas id="graficoProbabilidade"></canvas>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Avaliações por Mês</h2>
+            </div>
+            <div style="padding: 1rem;">
+              <canvas id="graficoAvaliacoesMes" height="240"></canvas>
+            </div>
           </div>
         </section>
       </div>
@@ -406,8 +434,9 @@
       const activeBtn = document.getElementById('nav-' + page);
       if (activeBtn) activeBtn.classList.add('active');
 
-      // Atualiza a lista de avaliações sempre que a aba é aberta
+      // Atualiza os dados da aba sempre que ela é aberta
       if (page === 'relatorios' && window.avalCarregar) window.avalCarregar();
+      if (page === 'estatisticas' && window.statsCarregar) window.statsCarregar();
 
       window.scrollTo(0, 0);
     }
@@ -420,56 +449,14 @@
     });
   </script>
 
-  <script src="/static/server/home.js"></script>
+  <script src="server/home.js"></script>
   <script src="server/listaPaciente.js"></script>
   <script src="server/relatorio.js?v=20260612b"></script>
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      
-      let chartProbabilidade;
 
-      // Renderiza dinamicamente o gráfico conforme os scores clínicos reais
-      function renderizarGrafico(pacientes) {
-        let contagem = { baixa: 0, media: 0, alta: 0 };
-
-        pacientes.forEach(p => {
-          let score = p.score_clinico !== undefined ? Number(p.score_clinico) : 0;
-          
-          if (score >= 0.56) {
-            contagem.alta++;
-          } else if (score >= 0.40) {
-            contagem.media++;
-          } else {
-            contagem.baixa++;
-          }
-        });
-
-        const statsEncaminhamentos = document.getElementById('statsEncaminhamentos');
-        if (statsEncaminhamentos) statsEncaminhamentos.textContent = contagem.alta;
-
-        const ctx = document.getElementById('graficoProbabilidade');
-        if (!ctx) return;
-
-        if (chartProbabilidade) chartProbabilidade.destroy();
-
-        chartProbabilidade = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)'],
-            datasets: [{
-              data: [contagem.baixa, contagem.media, contagem.alta],
-              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045'],
-              borderWidth: 2,
-              borderColor: '#ffffff'
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: { legend: { position: 'bottom' } }
-          }
-        });
-      }
+      // A aba de Estatísticas é montada pelo módulo de estatísticas (statsCarregar).
 
       // -- Busca Isolada dos Pacientes Recentes (Aba Início) --
       const btnSearchHome   = document.getElementById('btnSearchHome');
@@ -501,34 +488,8 @@
 
       // A aba de Avaliações é montada pelo módulo avaliações (busca via avalFiltrar).
 
-      // -- Banner de Sessão Expirada --
-      const banner    = document.getElementById('sessionBanner');
-      const countdown = document.getElementById('sessionCountdown');
-      const btnKeep   = document.getElementById('btnKeepSession');
-      let seconds     = 120;
-      let warningTimer;
-
-      function startWarning() {
-        if(banner) banner.classList.add('visible');
-        warningTimer = setInterval(() => {
-          seconds--;
-          const m = Math.floor(seconds / 60);
-          const s = String(seconds % 60).padStart(2, '0');
-          if(countdown) countdown.textContent = `${m}:${s}`;
-          if (seconds <= 0) {
-            clearInterval(warningTimer);
-            window.location.href = '/login';
-          }
-        }, 1000);
-      }
-
-      if(btnKeep) {
-        btnKeep.addEventListener('click', () => {
-          clearInterval(warningTimer);
-          seconds = 120;
-          banner.classList.remove('visible');
-        });
-      }
+      // O banner de sessão, logout e timers de inatividade são geridos pelo home.js
+      // (RNF14/RF20) — a lógica duplicada que existia aqui foi removida.
 
       // -- Chamada Oficial à API do Back-end --
       async function carregarDadosDashboard() {
@@ -545,29 +506,6 @@
             // Sincroniza o contador do card azul com a quantidade real
             const metricTotal = document.getElementById('metricTotalPacientes');
             if (metricTotal) metricTotal.textContent = ativos.length;
-
-            // --- PROCESSAMENTO DOS CARDS DE ESTATÍSTICA ---
-            const avaliados = ativos.filter(p => p.score_clinico !== undefined && p.score_clinico !== null);
-            const statsTotalAvaliacoes = document.getElementById('statsTotalAvaliacoes');
-            if (statsTotalAvaliacoes) statsTotalAvaliacoes.textContent = avaliados.length;
-
-            const agora = new Date();
-            const anoAtual = agora.getFullYear();
-            const mesAtual = String(agora.getMonth() + 1).padStart(2, '0');
-            
-            const cadastradosEsteMes = ativos.filter(p => {
-              const dataCriacao = p.criado_em || p.criadoEm || p.data_cadastro;
-              if (!dataCriacao) return false;
-              return dataCriacao.startsWith(`${anoAtual}-${mesAtual}`);
-            });
-            
-            const statsNovosPacientes = document.getElementById('statsNovosPacientes');
-            if (statsNovosPacientes) {
-              statsNovosPacientes.textContent = cadastradosEsteMes.length || ativos.length;
-            }
-
-            // Sincroniza as fatias do gráfico clínico
-            renderizarGrafico(ativos);
 
             // Monta as linhas de Pacientes Recentes (Aba Início)
             const tbodyHome = document.getElementById('patientTableBodyHome');
@@ -636,7 +574,6 @@
       }
 
       carregarDadosDashboard();
-      setTimeout(startWarning, 5000);
     });
   </script>
 
@@ -811,6 +748,179 @@
       };
 
       document.addEventListener('DOMContentLoaded', () => window.avalCarregar());
+    })();
+  </script>
+
+  <!-- Módulo da aba Estatísticas (cards, distribuição clínica e avaliações por mês) -->
+  <script>
+    (function () {
+      let statsPacientes = [];
+      let statsTriagens = [];
+      let chartProb = null;
+      let chartMes = null;
+
+      // Data de corte do período selecionado no filtro (null = todo o período)
+      function statsDataCorte() {
+        const periodo = document.getElementById('filtroPeriodo')?.value || 'todos';
+        const agora = new Date();
+        if (periodo === '30d') return new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+        if (periodo === 'mes') return new Date(agora.getFullYear(), agora.getMonth(), 1);
+        if (periodo === '6m')  return new Date(agora.getFullYear(), agora.getMonth() - 5, 1);
+        return null;
+      }
+
+      function statsTriagensNoPeriodo() {
+        const corte = statsDataCorte();
+        if (!corte) return statsTriagens;
+        return statsTriagens.filter(t => new Date(t.data_hora) >= corte);
+      }
+
+      function statsRenderizar() {
+        const triagens = statsTriagensNoPeriodo();
+
+        // --- Cards ---
+        const elTotal = document.getElementById('statsTotalAvaliacoes');
+        if (elTotal) elTotal.textContent = triagens.length;
+
+        const encaminhadas = triagens.filter(t => Number(t.score_total) >= 56);
+        const elEnc = document.getElementById('statsEncaminhamentos');
+        if (elEnc) elEnc.textContent = encaminhadas.length;
+
+        const elMedio = document.getElementById('statsScoreMedio');
+        if (elMedio) {
+          if (triagens.length === 0) {
+            elMedio.textContent = '—';
+          } else {
+            const media = triagens.reduce((s, t) => s + Number(t.score_total || 0), 0) / triagens.length;
+            elMedio.textContent = `${media.toFixed(1)}%`;
+          }
+        }
+
+        // "Novos Pacientes (Mês)" é sempre mensal, independente do filtro de período
+        const agora = new Date();
+        const prefixoMes = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`;
+        const novosMes = statsPacientes.filter(p => {
+          const criacao = p.criado_em || p.criadoEm || p.data_cadastro;
+          return criacao && criacao.startsWith(prefixoMes);
+        });
+        const elNovos = document.getElementById('statsNovosPacientes');
+        if (elNovos) elNovos.textContent = novosMes.length;
+
+        statsRenderGraficoProb(triagens);
+        statsRenderGraficoMes();
+      }
+
+      // Doughnut: classifica cada paciente pela sua avaliação mais recente no período;
+      // pacientes sem avaliação entram como "Não avaliados" (não mais como "Baixa")
+      function statsRenderGraficoProb(triagens) {
+        const ctx = document.getElementById('graficoProbabilidade');
+        if (!ctx) return;
+
+        const ultimaPorPaciente = {};
+        triagens.forEach(t => {
+          const atual = ultimaPorPaciente[t.paciente_id];
+          if (!atual || new Date(t.data_hora) > new Date(atual.data_hora)) {
+            ultimaPorPaciente[t.paciente_id] = t;
+          }
+        });
+
+        const contagem = { baixa: 0, media: 0, alta: 0 };
+        Object.values(ultimaPorPaciente).forEach(t => {
+          const { classe } = classificarScorePct(Number(t.score_total));
+          if (classe === 'alto') contagem.alta++;
+          else if (classe === 'medio') contagem.media++;
+          else contagem.baixa++;
+        });
+
+        const avaliadosIds = new Set(Object.keys(ultimaPorPaciente).map(String));
+        const naoAvaliados = statsPacientes.filter(p => !avaliadosIds.has(String(p.id))).length;
+
+        if (chartProb) chartProb.destroy();
+        chartProb = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)', 'Não avaliados'],
+            datasets: [{
+              data: [contagem.baixa, contagem.media, contagem.alta, naoAvaliados],
+              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045', '#c3ccd4'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        });
+      }
+
+      // Barras: volume de avaliações nos últimos 6 meses (sempre fixo)
+      function statsRenderGraficoMes() {
+        const ctx = document.getElementById('graficoAvaliacoesMes');
+        if (!ctx) return;
+
+        const agora = new Date();
+        const meses = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+          meses.push({
+            chave: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+            rotulo: d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
+            total: 0
+          });
+        }
+
+        statsTriagens.forEach(t => {
+          const chave = String(t.data_hora || '').slice(0, 7);
+          const mes = meses.find(m => m.chave === chave);
+          if (mes) mes.total++;
+        });
+
+        if (chartMes) chartMes.destroy();
+        chartMes = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: meses.map(m => m.rotulo),
+            datasets: [{
+              label: 'Avaliações',
+              data: meses.map(m => m.total),
+              backgroundColor: '#3a7ca5',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+          }
+        });
+      }
+
+      window.statsCarregar = async function () {
+        try {
+          const token = localStorage.getItem('aura_token');
+          const headers = { 'Authorization': `Bearer ${token}` };
+          const [resTri, resPac] = await Promise.all([
+            fetch('/api/triagens/resumo', { headers }),
+            fetch('/api/pacientes/', { headers })
+          ]);
+          const triagens = resTri.ok ? await resTri.json() : [];
+          const pacientes = resPac.ok ? await resPac.json() : [];
+          statsPacientes = pacientes.filter(p => !p.deletado_em);
+          statsTriagens = triagens;
+          statsRenderizar();
+        } catch (err) {
+          console.error('Erro ao carregar estatísticas:', err);
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const filtro = document.getElementById('filtroPeriodo');
+        if (filtro) filtro.addEventListener('change', statsRenderizar);
+        window.statsCarregar();
+      });
     })();
   </script>
 </body>
