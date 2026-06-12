@@ -72,6 +72,14 @@ async def atualizar_conduta_triagem(triagem_id: UUID, dados: TriagemCondutaUpdat
     )
 
 
+@router.delete("/{triagem_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Excluir Avaliação")
+async def excluir_triagem(triagem_id: UUID, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
+    """Remove definitivamente uma avaliação registrada."""
+    removido = await triagem_service.excluir_triagem(db, triagem_id)
+    if not removido:
+        raise HTTPException(status_code=404, detail="Avaliação não encontrada.")
+
+
 @router.get("/{triagem_id}", response_model=TriagemDetalhe, summary="Detalhar Avaliação (Relatório)")
 async def detalhar_triagem(triagem_id: UUID, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
     """
