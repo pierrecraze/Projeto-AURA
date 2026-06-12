@@ -5,11 +5,11 @@ let chartData = [];
 let kpis = [];
 
 const alertas = [
-    { icon: "alert-triangle", bg: "#FEF9EC", color: "#D97706", title: "Tentativa de acesso bloqueada", sub: "IP 192.168.4.22 — bloqueado automaticamente", time: "5h" },
-    { icon: "shield-check",   bg: "#ECFDF5", color: "#059669", title: "Auditoria LGPD concluída",       sub: "3.241 registros verificados sem inconsistências", time: "3h" },
-    { icon: "file-edit",      bg: "#FFF7ED", color: "#B45309", title: "Alteração cadastral auditada",   sub: "Paciente #0047 editado — log registrado", time: "1h" },
-    { icon: "user-check",     bg: "#EFF6FF", color: "#2563EB", title: "Acesso privilegiado autorizado", sub: "Admin concedeu acesso temporário a Dr. Lima", time: "2h" },
-    { icon: "lock",           bg: "#F5F3FF", color: "#6D28D9", title: "Política de senha atualizada",   sub: "Requisitos mínimos elevados para 12 caracteres", time: "1d" }
+    { icon: "server",         bg: "#ECFDF5", color: "#059669", title: "Serviço de API Backend",         sub: "Online e respondendo normalmente", time: "Ativo" },
+    { icon: "database",       bg: "#ECFDF5", color: "#059669", title: "Banco de Dados Principal",       sub: "Conexão estável, latência < 20ms", time: "Ativo" },
+    { icon: "shield-check",   bg: "#EFF6FF", color: "#2563EB", title: "Conformidade e LGPD",            sub: "Criptografia ponta a ponta ativada", time: "OK" },
+    { icon: "activity",       bg: "#ECFDF5", color: "#059669", title: "Uptime do Sistema",              sub: "99.98% de disponibilidade no mês", time: "12d" },
+    { icon: "code",           bg: "#F5F3FF", color: "#6D28D9", title: "Versão do Sistema",              sub: "AURA Core v3.0", time: "Atualizado" }
 ];
 
 const convenioData = [];

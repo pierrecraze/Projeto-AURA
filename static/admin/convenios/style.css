@@ -728,15 +728,6 @@ code.doc {
 .color-picker-wrap { display: flex; align-items: center; gap: 10px; }
 .color-input { padding: 2px 4px; height: 38px; width: 64px; cursor: pointer; }
 .color-hex { font-size: 13px; color: var(--text-muted); font-family: monospace; }
-.file-input { padding: 6px 10px; font-size: 12px; }
-.file-input::file-selector-button {
-  background: var(--slate); border: 1px solid var(--border);
-  border-radius: 6px; padding: 4px 8px; margin-right: 10px;
-  font-size: 11px; font-weight: 600; color: var(--text-body);
-  cursor: pointer; transition: background 0.15s;
-  font-family: 'Inter', sans-serif;
-}
-.file-input::file-selector-button:hover { background: var(--border-mid); }
 
 /* ════════════════════════════════
    PRIVACY NOTE
