@@ -40,10 +40,6 @@ function getRespostaCampo(nome) {
   return selecionado ? selecionado.value : null;
 }
 
-function todosRespondidos() {
-  return Object.keys(PESOS).every((nome) => getRespostaCampo(nome) !== null);
-}
-
 function calcularScore() {
   let total = 0;
   for (const [nome, peso] of Object.entries(PESOS)) {
@@ -71,9 +67,9 @@ function mostrarTela(id) {
 // ─────────────────────────────────────────────
 
 function cancelarFormulario() {
-  // Limpa todas as respostas do formulário
+  // Limpa todas as respostas do formulário (suporta radios e checkboxes)
   document
-    .querySelectorAll('input[type="radio"]')
+    .querySelectorAll('input[type="radio"], input[type="checkbox"]')
     .forEach((r) => (r.checked = false));
   document.getElementById("erro-formulario").style.display = "none";
 }
@@ -85,12 +81,9 @@ function cancelarFormulario() {
 function confirmarDados() {
   const erroEl = document.getElementById("erro-formulario");
 
-  if (!todosRespondidos()) {
-    erroEl.style.display = "block";
-    erroEl.scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
-
+  // O score é calculado apenas com base no que o paciente apresenta.
+  // Itens não marcados são tratados como "não apresenta", portanto não é
+  // necessário responder a todos os campos para gerar o resultado.
   erroEl.style.display = "none";
   const score = calcularScore();
   ultimoScore = score;
@@ -108,7 +101,8 @@ function exibirResultado(score) {
   const botoesRes = document.getElementById("botoes-resultado");
 
   // 🌟 BONUS: Atualiza automaticamente a interface de contagem "x / 12 SIM" e a barra!
-  const count = document.querySelectorAll('input[type="radio"][value="sim"]:checked').length;
+  // Conta os sintomas marcados como "sim" (funciona com radios e checkboxes).
+  const count = document.querySelectorAll('input[value="sim"]:checked').length;
   const countEl = document.getElementById("metrica-contagem");
   if (countEl) countEl.textContent = `${count} / 12 SIM`;
   const metricaBarra = document.getElementById("metrica-barra");
