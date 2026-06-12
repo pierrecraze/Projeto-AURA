@@ -373,43 +373,43 @@
 
                 <div class="resultado-corpo">
                   <div class="score-bloco">
-                    <span class="score-label">SCORE</span>
-                    <div id="score-box" class="score-box">0.00</div>
+                    <span class="score-label">Probabilidade</span>
+                    <div id="score-box" class="score-box">0%</div>
+                    <span id="score-badge" class="score-badge"></span>
                   </div>
 
                   <div class="indicacao-bloco">
-                    <span class="indicacao-label">INDICAÇÃO</span>
+                    <span class="indicacao-label">Indicação clínica</span>
                     <div id="indicacao-texto" class="indicacao-texto"></div>
+                    <div id="asterisco-info" class="asterisco-info" style="display: none"></div>
                   </div>
                 </div>
 
-                <!-- MÉTRICA DE PONTOS -->
+                <!-- BARRA DE PROBABILIDADE -->
                 <div class="metrica-bloco">
                   <div class="metrica-header">
-                    <span class="metrica-titulo">MÉTRICA DE SINTOMAS</span>
-                    <span id="metrica-contagem" class="metrica-contagem">0 / 12 SIM</span>
+                    <span class="metrica-titulo">Nível de probabilidade</span>
+                    <span id="metrica-contagem" class="metrica-contagem">0 de 12 sintomas</span>
                   </div>
 
                   <div class="metrica-barra-wrap">
                     <div id="metrica-barra" class="metrica-barra"></div>
-                    <div class="metrica-marcadores">
-                      <span class="marcador" style="left: 0%">0</span>
-                      <span class="marcador" style="left: 33.3%">4</span>
-                      <span class="marcador" style="left: 58.3%">7</span>
-                      <span class="marcador" style="left: 100%; transform: translateX(-100%)">12</span>
-                    </div>
+                    <span class="limiar" style="left: 40%"></span>
+                    <span class="limiar" style="left: 56%"></span>
                   </div>
 
                   <div class="metrica-legenda">
-                    <span class="legenda-item legenda-baixo">■ 0–4 Baixa</span>
-                    <span class="legenda-item legenda-medio">■ 5–6 Média</span>
-                    <span class="legenda-item legenda-alto">■ 7–12 Alta</span>
+                    <span class="legenda-item legenda-baixo">Baixa &lt; 40%</span>
+                    <span class="legenda-item legenda-medio">Média 40–55%</span>
+                    <span class="legenda-item legenda-alto">Alta ≥ 56%</span>
                   </div>
-
-                  <div id="metrica-pontos" class="metrica-pontos"></div>
                 </div>
 
-                <div id="asterisco-info" class="asterisco-info" style="display: none"></div>
+                <!-- SINTOMAS APRESENTADOS -->
+                <div class="sintomas-bloco">
+                  <span class="metrica-titulo">Sintomas apresentados</span>
+                  <div id="metrica-pontos" class="metrica-pontos"></div>
+                </div>
 
                 <div id="botoes-resultado" class="botoes-resultado"></div>
               </div>

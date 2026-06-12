@@ -139,11 +139,8 @@ function fillForm(p) {
       const cb = document.querySelector(`#clinicalWrap input[name="${name}"]`);
       if (cb) cb.checked = p.sintomas[name];
     });
-    const count = document.querySelectorAll('#clinicalWrap input[type="checkbox"]:checked').length;
-    const countEl = $("metrica-contagem");
-    if (countEl) countEl.textContent = `${count} / 12 SIM`;
-    const metricaBarra = $("metrica-barra");
-    if (metricaBarra) metricaBarra.style.width = `${(count / 12) * 100}%`;
+    // A tela de resultado (score, barra, chips) é renderizada por
+    // exibirResultado() ao confirmar — não precisa atualizar aqui.
   }
 }
 

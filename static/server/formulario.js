@@ -27,6 +27,22 @@ const PESOS = {
   agressividade: 0.03,
 };
 
+// Rótulos legíveis para exibição dos sintomas no resultado.
+const SINTOMAS_LABELS = {
+  deficiencia_intelectual: "Deficiência intelectual",
+  macroorquidismo: "Macroorquidismo",
+  dificuldades_aprendizagem: "Dificuldades de aprendizagem",
+  movimentos_repetitivos: "Movimentos repetitivos",
+  hiperatividade: "Hiperatividade",
+  evita_contato_fisico: "Evita contato físico",
+  face_alongada: "Face alongada / orelhas",
+  hipermobilidade: "Hipermobilidade articular",
+  deficit_atencao: "Déficit de atenção",
+  atraso_fala: "Atraso na fala",
+  evita_contato_visual: "Evita contato visual",
+  agressividade: "Agressividade",
+};
+
 const PACIENTE_ID = new URLSearchParams(window.location.search).get("paciente_id");
 
 let ultimoScore = 0;
@@ -96,85 +112,117 @@ function confirmarDados() {
 
 function exibirResultado(score) {
   const scoreBox = document.getElementById("score-box");
+  const scoreBadge = document.getElementById("score-badge");
   const indicacaoTexto = document.getElementById("indicacao-texto");
   const asteriscoInfo = document.getElementById("asterisco-info");
   const botoesRes = document.getElementById("botoes-resultado");
 
-  // 🌟 BONUS: Atualiza automaticamente a interface de contagem "x / 12 SIM" e a barra!
-  // Conta os sintomas marcados como "sim" (funciona com radios e checkboxes).
-  const count = document.querySelectorAll('input[value="sim"]:checked').length;
-  const countEl = document.getElementById("metrica-contagem");
-  if (countEl) countEl.textContent = `${count} / 12 SIM`;
-  const metricaBarra = document.getElementById("metrica-barra");
-  if (metricaBarra) metricaBarra.style.width = `${(count / 12) * 100}%`;
-
-  // Exibe score
-  scoreBox.textContent = score.toFixed(2);
-
-  // Remove classes anteriores
-  scoreBox.classList.remove("alto", "medio", "baixo");
-
-  // ── ALTA PROBABILIDADE ─────────────────────
+  // ── Categoria com base no score ────────────────
+  let classe, categoria;
   if (score >= 0.56) {
-    scoreBox.classList.add("alto");
+    classe = "alto";
+    categoria = "Alta probabilidade";
+  } else if (score >= 0.4) {
+    classe = "medio";
+    categoria = "Média probabilidade";
+  } else {
+    classe = "baixo";
+    categoria = "Baixa probabilidade";
+  }
 
-    indicacaoTexto.innerHTML = `O resultado do score do paciente é ≥ 0.56, dessa forma, representa
+  // ── Score apresentado como percentual ──────────
+  const pct = Math.round(score * 100);
+  scoreBox.textContent = `${pct}%`;
+  scoreBox.classList.remove("alto", "medio", "baixo");
+  scoreBox.classList.add(classe);
+
+  if (scoreBadge) {
+    scoreBadge.textContent = categoria;
+    scoreBadge.className = `score-badge ${classe}`;
+  }
+
+  // ── Barra de probabilidade (reflete o score) ───
+  const metricaBarra = document.getElementById("metrica-barra");
+  if (metricaBarra) {
+    metricaBarra.style.width = `${pct}%`;
+    metricaBarra.className = `metrica-barra ${classe}`;
+  }
+
+  // ── Sintomas apresentados (chips) ──────────────
+  const marcados = Object.keys(PESOS)
+    .filter((nome) => getRespostaCampo(nome) === "sim")
+    .sort((a, b) => PESOS[b] - PESOS[a]);
+
+  const countEl = document.getElementById("metrica-contagem");
+  if (countEl) {
+    const n = marcados.length;
+    countEl.textContent = `${n} de 12 ${n === 1 ? "sintoma" : "sintomas"}`;
+  }
+
+  const pontosEl = document.getElementById("metrica-pontos");
+  if (pontosEl) {
+    pontosEl.innerHTML = marcados.length
+      ? marcados
+          .map(
+            (nome) =>
+              `<span class="sintoma-chip ${classe}">${SINTOMAS_LABELS[nome] || nome}</span>`,
+          )
+          .join("")
+      : `<span class="sem-sintomas">Nenhum sintoma assinalado.</span>`;
+  }
+
+  // ── Indicação clínica + recomendação + ações ───
+  if (classe === "alto") {
+    indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (≥ 56%), o que representa
        <span class="destaque-alto">alta probabilidade clínica</span>.
-       Indicado priorizar realização de teste molecular (FMR1)!`;
+       Indicado priorizar a realização do teste molecular (FMR1).`;
 
     asteriscoInfo.style.display = "flex";
-    asteriscoInfo.innerHTML = `<span style="font-size:1.1rem;color:#c0392b;">★</span>
-       É RECOMENDADO ENCAMINHAR O PACIENTE PARA TESTE FMR1`;
+    asteriscoInfo.className = "asterisco-info alto";
+    asteriscoInfo.innerHTML = `★ Recomendado encaminhar o paciente para o teste FMR1`;
 
     botoesRes.innerHTML = `
       <button class="btn-acao primario" onclick="acaoEncaminhar()">
-        É RECOMENDADO ENCAMINHAR<br>O PACIENTE PARA TESTE FMR1
+        Encaminhar para teste FMR1
       </button>
       <button class="btn-acao secundario" onclick="acaoMonitoramento()">
-        COLOCAR PACIENTE EM<br>MONITORAMENTO
+        Colocar em monitoramento
       </button>`;
-
-    // ── MÉDIA PROBABILIDADE ────────────────────
-  } else if (score >= 0.4) {
-    scoreBox.classList.add("medio");
-
-    indicacaoTexto.innerHTML = `O resultado do score do paciente é ≥ 0.40, dessa forma, representa
+  } else if (classe === "medio") {
+    indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (entre 40% e 55%), o que representa
        <span class="destaque-medio">média probabilidade clínica</span>.
-       É indicado analisar mais detalhadamente para confirmar a situação
-       e se é preciso a realização do teste molecular (FMR1)!`;
+       Indicado analisar com mais detalhe para confirmar a necessidade do teste molecular (FMR1).`;
 
     asteriscoInfo.style.display = "none";
 
     botoesRes.innerHTML = `
       <button class="btn-acao secundario" onclick="acaoEncaminhar()">
-        RECOMENDAR PACIENTE<br>PARA TESTE FMR1?
+        Recomendar teste FMR1
       </button>
       <button class="btn-acao secundario" onclick="acaoMonitoramento()">
-        COLOCAR PACIENTE EM<br>ESPERA / MONITORAMENTO
+        Colocar em espera / monitoramento
       </button>`;
-
-    // ── BAIXA PROBABILIDADE ────────────────────
   } else {
-    scoreBox.classList.add("baixo");
-
-    indicacaoTexto.innerHTML = `O resultado do score do paciente é ≤ 0.40, dessa forma, o paciente representa
+    indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (&lt; 40%), o que representa
        <span class="destaque-baixo">baixa probabilidade clínica</span>.
        Indicado analisar e monitorar o paciente.`;
 
     asteriscoInfo.style.display = "flex";
-    asteriscoInfo.innerHTML = `<span style="font-size:1.1rem;color:#27ae60;">★</span>
-       <span style="color:#27ae60;">MONITORAMENTO RECOMENDADO</span>`;
+    asteriscoInfo.className = "asterisco-info baixo";
+    asteriscoInfo.innerHTML = `★ Monitoramento recomendado`;
 
     botoesRes.innerHTML = `
       <button class="btn-acao secundario" onclick="acaoEncaminhar()">
-        RECOMENDAR PACIENTE<br>PARA TESTE FMR1?
+        Recomendar teste FMR1
       </button>
       <button class="btn-acao primario" onclick="acaoMonitoramento()">
-        COLOCAR PACIENTE EM<br>ESPERA / MONITORAMENTO
+        Colocar em espera / monitoramento
       </button>`;
   }
 
-  // Botão voltar
+  // Botão voltar (evita duplicatas em reavaliações)
+  const btnVoltarAntigo = document.querySelector(".btn-voltar");
+  if (btnVoltarAntigo) btnVoltarAntigo.remove();
   botoesRes.insertAdjacentHTML(
     "afterend",
     `<button class="btn-voltar" onclick="voltarFormulario()">← Voltar ao formulário</button>`,
