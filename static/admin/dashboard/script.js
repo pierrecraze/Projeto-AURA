@@ -169,6 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
     const nome = user.nome || "Admin Principal";
     const cargo = user.cargo || "Administrador";
+    const email = user.email || "admin@instituto.org";
     const iniciais = nome.split(" ").slice(0,2).map(n => n[0]).join("").toUpperCase() || "AD";
     const firstName = nome.split(" ")[0];
 
@@ -177,6 +178,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const welcomeNameEl = document.getElementById("welcomeName");
     if (welcomeNameEl) welcomeNameEl.innerHTML = `${firstName} <span class="welcome-wave">👋</span>`;
     document.querySelectorAll('.profile-role').forEach(el => el.textContent = `${cargo} · IBK`);
+
+    // Povoando e ativando o Popup de Perfil
+    const popupName = document.getElementById("popupName");
+    const popupEmail = document.getElementById("popupEmail");
+    const popupRole = document.getElementById("popupRole");
+    if (popupName) popupName.textContent = nome;
+    if (popupEmail) popupEmail.textContent = email;
+    if (popupRole) popupRole.textContent = cargo;
+
+    const profileCard = document.getElementById("profileCard");
+    const profilePopup = document.getElementById("profilePopup");
+    if (profileCard && profilePopup) {
+        profileCard.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profilePopup.classList.toggle("show");
+            lucide.createIcons();
+        });
+        document.addEventListener("click", (e) => {
+            if (!profilePopup.contains(e.target)) {
+                profilePopup.classList.remove("show");
+            }
+        });
+    }
 
     initNotifications();
     initChart();
@@ -381,7 +405,7 @@ function initNotifications() {
 }
 
 // --- Logout ---
-const btnLogout = document.querySelector('.logout');
+const btnLogout = document.getElementById('popupLogout');
 if (btnLogout) {
     btnLogout.addEventListener('click', () => {
         localStorage.removeItem('aura_token');
