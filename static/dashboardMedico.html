@@ -3,29 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA | Painel</title>
+  <title>AURA | Painel Médico</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/home.css" />
-
+  <link rel="stylesheet" href="css/listaPaciente.css" />
   <link rel="icon" href="favicon.ico">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <script src="/core/authGuard.js" data-role="medico"></script>
 
   <header>
-    <a href="index.html" class="header-brand" title="Ir para home">
-      <div class="logo-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 3c0 4 12 3 12 9S6 18 6 21M18 3C18 7 6 6 6 12s12 6 12 9"
-                stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-        </svg>
-      </div>
-      <span class="logo-text">AURA</span>
-    </a>
+    <div class="header-left">
+      <a href="index.html" class="header-brand" title="Ir para home">
+        <div class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 3c0 4 12 3 12 9S6 18 6 21M18 3C18 7 6 6 6 12s12 6 12 9"
+                  stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="logo-text">AURA</span>
+      </a>
+    </div>
+
+    <div class="header-center">
+      <nav class="header-nav">
+        <ul>
+          <li><button type="button" class="btn-center active" id="nav-home" onclick="navigate('home')">Início</button></li>
+          <li><button type="button" class="btn-center" id="nav-lista-pacientes" onclick="navigate('lista-pacientes')">Pacientes</button></li>
+          <li><button type="button" class="btn-center" id="nav-estatisticas" onclick="navigate('estatisticas')">Estatísticas</button></li>
+          <li><button type="button" class="btn-center" id="nav-relatorios" onclick="navigate('relatorios')">Relatórios</button></li>
+        </ul>
+      </nav>
+    </div>
 
     <div class="header-right">
-      <a class="header-sub" href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" title="Visitar o site do Instituto Buko Kaesemodel" style="text-decoration:none;color:inherit;cursor:pointer;">Instituto Buko Kaesemodel</a>
+      <span class="header-sub">Instituto Buko Kaesemodel</span>
       <div class="header-user">
         <div class="user-avatar" aria-hidden="true">DR</div>
         <div class="user-info">
@@ -33,7 +47,7 @@
           <span class="user-role">Profissional de Saúde</span>
         </div>
       </div>
-      <button class="btn-logout" id="btnLogout" aria-label="Encerrar sessão">
+      <button type="button" class="btn-logout" id="btnLogout" aria-label="Encerrar sessão">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
@@ -50,24 +64,22 @@
       <polyline points="12 6 12 12 16 14"/>
     </svg>
     <span>Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja continuar?</span>
-    <button class="btn-session-keep" id="btnKeepSession">Continuar sessão</button>
+    <button type="button" class="btn-session-keep" id="btnKeepSession">Continuar sessão</button>
   </div>
 
-  <!-- PAINEL PRINCIPAL -->
   <div id="page-home">
     <main>
       <div class="dashboard">
 
         <section class="welcome-row">
           <div>
-            <h1 class="welcome-title" id="welcomeTitle">Bem-vindo(a).</h1>
+            <h1 class="welcome-title">Bom dia, Dr. Lionel Aura.</h1>
             <p class="welcome-sub">Aqui está o resumo das suas atividades na plataforma AURA.</p>
           </div>
         </section>
 
         <section class="metrics-grid" aria-label="Ações rápidas">
-
-          <button class="metric-card metric-card--btn" onclick="window.location.href='todosPacientes.html'">
+          <button type="button" class="metric-card metric-card--btn" onclick="navigate('lista-pacientes')">
             <div class="metric-icon metric-icon--blue" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -78,12 +90,11 @@
             </div>
             <div class="metric-body">
               <span class="metric-label">Lista total de pacientes</span>
-              <span class="metric-value" id="metricTotalPacientes">—</span>
-              <span class="metric-trend trend-neutral" id="metricTotalLegenda">na instituição</span>
+              <span class="metric-value" id="metricTotalPacientes">0</span>
             </div>
           </button>
 
-          <button class="metric-card metric-card--btn" onclick="window.location.href='estatisticasPacientes.html'">
+          <button type="button" class="metric-card metric-card--btn" onclick="navigate('estatisticas')">
             <div class="metric-icon metric-icon--teal" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -91,12 +102,12 @@
             </div>
             <div class="metric-body">
               <span class="metric-label">Estatísticas</span>
-              <span class="metric-value" id="metricAvaliacoes">—</span>
-              <span class="metric-trend trend-up">avaliações este mês</span>
+              <span class="metric-value">Gráficos</span>
+              <span class="metric-trend trend-neutral">ver desempenho</span>
             </div>
           </button>
 
-          <button class="metric-card metric-card--btn" onclick="window.location.href='relatoriosPacientes.html'">
+          <button type="button" class="metric-card metric-card--btn" onclick="navigate('relatorios')">
             <div class="metric-icon metric-icon--purple" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -107,20 +118,20 @@
               </svg>
             </div>
             <div class="metric-body">
-              <span class="metric-label">Avaliações</span>
-              <span class="metric-value" id="metricRelatorios">—</span>
-              <span class="metric-trend trend-neutral">registradas na plataforma</span>
+              <span class="metric-label">Relatórios</span>
+              <span class="metric-value">Gerar</span>
+              <span class="metric-trend trend-neutral">encaminhamentos</span>
             </div>
           </button>
 
           <div class="metric-actions">
-            <button class="btn-action btn-secondary" id="btnSearch">
+            <button type="button" class="btn-action btn-secondary" id="btnSearchHome">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
               Buscar paciente
             </button>
-            <button class="btn-action btn-primary" id="btnNewPatient" onclick="window.location.href='cadastroPaciente.html'">
+            <button type="button" class="btn-action btn-primary" onclick="window.location.href='cadastroPaciente.html'">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
@@ -130,21 +141,20 @@
               Novo paciente
             </button>
           </div>
-
         </section>
 
         <section class="panel" aria-labelledby="recent-title">
           <div class="panel-header">
             <h2 id="recent-title">Pacientes recentes</h2>
-            <a href="todosPacientes.html" class="panel-link">Ver todos</a>
+            <a href="#" class="panel-link" onclick="navigate('lista-pacientes'); return false;">Ver todos</a>
           </div>
 
-          <div class="search-bar-wrap" id="searchWrap" hidden>
+          <div class="search-bar-wrap" id="searchWrapHome" hidden>
             <div class="search-bar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <input type="search" id="searchInput" placeholder="Buscar por nome ou CPF…" aria-label="Buscar paciente por nome ou CPF" />
+              <input type="search" id="searchInputHome" placeholder="Buscar por nome ou CPF…" aria-label="Buscar paciente recente" />
             </div>
           </div>
 
@@ -158,125 +168,503 @@
                 <th scope="col">Ações</th>
               </tr>
             </thead>
-            <tbody id="patientTableBody">
+            <tbody id="patientTableBodyHome">
             </tbody>
           </table>
-
-          <p class="table-empty" id="tableEmpty" hidden>Nenhum paciente encontrado.</p>
+          <p class="table-empty" id="tableEmptyHome" hidden>Nenhum paciente encontrado.</p>
         </section>
 
       </div>
     </main>
   </div>
 
-  <script src="/server/home.js"></script>
-  <script>
-    const btnSearch   = document.getElementById('btnSearch');
-    const searchWrap  = document.getElementById('searchWrap');
-    const searchInput = document.getElementById('searchInput');
-    let rows          = document.querySelectorAll('#patientTableBody tr');
-    const tableEmpty  = document.getElementById('tableEmpty');
+  <div id="page-lista-pacientes" hidden>
+    <main>
+      <div class="page-wrapper" style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.75rem;">
+        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+          <div>
+            <h2 class="section-title" style="font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--text);">Todos os Pacientes</h2>
+            <p class="section-sub" style="font-size: 0.85rem; color: var(--text-muted);">Gerencie e acompanhe todos os pacientes</p>
+          </div>
+          <button type="button" class="btn-action btn-primary" onclick="window.location.href='cadastroPaciente.html'">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width: 15px; height: 15px; margin-right: 4px; display: inline-block; vertical-align: middle;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Novo Paciente
+          </button>
+        </div>
 
-    btnSearch.addEventListener('click', () => {
-      const isHidden = searchWrap.hidden;
-      searchWrap.hidden = !isHidden;
-      if (isHidden) searchInput.focus();
-    });
+        <div class="search-bar">
+          <div class="search-wrap" style="position: relative; width: 100%;">
+            <input class="search-input" type="text" id="searchInput" placeholder="Buscar por nome, responsável, cidade, estado…" oninput="if(typeof filtrar === 'function') filtrar()" style="width: 100%; height: 40px; padding: 0 1rem; font-family: inherit; font-size: 0.875rem; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); outline: none;"/>
+          </div>
+        </div>
 
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.toLowerCase().trim();
-      let visible = 0;
-      rows.forEach(row => {
-        const name = row.querySelector('span')?.textContent.toLowerCase() ?? '';
-        const match = q === '' || name.includes(q);
-        row.hidden = !match;
-        if (match) visible++;
-      });
-      tableEmpty.hidden = visible > 0;
-    });
+        <div class="table-card panel">
+          <table class="patient-table">
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Nascimento</th>
+                <th>Sexo</th>
+                <th>Responsável</th>
+                <th>Cidade/UF</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaBody"></tbody>
+          </table>
 
-    function exibirSaudacao() {
-      const dados = JSON.parse(localStorage.getItem('aura_user') || 'null');
-      const titulo = document.getElementById('welcomeTitle');
-      if (!titulo) return;
+          <div id="emptyState" class="empty-state" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-1a4 4 0 0 0-5.5-3.7M9 20H4v-1a4 4 0 0 1 5.5-3.7M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm6 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+            </svg>
+            <p>Nenhum paciente encontrado.</p>
+          </div>
 
-      const hora = new Date().getHours();
-      const periodo = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
-      const nome = dados?.nome ? `, ${dados.nome}` : '';
-      titulo.textContent = `${periodo}${nome}.`;
-    }
+          <div class="pagination">
+            <span class="pagination-info" id="paginacaoInfo"></span>
+            <div class="pagination-btns" id="paginacaoBtns"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-    async function carregarDadosDashboard() {
-      try {
-        const token = localStorage.getItem('aura_token');
-        const res = await fetch('/api/pacientes/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const pacientes = await res.json();
-          const ativos = pacientes.filter(p => !p.deletado_em);
+  <div id="page-estatisticas" hidden>
+    <main>
+      <div class="dashboard">
+        <section class="welcome-row">
+          <div>
+            <h1 class="welcome-title">Estatísticas</h1>
+            <p class="welcome-sub">Visão geral clínica e formulários dos seus pacientes.</p>
+          </div>
           
-          const metricTotal = document.getElementById('metricTotalPacientes');
-          if (metricTotal) metricTotal.textContent = ativos.length;
-          const metricTotalLegenda = document.getElementById('metricTotalLegenda');
-          if (metricTotalLegenda)
-            metricTotalLegenda.textContent =
-              `${ativos.length} ${ativos.length === 1 ? 'paciente' : 'pacientes'} na instituição`;
+          <div class="search-bar">
+             <select id="filtroProbabilidade" class="search-input" style="padding: 0 1rem; height: 40px; background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); font-family: inherit; font-size: 0.875rem; color: var(--text); cursor: pointer;">
+               <option value="todos">Todos os pacientes</option>
+               <option value="mes">Adicionados este mês</option>
+             </select>
+          </div>
+        </section>
 
-          const tbody = document.getElementById('patientTableBody');
-          tbody.innerHTML = '';
-          const recentes = ativos.slice(-5).reverse(); 
-          recentes.forEach(p => {
-            const d = (p.dataNascimento || p.data_nascimento || '').split('-');
-            const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
-            const isM = (p.sexoBiologico || p.sexo_biologico) === 'M';
-            const badgeClass = isM ? 'badge--m' : 'badge--f';
-            const badgeText = isM ? 'Masculino' : 'Feminino';
-            const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
+        <section class="metrics-grid" aria-label="Resumo Estatístico" style="grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 0.5rem;">
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Total de Avaliações</span>
+              <span class="metric-value" id="statsTotalAvaliacoes">0</span>
+              <span class="metric-trend trend-up">realizadas</span>
+            </div>
+          </div>
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
-              <td>${dateBr}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td>-</td>
-              <td class="actions-cell">
-                <button class="btn-icon" title="Avaliar paciente" onclick="window.location.href='paciente.html?id=${p.id}#clinicalWrap'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
-                <button class="btn-icon" title="Ver ficha do paciente" onclick="window.location.href='paciente.html?id=${p.id}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></button>
-              </td>
-            `;
-            tbody.appendChild(tr);
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Novos Pacientes (Mês)</span>
+              <span class="metric-value" id="statsNovosPacientes">0</span>
+              <span class="metric-trend trend-up">este mês</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon metric-icon--purple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="metric-body">
+              <span class="metric-label">Encaminhamentos Gerados</span>
+              <span class="metric-value" id="statsEncaminhamentos">0</span>
+              <span class="metric-trend trend-neutral">teste FMR1 recomendado</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Distribuição de Probabilidade Clínica</h2>
+          </div>
+          <div style="max-width: 400px; margin: 0 auto; padding: 1rem;">
+            <canvas id="graficoProbabilidade"></canvas>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="page-relatorios" hidden>
+    <main>
+      <div class="page-wrapper" style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.75rem;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" style="font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--text);">Relatórios e Laudos Médicos</h2>
+            <p class="section-sub" style="font-size: 0.85rem; color: var(--text-muted);">Acompanhe a emissão de documentos e monitoramento clínico</p>
+          </div>
+        </div>
+
+        <div class="search-bar">
+          <div class="search-wrap" style="position: relative; width: 100%;">
+            <input class="search-input" type="text" id="searchReports" placeholder="Filtrar relatórios por nome do paciente..." style="width: 100%; height: 40px; padding: 0 1rem; font-family: inherit; font-size: 0.875rem; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); outline: none;"/>
+          </div>
+        </div>
+
+        <div class="table-card panel">
+          <table class="patient-table">
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Última Alteração</th>
+                <th>Probabilidade Clínica</th>
+                <th>Status do Monitoramento</th>
+                <th style="text-align: center;">Laudo / Encaminhamento</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaRelatoriosBody"></tbody>
+          </table>
+
+          <div id="emptyReportsState" class="empty-state" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
+            </svg>
+            <p>Nenhum laudo clínico ou relatório encontrado.</p>
+          </div>
+
+          <div class="pagination">
+            <span class="pagination-info" id="paginacaoInfoRelatorios">Exibindo todos os registros clínicos ativos</span>
+            <div class="pagination-btns"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function navigate(page) {
+      const pagesArray = ['home', 'lista-pacientes', 'estatisticas', 'relatorios'];
+
+      pagesArray.forEach(p => {
+        const el = document.getElementById('page-' + p);
+        if (el) el.hidden = (p !== page);
+      });
+
+      document.querySelectorAll('.btn-center').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeBtn = document.getElementById('nav-' + page);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      window.scrollTo(0, 0);
+    }
+  </script>
+
+  <script src="/static/server/home.js"></script>
+  <script src="server/listaPaciente.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      let chartProbabilidade;
+
+      // Renderiza dinamicamente o gráfico conforme os scores clínicos reais
+      function renderizarGrafico(pacientes) {
+        let contagem = { baixa: 0, media: 0, alta: 0 };
+
+        pacientes.forEach(p => {
+          let score = p.score_clinico !== undefined ? Number(p.score_clinico) : 0;
+          
+          if (score >= 0.56) {
+            contagem.alta++;
+          } else if (score >= 0.40) {
+            contagem.media++;
+          } else {
+            contagem.baixa++;
+          }
+        });
+
+        const statsEncaminhamentos = document.getElementById('statsEncaminhamentos');
+        if (statsEncaminhamentos) statsEncaminhamentos.textContent = contagem.alta;
+
+        const ctx = document.getElementById('graficoProbabilidade');
+        if (!ctx) return;
+
+        if (chartProbabilidade) chartProbabilidade.destroy();
+
+        chartProbabilidade = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Baixa (Monitoramento)', 'Média (Avaliar Indicação)', 'Alta (Indicar Teste)'],
+            datasets: [{
+              data: [contagem.baixa, contagem.media, contagem.alta],
+              backgroundColor: ['#2a9d5c', '#b06a10', '#d64045'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        });
+      }
+
+      // -- Busca Isolada dos Pacientes Recentes (Aba Início) --
+      const btnSearchHome   = document.getElementById('btnSearchHome');
+      const searchWrapHome  = document.getElementById('searchWrapHome');
+      const searchInputHome = document.getElementById('searchInputHome');
+      const tableEmptyHome  = document.getElementById('tableEmptyHome');
+
+      if(btnSearchHome && searchWrapHome && searchInputHome) {
+        btnSearchHome.addEventListener('click', () => {
+          const isHidden = searchWrapHome.hidden;
+          searchWrapHome.hidden = !isHidden;
+          if (isHidden) searchInputHome.focus();
+        });
+
+        searchInputHome.addEventListener('input', () => {
+          const q = searchInputHome.value.toLowerCase().trim();
+          let visible = 0;
+          const homeTableRows = document.querySelectorAll('#patientTableBodyHome tr'); 
+          
+          homeTableRows.forEach(row => {
+            const name = row.querySelector('span')?.textContent.toLowerCase() ?? '';
+            const match = q === '' || name.includes(q);
+            row.hidden = !match;
+            if (match) visible++;
           });
-          rows = document.querySelectorAll('#patientTableBody tr');
-          tableEmpty.hidden = recentes.length > 0;
-        }
-      } catch(e) { console.error(e); }
-    }
-
-    async function carregarMetricasTriagens() {
-      try {
-        const token = localStorage.getItem('aura_token');
-        const res = await fetch('/api/triagens/', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          if(tableEmptyHome) tableEmptyHome.hidden = visible > 0;
         });
-        if (!res.ok) return;
+      }
 
-        const triagens = await res.json();
-        const agora = new Date();
-        const esteMes = triagens.filter(t => {
-          const d = new Date(t.data_hora);
-          return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+      // -- Busca Local e Filtro Interativo de Relatórios --
+      const searchInputReports = document.getElementById('searchReports');
+      if (searchInputReports) {
+        searchInputReports.addEventListener('input', () => {
+          const q = searchInputReports.value.toLowerCase().trim();
+          let visible = 0;
+          const reportRows = document.querySelectorAll('#tabelaRelatoriosBody tr');
+          
+          reportRows.forEach(row => {
+            const name = row.querySelector('.patient-cell span')?.textContent.toLowerCase() ?? '';
+            const match = q === '' || name.includes(q);
+            row.hidden = !match;
+            if (match) visible++;
+          });
+          
+          const emptyReportsState = document.getElementById('emptyReportsState');
+          if (emptyReportsState) {
+            emptyReportsState.style.display = visible === 0 ? 'flex' : 'none';
+          }
         });
+      }
 
-        const metricAvaliacoes = document.getElementById('metricAvaliacoes');
-        if (metricAvaliacoes) metricAvaliacoes.textContent = esteMes.length;
+      // -- Banner de Sessão Expirada --
+      const banner    = document.getElementById('sessionBanner');
+      const countdown = document.getElementById('sessionCountdown');
+      const btnKeep   = document.getElementById('btnKeepSession');
+      let seconds     = 120;
+      let warningTimer;
 
-        const metricRelatorios = document.getElementById('metricRelatorios');
-        if (metricRelatorios) metricRelatorios.textContent = triagens.length;
-      } catch (e) { console.error(e); }
-    }
+      function startWarning() {
+        if(banner) banner.classList.add('visible');
+        warningTimer = setInterval(() => {
+          seconds--;
+          const m = Math.floor(seconds / 60);
+          const s = String(seconds % 60).padStart(2, '0');
+          if(countdown) countdown.textContent = `${m}:${s}`;
+          if (seconds <= 0) {
+            clearInterval(warningTimer);
+            window.location.href = '/login';
+          }
+        }, 1000);
+      }
 
-    exibirSaudacao();
-    carregarDadosDashboard();
-    carregarMetricasTriagens();
-</script>
+      if(btnKeep) {
+        btnKeep.addEventListener('click', () => {
+          clearInterval(warningTimer);
+          seconds = 120;
+          banner.classList.remove('visible');
+        });
+      }
+
+      // -- Chamada Oficial à API do Back-end --
+      async function carregarDadosDashboard() {
+        try {
+          const token = localStorage.getItem('aura_token');
+          const res = await fetch('/api/pacientes/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          if (res.ok) {
+            const pacientes = await res.json();
+            const ativos = pacientes.filter(p => !p.deletado_em);
+            
+            // Sincroniza o contador do card azul com a quantidade real
+            const metricTotal = document.getElementById('metricTotalPacientes');
+            if (metricTotal) metricTotal.textContent = ativos.length;
+
+            // --- PROCESSAMENTO DOS CARDS DE ESTATÍSTICA ---
+            const avaliados = ativos.filter(p => p.score_clinico !== undefined && p.score_clinico !== null);
+            const statsTotalAvaliacoes = document.getElementById('statsTotalAvaliacoes');
+            if (statsTotalAvaliacoes) statsTotalAvaliacoes.textContent = avaliados.length;
+
+            const agora = new Date();
+            const anoAtual = agora.getFullYear();
+            const mesAtual = String(agora.getMonth() + 1).padStart(2, '0');
+            
+            const cadastradosEsteMes = ativos.filter(p => {
+              const dataCriacao = p.criado_em || p.criadoEm || p.data_cadastro;
+              if (!dataCriacao) return false;
+              return dataCriacao.startsWith(`${anoAtual}-${mesAtual}`);
+            });
+            
+            const statsNovosPacientes = document.getElementById('statsNovosPacientes');
+            if (statsNovosPacientes) {
+              statsNovosPacientes.textContent = cadastradosEsteMes.length || ativos.length;
+            }
+
+            // Sincroniza as fatias do gráfico clínico
+            renderizarGrafico(ativos);
+
+            // Monta as linhas de Pacientes Recentes (Aba Início)
+            const tbodyHome = document.getElementById('patientTableBodyHome');
+            if(tbodyHome) {
+              tbodyHome.innerHTML = '';
+              const recentes = ativos.slice(-5).reverse(); 
+              recentes.forEach(p => {
+                const d = (p.dataNascimento || p.data_nascimento || '').split('-');
+                const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
+                const isM = (p.sexoBiologico || p.sexo_biologico) === 'M';
+                const badgeClass = isM ? 'badge--m' : 'badge--f';
+                const badgeText = isM ? 'Masculino' : 'Feminino';
+                const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
+                  <td>${dateBr}</td><td><span class="badge ${badgeClass}">${badgeText}</span></td><td>-</td>
+                  <td class="actions-cell">
+                    <button type="button" class="btn-icon" title="Nova avaliação" onclick="window.location.href='formulario.html?paciente_id=${p.id}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button type="button" class="btn-icon" title="Histórico" onclick="window.location.href='paciente.html?id=${p.id}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+                  </td>
+                `;
+                tbodyHome.appendChild(tr);
+              });
+              if(tableEmptyHome) tableEmptyHome.hidden = recentes.length > 0;
+            }
+
+            // Monta a Tabela Completa (Aba Pacientes)
+            const tbodyTodos = document.getElementById('tabelaBody');
+            if (tbodyTodos) {
+              tbodyTodos.innerHTML = '';
+              ativos.forEach(p => {
+                const d = (p.dataNascimento || p.data_nascimento || '').split('-');
+                const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
+                const isM = (p.sexoBiologico || p.sexo_biologico) === 'M';
+                const badgeClass = isM ? 'badge--m' : 'badge--f';
+                const badgeText = isM ? 'Masculino' : 'Feminino';
+                const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
+                
+                const resp = p.nome_responsavel || p.responsavel || '-';
+                const loc = p.cidade ? `${p.cidade}/${p.estado || ''}` : '-';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
+                  <td>${dateBr}</td>
+                  <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                  <td>${resp}</td>
+                  <td>${loc}</td>
+                  <td class="actions-cell">
+                    <button type="button" class="btn-icon" title="Nova avaliação" onclick="window.location.href='formulario.html?paciente_id=${p.id}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button type="button" class="btn-icon" title="Histórico" onclick="window.location.href='paciente.html?id=${p.id}'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+                  </td>
+                `;
+                tbodyTodos.appendChild(tr);
+              });
+              const emptyState = document.getElementById('emptyState');
+              if (emptyState) emptyState.style.display = ativos.length === 0 ? 'flex' : 'none';
+            }
+
+            // --- MONTAGEM DINÂMICA DA ABA DE RELATÓRIOS ---
+            const tbodyRelatorios = document.getElementById('tabelaRelatoriosBody');
+            if (tbodyRelatorios) {
+              tbodyRelatorios.innerHTML = '';
+              
+              ativos.forEach(p => {
+                const d = (p.dataNascimento || p.data_nascimento || '').split('-');
+                const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
+                const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
+                
+                // Determina os textos e as cores de probabilidade baseadas no score real do banco
+                let score = p.score_clinico !== undefined ? Number(p.score_clinico) : null;
+                let probText = 'Não avaliado';
+                let probBadgeClass = 'trend-neutral';
+                let statusText = 'Aguardando Triagem';
+                let statusColor = '#6b8fa8';
+
+                if (score !== null) {
+                  if (score >= 0.56) {
+                    probText = `Alta Probabilidade (${score.toFixed(2)})`;
+                    probBadgeClass = 'badge--m'; // Usa estilo azul/vermelho do sistema
+                    statusText = 'Encaminhado p/ Teste';
+                    statusColor = '#d64045'; // Alerta / Alta
+                  } else if (score >= 0.40) {
+                    probText = `Média Probabilidade (${score.toFixed(2)})`;
+                    probBadgeClass = 'badge--f';
+                    statusText = 'Em Análise Detalhada';
+                    statusColor = '#b06a10'; // Atenção / Média
+                  } else {
+                    probText = `Baixa Probabilidade (${score.toFixed(2)})`;
+                    probBadgeClass = 'trend-up';
+                    statusText = 'Monitoramento Clínico';
+                    statusColor = '#2a9d5c'; // Sucesso / Baixa
+                  }
+                }
+
+                const trReport = document.createElement('tr');
+                trReport.innerHTML = `
+                  <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
+                  <td>${dateBr}</td>
+                  <td><span class="badge ${probBadgeClass}" style="text-transform:none; font-size:0.78rem;">${probText}</span></td>
+                  <td><span style="font-weight:600; color:${statusColor}; font-size:0.82rem;">● ${statusText}</span></td>
+                  <td style="text-align: center;" class="actions-cell">
+                    <button type="button" class="btn-icon" title="Ver Laudo Completo" onclick="window.location.href='paciente.html?id=${p.id}'" style="margin: 0 auto; width:36px; height:36px; border:1px solid var(--border); background:#fff;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </button>
+                  </td>
+                `;
+                tbodyRelatorios.appendChild(trReport);
+              });
+
+              const emptyReportsState = document.getElementById('emptyReportsState');
+              if (emptyReportsState) {
+                emptyReportsState.style.display = ativos.length === 0 ? 'flex' : 'none';
+              }
+            }
+            // ----------------------------------------------------
+          }
+        } catch(e) { console.error("Erro na comunicação com a API:", e); }
+      }
+
+      carregarDadosDashboard();
+      setTimeout(startWarning, 5000);
+    });
+  </script>
 </body>
 </html>

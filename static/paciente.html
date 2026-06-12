@@ -22,7 +22,7 @@
     <script src="/core/authGuard.js" data-role="medico"></script>
     <header>
       <div class="header-left">
-        <button type="button" class="btn-back-header" onclick="history.back()" title="Voltar à página anterior" aria-label="Voltar">
+        <button type="button" class="btn-back-header" onclick="window.location.href='dashboardMedico.html'" title="Voltar ao Painel" aria-label="Voltar">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -44,8 +44,10 @@
         </a>
       </div>
 
+      <div class="header-center"></div>
+
       <div class="header-right">
-        <a class="header-sub" href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" title="Visitar o site do Instituto Buko Kaesemodel" style="text-decoration:none;color:inherit;cursor:pointer;">Instituto Buko Kaesemodel</a>
+        <span class="header-sub">Instituto Buko Kaesemodel</span>
         <div class="header-user">
           <div class="user-avatar" aria-hidden="true">DR</div>
           <div class="user-info">
@@ -53,7 +55,7 @@
             <span class="user-role">Profissional de Saúde</span>
           </div>
         </div>
-        <button class="btn-logout" id="btnLogout" aria-label="Encerrar sessão">
+        <button type="button" class="btn-logout" id="btnLogout" aria-label="Encerrar sessão">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -93,7 +95,7 @@
         >Sua sessão expira em <strong id="sessionCountdown">2:00</strong>. Deseja
         continuar?</span
       >
-      <button class="btn-session-keep" id="btnKeepSession">
+      <button type="button" class="btn-session-keep" id="btnKeepSession">
         Continuar sessão
       </button>
     </div>
@@ -109,7 +111,7 @@
             </div>
           </div>
           <div class="patient-actions">
-            <button class="btn-secondary" id="btnBack" type="button">
+            <button class="btn-secondary" id="btnBack" type="button" onclick="window.location.href='dashboardMedico.html'">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" style="margin-right: 4px; vertical-align: text-bottom;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
               Voltar
             </button>
@@ -259,7 +261,6 @@
           </div>
 
           <div class="clinical-embed" id="clinicalEmbed">
-            <!-- TELA: FORMULÁRIO -->
             <div id="tela-formulario" class="tela ativa">
               <div class="card">
                 <button type="button" class="btn-save-corner" id="btnSaveForm" title="Salvar formulário" aria-label="Salvar formulário">
@@ -271,159 +272,146 @@
                   <span>Salvar</span>
                 </button>
                 <h2 class="card-title">FORMULÁRIO CLÍNICO</h2>
-                <p class="card-subtitle">
-                  Marque apenas os sintomas que o paciente
-                  <strong>apresenta</strong>. O score é calculado com base no que
-                  for assinalado.
-                </p>
                 <div class="grid-campos">
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="deficiencia_intelectual" value="sim" />
-                    <span class="campo-label">Deficiência intelectual</span>
+                    <span class="campo-label">DEFICIÊNCIA INTELECTUAL</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="macroorquidismo" value="sim" />
-                    <span class="campo-label">Macroorquidismo</span>
+                    <span class="campo-label">MACROORQUIDISMO</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="dificuldades_aprendizagem" value="sim" />
-                    <span class="campo-label">Dificuldades de aprendizagem</span>
+                    <span class="campo-label">DIFICULDADES DE APRENDIZAGEM</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="movimentos_repetitivos" value="sim" />
                     <span class="campo-label">Movimentos repetitivos</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="hiperatividade" value="sim" />
-                    <span class="campo-label">Hiperatividade</span>
+                    <span class="campo-label">HIPERATIVIDADE</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="evita_contato_fisico" value="sim" />
-                    <span class="campo-label">Evita contato físico</span>
+                    <span class="campo-label">EVITA CONTATO FÍSICO</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="face_alongada" value="sim" />
-                    <span class="campo-label">Face alongada / orelhas</span>
+                    <span class="campo-label">FACE ALONGADA/ORELHAS</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="hipermobilidade" value="sim" />
-                    <span class="campo-label">Hipermobilidade articular</span>
+                    <span class="campo-label">HIPERMOBILIDADE ARTICULAR</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="deficit_atencao" value="sim" />
-                    <span class="campo-label">Déficit de atenção</span>
+                    <span class="campo-label">DÉFICIT DE ATENÇÃO</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="atraso_fala" value="sim" />
-                    <span class="campo-label">Atraso na fala</span>
+                    <span class="campo-label">ATRASO NA FALA</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="evita_contato_visual" value="sim" />
-                    <span class="campo-label">Evita contato visual</span>
+                    <span class="campo-label">EVITA CONTATO VISUAL</span>
+                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <span class="custom-check"></span>
                     <input type="checkbox" name="agressividade" value="sim" />
-                    <span class="campo-label">Agressividade</span>
+                    <span class="campo-label">AGRESSIVIDADE</span>
+                    <span class="custom-check"></span>
                   </label>
                 </div>
-                <!-- /grid-campos -->
-
                 <div id="erro-formulario" class="erro-msg" style="display: none">
                   ⚠️ Por favor, responda todos os campos antes de confirmar.
                 </div>
 
                 <div class="botoes">
-                  <button class="btn btn-cancelar" onclick="cancelarFormulario()">
+                  <button type="button" class="btn btn-cancelar" onclick="cancelarFormulario()">
                     CANCELAR
                   </button>
-                  <button class="btn btn-confirmar" onclick="confirmarDados()">
-                    CONFIRMAR DADOS
+                  <button type="button" class="btn btn-confirmar" onclick="confirmarDados()">
+                    CONFIRMAR<br />DADOS
                   </button>
                 </div>
               </div>
             </div>
-            <!-- /tela-formulario -->
-
-            <!-- TELA: RESULTADO -->
             <div id="tela-resultado" class="tela">
               <div class="card card-resultado">
                 <h2 class="card-title">RESULTADO DO PACIENTE</h2>
 
                 <div class="resultado-corpo">
                   <div class="score-bloco">
-                    <span class="score-label">Probabilidade</span>
-                    <div id="score-box" class="score-box">0%</div>
-                    <span id="score-badge" class="score-badge"></span>
+                    <span class="score-label">SCORE</span>
+                    <div id="score-box" class="score-box">0.00</div>
                   </div>
 
                   <div class="indicacao-bloco">
-                    <span class="indicacao-label">Indicação clínica</span>
+                    <span class="indicacao-label">INDICAÇÃO</span>
                     <div id="indicacao-texto" class="indicacao-texto"></div>
-                    <div id="asterisco-info" class="asterisco-info" style="display: none"></div>
                   </div>
                 </div>
 
-                <!-- BARRA DE PROBABILIDADE -->
                 <div class="metrica-bloco">
                   <div class="metrica-header">
-                    <span class="metrica-titulo">Nível de probabilidade</span>
-                    <span id="metrica-contagem" class="metrica-contagem">0 de 12 sintomas</span>
+                    <span class="metrica-titulo">MÉTRICA DE SINTOMAS</span>
+                    <span id="metrica-contagem" class="metrica-contagem">0 / 12 SIM</span>
                   </div>
 
                   <div class="metrica-barra-wrap">
                     <div id="metrica-barra" class="metrica-barra"></div>
-                    <span class="limiar" style="left: 40%"></span>
-                    <span class="limiar" style="left: 56%"></span>
+                    <div class="metrica-marcadores">
+                      <span class="marcador" style="left: 0%">0</span>
+                      <span class="marcador" style="left: 33.3%">4</span>
+                      <span class="marcador" style="left: 58.3%">7</span>
+                      <span class="marcador" style="left: 100%; transform: translateX(-100%)">12</span>
+                    </div>
                   </div>
 
                   <div class="metrica-legenda">
-                    <span class="legenda-item legenda-baixo">Baixa &lt; 40%</span>
-                    <span class="legenda-item legenda-medio">Média 40–55%</span>
-                    <span class="legenda-item legenda-alto">Alta ≥ 56%</span>
+                    <span class="legenda-item legenda-baixo">■ 0–4 Baixa</span>
+                    <span class="legenda-item legenda-medio">■ 5–6 Média</span>
+                    <span class="legenda-item legenda-alto">■ 7–12 Alta</span>
                   </div>
-                </div>
 
-                <!-- SINTOMAS APRESENTADOS -->
-                <div class="sintomas-bloco">
-                  <span class="metrica-titulo">Sintomas apresentados</span>
                   <div id="metrica-pontos" class="metrica-pontos"></div>
                 </div>
+
+                <div id="asterisco-info" class="asterisco-info" style="display: none"></div>
 
                 <div id="botoes-resultado" class="botoes-resultado"></div>
               </div>
             </div>
-            <!-- /tela-resultado -->
-          </div>
+            </div>
         </section>
       </div>
     </main>
 
     <div class="toast" id="toast"></div>
 
-    <!-- Modal de Foto -->
     <div id="photoModal" class="photo-modal" hidden>
       <button id="photoModalClose" class="photo-modal-close" aria-label="Fechar" type="button">
         <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -431,9 +419,8 @@
       <img id="photoModalImg" src="" alt="Foto expandida" />
     </div>
 
-    <script src="server/home.js?v=20260612a"></script>
-    <script src="server/paciente.js?v=20260612a"></script>
-    <script src="server/relatorio.js?v=20260612a"></script>
-    <script src="server/formulario.js?v=20260612a"></script>
+    <script src="server/home.js"></script>
+    <script src="server/paciente.js"></script>
+    <script src="server/formulario.js"></script>
   </body>
 </html>
