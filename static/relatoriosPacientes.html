@@ -198,8 +198,8 @@
       </div>
     </main>
 
-    <script src="/server/home.js"></script>
-    <script src="/server/relatorio.js"></script>
+    <script src="/server/home.js?v=20260612a"></script>
+    <script src="/server/relatorio.js?v=20260612a"></script>
     <script>
       const POR_PAGINA = 10;
       let paginaAtual = 1;
@@ -298,6 +298,12 @@
 
       async function gerarPDFAvaliacao(id) {
         const rel = relatorios.find((r) => r.id === id);
+
+        // Abre a janela JÁ no clique (gesto do usuário) para o navegador não
+        // bloquear o pop-up — só depois buscamos os dados e a preenchemos.
+        const janela = window.open("", "_blank");
+        if (janela) janela.document.write("<p style='font-family:sans-serif;padding:24px'>Gerando relatório…</p>");
+
         try {
           const token = localStorage.getItem('aura_token');
           const res = await fetch(`/api/triagens/${id}`, {
@@ -314,9 +320,10 @@
             conduta: det.recomendacao_encaminhamento,
             medicoNome: det.medico_nome,
             medicoCrm: det.medico_crm,
-          });
+          }, janela);
         } catch (err) {
           console.error("Erro ao gerar relatório:", err);
+          if (janela) janela.close();
           alert("Não foi possível gerar o relatório desta avaliação.");
         }
       }
