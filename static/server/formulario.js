@@ -80,9 +80,8 @@ function cancelarFormulario() {
 
 async function confirmarDados() {
   const erroEl = document.getElementById("erro-formulario");
-  const btnSaveForm = document.getElementById('btnSaveForm');
 
-  // ── Confirmação de Segurança (Do Repositório) ──
+  // ── Dupla confirmação antes de calcular e registrar ──
   const marcados = sintomasMarcados();
   const n = marcados.length;
   const confirmou = confirm(
@@ -93,68 +92,30 @@ async function confirmarDados() {
   if (!confirmou) return;
 
   if (erroEl) erroEl.style.display = "none";
-  
+
   const score = calcularScore();
   ultimoScore = score;
 
-  // --- INÍCIO DA DUPLA INTEGRAÇÃO COM A API ---
-  if (btnSaveForm) {
-    btnSaveForm.disabled = true;
-    btnSaveForm.innerHTML = 'Salvando...';
-  }
+  // Mostra a tela de resultado imediatamente; o registro acontece em paralelo
+  exibirResultado(score);
 
-  const token = localStorage.getItem('aura_token');
-
-  // 1. Atualiza o score no perfil do Paciente (Para os Gráficos do SPA)
-  if (PACIENTE_ID) {
-    try {
-      await fetch(`/api/pacientes/${PACIENTE_ID}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ score_clinico: score })
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar score no perfil do paciente:", error);
-    }
-  }
-
-  // 2. Registra o Histórico na Triagem (Para Laudos e Relatórios)
+  // Registra a avaliação no histórico de triagens (aparece em Avaliações).
+  // A conduta inicial segue a indicação do score e pode ser ajustada
+  // pelos botões de encaminhamento/monitoramento.
   try {
     const triagemId = await registrarTriagem(score >= 0.56);
     ultimaTriagemId = triagemId;
     if (triagemId && typeof mostrarToast === "function") {
       mostrarToast("Avaliação registrada no sistema.");
     }
-  } catch(error) {
-     console.error("Erro ao registrar no histórico de triagens:", error);
+  } catch (error) {
+    console.error("Erro ao registrar no histórico de triagens:", error);
   }
-
-  if (btnSaveForm) {
-    btnSaveForm.disabled = false;
-    btnSaveForm.innerHTML = `
-      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-        <polyline points="7 3 7 8 15 8"></polyline>
-      </svg>
-      <span>Salvar</span>`;
-  }
-  // --- FIM DA INTEGRAÇÃO ---
-
-  // Mostra a tela de resultado final
-  exibirResultado(score);
 }
 
-// Vincula o botão da interface à função assíncrona
-document.addEventListener('DOMContentLoaded', () => {
-  const btnSaveForm = document.getElementById('btnSaveForm');
-  if (btnSaveForm) {
-    btnSaveForm.addEventListener('click', confirmarDados);
-  }
-});
+// Observação: o botão "Salvar" (btnSaveForm) tem handler próprio no paciente.js
+// — ele apenas grava o checklist no perfil do paciente, sem calcular score.
+// O cálculo do score acontece somente pelo botão "CONFIRMAR DADOS".
 
 // ─────────────────────────────────────────────
 // Renderiza tela de resultado
@@ -179,9 +140,10 @@ function exibirResultado(score) {
     categoria = "Baixa probabilidade";
   }
 
-  // Atualiza blocos de pontuação
+  // ── Score apresentado como percentual + badge de categoria ──
+  const pct = Math.round(score * 100);
   if (scoreBox) {
-    scoreBox.textContent = score.toFixed(2);
+    scoreBox.textContent = `${pct}%`;
     scoreBox.classList.remove("alto", "medio", "baixo");
     scoreBox.classList.add(classe);
   }
@@ -192,94 +154,99 @@ function exibirResultado(score) {
   }
 
   const marcados = sintomasMarcados();
-  const count = marcados.length;
-  
-  const countEl = document.getElementById("metrica-contagem");
-  if (countEl) countEl.textContent = `${count} / 12 SIM`;
 
+  const countEl = document.getElementById("metrica-contagem");
+  if (countEl) {
+    const n = marcados.length;
+    countEl.textContent = `${n} de 12 ${n === 1 ? "sintoma" : "sintomas"}`;
+  }
+
+  // A barra reflete o próprio score (0–100%), com a cor da categoria
   const metricaBarra = document.getElementById("metrica-barra");
   if (metricaBarra) {
-    metricaBarra.style.width = `${(count / 12) * 100}%`;
+    metricaBarra.style.width = `${pct}%`;
     metricaBarra.className = `metrica-barra ${classe}`;
   }
 
-  // Preenche a listagem visual dos sintomas apresentados
+  // Chips dos sintomas apresentados (labels legíveis do relatorio.js)
   const pontosEl = document.getElementById("metrica-pontos");
   if (pontosEl) {
-    // Tenta usar as labels do relatorio.js se existir, ou formata o texto cru
     pontosEl.innerHTML = marcados.length
       ? marcados.map((nome) => {
-          let label = typeof SINTOMAS_LABELS !== 'undefined' ? SINTOMAS_LABELS[nome] : nome.replace(/_/g, ' ');
-          return `<span class="sintoma-chip ${classe}">${label.toUpperCase()}</span>`;
+          const label = typeof SINTOMAS_LABELS !== "undefined"
+            ? (SINTOMAS_LABELS[nome] || nome.replace(/_/g, " "))
+            : nome.replace(/_/g, " ");
+          return `<span class="sintoma-chip ${classe}">${label}</span>`;
         }).join("")
       : `<span class="sem-sintomas">Nenhum sintoma assinalado.</span>`;
   }
 
-  // ── Textos e Botões (Design Estético da SPA) ─────────────────────
+  // ── Indicação clínica, recomendação e ações ──
   if (classe === "alto") {
     if (indicacaoTexto) {
-      indicacaoTexto.innerHTML = `O resultado do score do paciente é ≥ 0.56, dessa forma, representa
+      indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (≥ 56%), o que representa
          <span class="destaque-alto">alta probabilidade clínica</span>.
-         Indicado priorizar realização de teste molecular (FMR1)!`;
+         Indicado priorizar a realização do teste molecular (FMR1).`;
     }
     if (asteriscoInfo) {
       asteriscoInfo.style.display = "flex";
       asteriscoInfo.className = "asterisco-info alto";
-      asteriscoInfo.innerHTML = `<span style="font-size:1.1rem;color:#c0392b;">★</span> É RECOMENDADO ENCAMINHAR O PACIENTE PARA TESTE FMR1`;
+      asteriscoInfo.innerHTML = `★ Recomendado encaminhar o paciente para o teste FMR1`;
     }
     if (botoesRes) {
       botoesRes.innerHTML = `
         <button class="btn-acao primario" onclick="acaoEncaminhar()">
-          É RECOMENDADO ENCAMINHAR<br>O PACIENTE PARA TESTE FMR1
+          Encaminhar para teste FMR1
         </button>
         <button class="btn-acao secundario" onclick="acaoMonitoramento()">
-          COLOCAR PACIENTE EM<br>MONITORAMENTO
+          Colocar em monitoramento
         </button>`;
     }
   } else if (classe === "medio") {
     if (indicacaoTexto) {
-      indicacaoTexto.innerHTML = `O resultado do score do paciente é ≥ 0.40, dessa forma, representa
+      indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (entre 40% e 55%), o que representa
          <span class="destaque-medio">média probabilidade clínica</span>.
-         É indicado analisar mais detalhadamente para confirmar a situação
-         e se é preciso a realização do teste molecular (FMR1)!`;
+         Indicado analisar com mais detalhe para confirmar a necessidade do teste molecular (FMR1).`;
     }
     if (asteriscoInfo) asteriscoInfo.style.display = "none";
     if (botoesRes) {
       botoesRes.innerHTML = `
         <button class="btn-acao secundario" onclick="acaoEncaminhar()">
-          RECOMENDAR PACIENTE<br>PARA TESTE FMR1?
+          Recomendar teste FMR1
         </button>
         <button class="btn-acao secundario" onclick="acaoMonitoramento()">
-          COLOCAR PACIENTE EM<br>ESPERA / MONITORAMENTO
+          Colocar em espera / monitoramento
         </button>`;
     }
   } else {
     if (indicacaoTexto) {
-      indicacaoTexto.innerHTML = `O resultado do score do paciente é ≤ 0.40, dessa forma, o paciente representa
+      indicacaoTexto.innerHTML = `O score do paciente é <strong>${pct}%</strong> (&lt; 40%), o que representa
          <span class="destaque-baixo">baixa probabilidade clínica</span>.
          Indicado analisar e monitorar o paciente.`;
     }
     if (asteriscoInfo) {
       asteriscoInfo.style.display = "flex";
       asteriscoInfo.className = "asterisco-info baixo";
-      asteriscoInfo.innerHTML = `<span style="font-size:1.1rem;color:#27ae60;">★</span> <span style="color:#27ae60;">MONITORAMENTO RECOMENDADO</span>`;
+      asteriscoInfo.innerHTML = `★ Monitoramento recomendado`;
     }
     if (botoesRes) {
       botoesRes.innerHTML = `
         <button class="btn-acao secundario" onclick="acaoEncaminhar()">
-          RECOMENDAR PACIENTE<br>PARA TESTE FMR1?
+          Recomendar teste FMR1
         </button>
         <button class="btn-acao primario" onclick="acaoMonitoramento()">
-          COLOCAR PACIENTE EM<br>ESPERA / MONITORAMENTO
+          Colocar em espera / monitoramento
         </button>`;
     }
   }
 
   if (botoesRes) {
-    // Injeção do Botão Gerar PDF (Repositório Original)
+    // Botão de relatório formal (PDF), disponível em todas as categorias
     botoesRes.insertAdjacentHTML(
       "beforeend",
-      `<button class="btn-acao relatorio" style="margin-top: 8px;" onclick="gerarRelatorioResultado()">GERAR LAUDO (PDF)</button>`
+      `<button class="btn-acao relatorio" onclick="gerarRelatorioResultado()">
+         Gerar relatório (PDF)
+       </button>`
     );
 
     const btnVoltarAntigo = document.querySelector(".btn-voltar");

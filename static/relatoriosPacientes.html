@@ -32,6 +32,17 @@
       .score-pill--medio { background: #f0a500; }
       .score-pill--baixo { background: #27ae60; }
 
+      /* Botões de ação com ícone */
+      .actions-cell .btn-acao {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .actions-cell .btn-acao svg {
+        flex-shrink: 0;
+      }
+
       /* Botão de excluir avaliação */
       .btn-acao--danger {
         color: #c0392b;
@@ -40,6 +51,7 @@
       .btn-acao--danger:hover {
         background: #fdf0ee;
         border-color: #e74c3c;
+        color: #c0392b;
       }
     </style>
   </head>
@@ -270,9 +282,18 @@
                 <td>${scoreBadge}</td>
                 <td>
                   <div class="actions-cell">
-                    <button class="btn-acao" onclick="event.stopPropagation(); gerarPDFAvaliacao('${r.id}')">Relatório PDF</button>
-                    <button class="btn-acao" onclick="event.stopPropagation(); window.location.href='paciente.html?id=${r.paciente_id}'">Ver paciente</button>
-                    <button class="btn-acao btn-acao--danger" onclick="event.stopPropagation(); excluirAvaliacao('${r.id}', '${(r.pacienteNome || "este paciente").replace(/'/g, "\\'")}')">Excluir</button>
+                    <button class="btn-acao" title="Gerar o relatório formal desta avaliação" onclick="event.stopPropagation(); gerarPDFAvaliacao('${r.id}')">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                      Relatório PDF
+                    </button>
+                    <button class="btn-acao" title="Abrir a ficha do paciente" onclick="event.stopPropagation(); window.location.href='paciente.html?id=${r.paciente_id}'">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      Ver paciente
+                    </button>
+                    <button class="btn-acao btn-acao--danger" title="Excluir esta avaliação" onclick="event.stopPropagation(); excluirAvaliacao('${r.id}', '${(r.pacienteNome || "este paciente").replace(/'/g, "\\'")}')">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                      Excluir
+                    </button>
                   </div>
                 </td>
               </tr>`;

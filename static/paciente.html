@@ -272,77 +272,82 @@
                   <span>Salvar</span>
                 </button>
                 <h2 class="card-title">FORMULÁRIO CLÍNICO</h2>
+                <p class="card-subtitle">
+                  Marque apenas os sintomas que o paciente
+                  <strong>apresenta</strong>. O score é calculado com base no que
+                  for assinalado.
+                </p>
                 <div class="grid-campos">
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="deficiencia_intelectual" value="sim" />
-                    <span class="campo-label">DEFICIÊNCIA INTELECTUAL</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Deficiência intelectual</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="macroorquidismo" value="sim" />
-                    <span class="campo-label">MACROORQUIDISMO</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Macroorquidismo</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="dificuldades_aprendizagem" value="sim" />
-                    <span class="campo-label">DIFICULDADES DE APRENDIZAGEM</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Dificuldades de aprendizagem</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="movimentos_repetitivos" value="sim" />
                     <span class="campo-label">Movimentos repetitivos</span>
-                    <span class="custom-check"></span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="hiperatividade" value="sim" />
-                    <span class="campo-label">HIPERATIVIDADE</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Hiperatividade</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="evita_contato_fisico" value="sim" />
-                    <span class="campo-label">EVITA CONTATO FÍSICO</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Evita contato físico</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="face_alongada" value="sim" />
-                    <span class="campo-label">FACE ALONGADA/ORELHAS</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Face alongada / orelhas</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="hipermobilidade" value="sim" />
-                    <span class="campo-label">HIPERMOBILIDADE ARTICULAR</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Hipermobilidade articular</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="deficit_atencao" value="sim" />
-                    <span class="campo-label">DÉFICIT DE ATENÇÃO</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Déficit de atenção</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="atraso_fala" value="sim" />
-                    <span class="campo-label">ATRASO NA FALA</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Atraso na fala</span>
                   </label>
 
                   <label class="campo campo-checkbox">
+                    <span class="custom-check"></span>
                     <input type="checkbox" name="evita_contato_visual" value="sim" />
-                    <span class="campo-label">EVITA CONTATO VISUAL</span>
-                    <span class="custom-check"></span>
+                    <span class="campo-label">Evita contato visual</span>
                   </label>
 
                   <label class="campo campo-checkbox">
-                    <input type="checkbox" name="agressividade" value="sim" />
-                    <span class="campo-label">AGRESSIVIDADE</span>
                     <span class="custom-check"></span>
+                    <input type="checkbox" name="agressividade" value="sim" />
+                    <span class="campo-label">Agressividade</span>
                   </label>
                 </div>
                 <div id="erro-formulario" class="erro-msg" style="display: none">
@@ -354,7 +359,7 @@
                     CANCELAR
                   </button>
                   <button type="button" class="btn btn-confirmar" onclick="confirmarDados()">
-                    CONFIRMAR<br />DADOS
+                    CONFIRMAR DADOS
                   </button>
                 </div>
               </div>
@@ -365,42 +370,43 @@
 
                 <div class="resultado-corpo">
                   <div class="score-bloco">
-                    <span class="score-label">SCORE</span>
-                    <div id="score-box" class="score-box">0.00</div>
+                    <span class="score-label">Probabilidade</span>
+                    <div id="score-box" class="score-box">0%</div>
+                    <span id="score-badge" class="score-badge"></span>
                   </div>
 
                   <div class="indicacao-bloco">
-                    <span class="indicacao-label">INDICAÇÃO</span>
+                    <span class="indicacao-label">Indicação clínica</span>
                     <div id="indicacao-texto" class="indicacao-texto"></div>
+                    <div id="asterisco-info" class="asterisco-info" style="display: none"></div>
                   </div>
                 </div>
 
+                <!-- BARRA DE PROBABILIDADE -->
                 <div class="metrica-bloco">
                   <div class="metrica-header">
-                    <span class="metrica-titulo">MÉTRICA DE SINTOMAS</span>
-                    <span id="metrica-contagem" class="metrica-contagem">0 / 12 SIM</span>
+                    <span class="metrica-titulo">Nível de probabilidade</span>
+                    <span id="metrica-contagem" class="metrica-contagem">0 de 12 sintomas</span>
                   </div>
 
                   <div class="metrica-barra-wrap">
                     <div id="metrica-barra" class="metrica-barra"></div>
-                    <div class="metrica-marcadores">
-                      <span class="marcador" style="left: 0%">0</span>
-                      <span class="marcador" style="left: 33.3%">4</span>
-                      <span class="marcador" style="left: 58.3%">7</span>
-                      <span class="marcador" style="left: 100%; transform: translateX(-100%)">12</span>
-                    </div>
+                    <span class="limiar" style="left: 40%"></span>
+                    <span class="limiar" style="left: 56%"></span>
                   </div>
 
                   <div class="metrica-legenda">
-                    <span class="legenda-item legenda-baixo">■ 0–4 Baixa</span>
-                    <span class="legenda-item legenda-medio">■ 5–6 Média</span>
-                    <span class="legenda-item legenda-alto">■ 7–12 Alta</span>
+                    <span class="legenda-item legenda-baixo">Baixa &lt; 40%</span>
+                    <span class="legenda-item legenda-medio">Média 40–55%</span>
+                    <span class="legenda-item legenda-alto">Alta ≥ 56%</span>
                   </div>
-
-                  <div id="metrica-pontos" class="metrica-pontos"></div>
                 </div>
 
-                <div id="asterisco-info" class="asterisco-info" style="display: none"></div>
+                <!-- SINTOMAS APRESENTADOS -->
+                <div class="sintomas-bloco">
+                  <span class="metrica-titulo">Sintomas apresentados</span>
+                  <div id="metrica-pontos" class="metrica-pontos"></div>
+                </div>
 
                 <div id="botoes-resultado" class="botoes-resultado"></div>
               </div>
@@ -419,8 +425,9 @@
       <img id="photoModalImg" src="" alt="Foto expandida" />
     </div>
 
-    <script src="server/home.js"></script>
-    <script src="server/paciente.js"></script>
-    <script src="server/formulario.js"></script>
+    <script src="server/home.js?v=20260612b"></script>
+    <script src="server/paciente.js?v=20260612b"></script>
+    <script src="server/relatorio.js?v=20260612b"></script>
+    <script src="server/formulario.js?v=20260612b"></script>
   </body>
 </html>
