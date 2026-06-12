@@ -175,6 +175,7 @@ function setupProfile() {
 // ---------- NOTIFICAÇÕES ----------
 function setupNotificacoes() {
   const btn = document.getElementById("notifBtn");
+  if (!btn) return;
   const panel = document.getElementById("notifPanel");
   const backdrop = document.getElementById("notifBackdrop");
   const markAll = document.getElementById("markAllRead");
