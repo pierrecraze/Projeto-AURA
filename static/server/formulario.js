@@ -35,6 +35,7 @@ const _params = new URLSearchParams(window.location.search);
 const PACIENTE_ID = _params.get("paciente_id") || _params.get("id");
 
 let ultimoScore = 0;
+let ultimaTriagemId = null; // id da avaliação registrada ao calcular o score
 
 // ─────────────────────────────────────────────
 // Utilitários
@@ -89,10 +90,30 @@ function confirmarDados() {
   // O score é calculado apenas com base no que o paciente apresenta.
   // Itens não marcados são tratados como "não apresenta", portanto não é
   // necessário responder a todos os campos para gerar o resultado.
+
+  // ── Dupla confirmação antes de calcular e registrar ──
+  const n = sintomasMarcados().length;
+  const confirmou = confirm(
+    `Calcular o score do paciente?\n\n` +
+      `${n} de 12 sintomas assinalados como "apresenta".\n` +
+      `A avaliação será registrada no sistema.`,
+  );
+  if (!confirmou) return;
+
   erroEl.style.display = "none";
   const score = calcularScore();
   ultimoScore = score;
   exibirResultado(score);
+
+  // Registra automaticamente a avaliação (aparece na página de Avaliações).
+  // A conduta inicial segue a indicação do score e pode ser ajustada
+  // pelos botões de encaminhamento/monitoramento.
+  registrarTriagem(score >= 0.56).then((id) => {
+    ultimaTriagemId = id;
+    if (id && typeof mostrarToast === "function") {
+      mostrarToast("Avaliação registrada no sistema.");
+    }
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -265,7 +286,7 @@ function gerarRelatorioResultado() {
 // ─────────────────────────────────────────────
 
 async function registrarTriagem(recomendacaoEncaminhamento) {
-  if (!PACIENTE_ID) return false;
+  if (!PACIENTE_ID) return null;
 
   try {
     const token = localStorage.getItem("aura_token");
@@ -282,6 +303,35 @@ async function registrarTriagem(recomendacaoEncaminhamento) {
         sintomas: sintomasMarcados(),
       }),
     });
+    if (!res.ok) return null;
+    const criada = await res.json();
+    return criada.id || null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+// Atualiza a conduta da avaliação registrada no cálculo do score.
+// Se por algum motivo ela não existir, registra uma nova.
+async function definirConduta(recomendacaoEncaminhamento) {
+  if (!ultimaTriagemId) {
+    ultimaTriagemId = await registrarTriagem(recomendacaoEncaminhamento);
+    return ultimaTriagemId !== null;
+  }
+
+  try {
+    const token = localStorage.getItem("aura_token");
+    const res = await fetch(`/api/triagens/${ultimaTriagemId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        recomendacao_encaminhamento: recomendacaoEncaminhamento,
+      }),
+    });
     return res.ok;
   } catch (e) {
     console.error(e);
@@ -296,21 +346,21 @@ function irParaPaciente() {
 }
 
 async function acaoEncaminhar() {
-  const registrado = await registrarTriagem(true);
+  const ok = await definirConduta(true);
   alert(
-    registrado
-      ? "✅ Paciente encaminhado para teste molecular FMR1.\nAvaliação registrada no sistema."
-      : "✅ Encaminhamento indicado.\n⚠️ Não foi possível registrar a avaliação no sistema.",
+    ok
+      ? "✅ Paciente encaminhado para teste molecular FMR1.\nConduta registrada na avaliação."
+      : "✅ Encaminhamento indicado.\n⚠️ Não foi possível registrar a conduta no sistema.",
   );
   irParaPaciente();
 }
 
 async function acaoMonitoramento() {
-  const registrado = await registrarTriagem(false);
+  const ok = await definirConduta(false);
   alert(
-    registrado
-      ? "📋 Paciente colocado em monitoramento/espera.\nAvaliação registrada no sistema."
-      : "📋 Monitoramento indicado.\n⚠️ Não foi possível registrar a avaliação no sistema.",
+    ok
+      ? "📋 Paciente colocado em monitoramento/espera.\nConduta registrada na avaliação."
+      : "📋 Monitoramento indicado.\n⚠️ Não foi possível registrar a conduta no sistema.",
   );
   irParaPaciente();
 }

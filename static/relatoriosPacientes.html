@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AURA | Relatórios</title>
+    <title>AURA | Avaliações</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
@@ -15,6 +15,23 @@
     <link rel="stylesheet" href="css/listaPaciente.css" />
 
     <link rel="icon" href="favicon.ico" />
+
+    <style>
+      /* Badge de score na lista de avaliações */
+      .score-pill {
+        display: inline-block;
+        min-width: 52px;
+        text-align: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: #fff;
+      }
+      .score-pill--alto { background: #e74c3c; }
+      .score-pill--medio { background: #f0a500; }
+      .score-pill--baixo { background: #27ae60; }
+    </style>
   </head>
 
   <body>
@@ -110,8 +127,8 @@
       <div class="page-wrapper">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Relatórios</h2>
-            <p class="section-sub">Avaliações de X-Frágil registradas na plataforma</p>
+            <h2 class="section-title">Avaliações</h2>
+            <p class="section-sub">Avaliações de X-Frágil registradas na plataforma, com score e relatório em PDF</p>
           </div>
         </div>
 
@@ -147,6 +164,7 @@
                 <th>Paciente</th>
                 <th>Data da avaliação</th>
                 <th>Horário</th>
+                <th>Score</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -169,7 +187,7 @@
                 d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6"
               />
             </svg>
-            <p>Nenhum relatório encontrado.</p>
+            <p>Nenhuma avaliação encontrada.</p>
           </div>
 
           <div class="pagination">
@@ -227,6 +245,8 @@
             const data = new Date(r.data_hora);
             const dataBr = data.toLocaleDateString('pt-BR');
             const horaBr = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const { classe, categoria } = classificarScorePct(r.score_total);
+            const scoreBadge = `<span class="score-pill score-pill--${classe}" title="${categoria}">${r.score_total}%</span>`;
             return `
               <tr class="row-click" onclick="window.location.href='paciente.html?id=${r.paciente_id}'">
                 <td>
@@ -237,6 +257,7 @@
                 </td>
                 <td>${dataBr}</td>
                 <td>${horaBr}</td>
+                <td>${scoreBadge}</td>
                 <td>
                   <div class="actions-cell">
                     <button class="btn-acao" onclick="event.stopPropagation(); gerarPDFAvaliacao('${r.id}')">Relatório PDF</button>
@@ -306,7 +327,7 @@
           const headers = { 'Authorization': `Bearer ${token}` };
 
           const [resTri, resPac] = await Promise.all([
-            fetch('/api/triagens/', { headers }),
+            fetch('/api/triagens/resumo', { headers }),
             fetch('/api/pacientes/', { headers })
           ]);
 

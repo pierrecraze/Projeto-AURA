@@ -20,8 +20,15 @@ from sqlalchemy import text
 try:
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE avaliacao ADD COLUMN IF NOT EXISTS sintomas TEXT"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS sintomas JSONB"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS nome_mae VARCHAR(150)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS nome_pai VARCHAR(150)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS cidade VARCHAR(100)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS estado VARCHAR(2)"))
+        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS pais VARCHAR(100)"))
+        conn.execute(text("ALTER TABLE responsavel ADD COLUMN IF NOT EXISTS cpf VARCHAR(14)"))
 except Exception as e:
-    print(f"[AVISO] Não foi possível garantir a coluna avaliacao.sintomas: {e}")
+    print(f"[AVISO] Não foi possível garantir as colunas extras (sintomas/ficha): {e}")
 
 # Inicialização do Aplicativo
 app = FastAPI(

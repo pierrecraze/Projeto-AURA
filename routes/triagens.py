@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database.db import SessionLocal
-from schemas.triagem import TriagemMetadata, TriagemDetalhe, TriagemCreate
+from schemas.triagem import TriagemMetadata, TriagemResumo, TriagemCondutaUpdate, TriagemDetalhe, TriagemCreate
 from services import triagem_service
 from models.medico import MedicoModel
 from core.security import obter_usuario_atual
@@ -35,6 +35,41 @@ async def listar_triagens(db: Session = Depends(get_db), usuario_logado: str = D
         ))
 
     return resultados
+
+
+# IMPORTANTE: declarado antes de "/{triagem_id}" para a rota fixa ter prioridade
+@router.get("/resumo", response_model=List[TriagemResumo], summary="Listar Avaliações com Score (Profissional)")
+async def listar_triagens_resumo(db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
+    """
+    Retorna as avaliações com score e conduta — usado na página de Avaliações
+    do profissional de saúde.
+    """
+    avaliacoes = await triagem_service.listar_triagens(db)
+    return [
+        TriagemResumo(
+            id=av.id,
+            data_hora=av.data_hora,
+            paciente_id=av.paciente_id,
+            medico_id=av.profissional_id,
+            score_total=av.score_total,
+            recomendacao_encaminhamento=av.recomendacao_encaminhamento,
+        )
+        for av in avaliacoes
+    ]
+
+
+@router.patch("/{triagem_id}", response_model=TriagemMetadata, summary="Atualizar Conduta da Avaliação")
+async def atualizar_conduta_triagem(triagem_id: UUID, dados: TriagemCondutaUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
+    """
+    Atualiza a conduta (encaminhamento para FMR1 ou monitoramento) de uma
+    avaliação já registrada.
+    """
+    av = await triagem_service.atualizar_conduta(db, triagem_id, dados.recomendacao_encaminhamento)
+    if not av:
+        raise HTTPException(status_code=404, detail="Avaliação não encontrada.")
+    return TriagemMetadata(
+        id=av.id, data_hora=av.data_hora, paciente_id=av.paciente_id, medico_id=av.profissional_id
+    )
 
 
 @router.get("/{triagem_id}", response_model=TriagemDetalhe, summary="Detalhar Avaliação (Relatório)")

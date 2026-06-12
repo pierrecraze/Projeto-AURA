@@ -14,6 +14,19 @@ class TriagemMetadata(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+# Resumo para a página de Avaliações do profissional de saúde:
+# metadados + score e conduta, para exibir na lista.
+class TriagemResumo(TriagemMetadata):
+    score_total: int
+    recomendacao_encaminhamento: bool
+
+
+# Atualização da conduta de uma avaliação já registrada
+# (encaminhar para FMR1 ou monitoramento)
+class TriagemCondutaUpdate(BaseModel):
+    recomendacao_encaminhamento: bool
+
+
 # Detalhe completo de uma avaliação — usado pelo profissional de saúde
 # para gerar o relatório PDF (score, sintomas assinalados e conduta).
 class TriagemDetalhe(TriagemMetadata):

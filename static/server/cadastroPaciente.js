@@ -134,6 +134,11 @@ function serializeForm() {
     nome: $("nomePaciente").value.trim(),
     data_nascimento: $("dataNascimento").value.trim(),
     sexo_biologico: SEXO_PARA_API[$("sexoBiologico").value.trim()] || "",
+    nome_mae: $("nomeMae").value.trim() || null,
+    nome_pai: $("nomePai").value.trim() || null,
+    cidade: $("cidade").value.trim() || null,
+    estado: $("estado").value.trim() || null,
+    pais: $("pais").value.trim() || null,
   };
 
   const responsavel = $("responsavel").value.trim();
@@ -142,6 +147,7 @@ function serializeForm() {
       {
         nome: responsavel,
         parentesco: $("grauParentesco").value.trim() || "Não informado",
+        cpf: $("cpfResponsavel").value.trim() || null,
       },
     ];
   }
@@ -154,6 +160,18 @@ function fillForm(p) {
   $("dataNascimento").value = p.dataNascimento || p.data_nascimento || "";
   const sexo = p.sexoBiologico || p.sexo_biologico || "";
   $("sexoBiologico").value = SEXO_DA_API[sexo] || sexo || "";
+  $("nomeMae").value = p.nome_mae || "";
+  $("nomePai").value = p.nome_pai || "";
+  $("cidade").value = p.cidade || "";
+  $("estado").value = p.estado || "";
+  $("pais").value = p.pais || "";
+
+  const resp = (p.responsaveis && p.responsaveis[0]) || null;
+  if (resp) {
+    $("responsavel").value = resp.nome || "";
+    $("grauParentesco").value = resp.parentesco || "";
+    $("cpfResponsavel").value = resp.cpf || "";
+  }
 }
 
 (async function init() {

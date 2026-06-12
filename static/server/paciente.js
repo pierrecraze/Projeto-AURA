@@ -81,39 +81,61 @@ function mascaraCpf(input) {
   input.value = v;
 }
 
-function readForm(current) {
+// O banco usa 'M'/'F'; o <select> usa 'Masculino'/'Feminino'
+const SEXO_PARA_API = { Feminino: "F", Masculino: "M" };
+const SEXO_DA_API = { F: "Feminino", M: "Masculino" };
+
+function lerSintomas() {
   const sintomas = {};
-  document.querySelectorAll('#clinicalWrap input[type="checkbox"]').forEach(cb => {
+  document.querySelectorAll('#clinicalWrap input[type="checkbox"]').forEach((cb) => {
     sintomas[cb.name] = cb.checked;
   });
+  return sintomas;
+}
 
-  return {
-    ...current,
+// Monta o payload no formato que a API espera (PacienteCreate, snake_case)
+function serializeFormAPI(current) {
+  const payload = {
     nome: $("nomePaciente").value.trim(),
-    dataNascimento: $("dataNascimento").value.trim(),
-    sexoBiologico: $("sexoBiologico").value.trim(),
-    nomeMae: $("nomeMae").value.trim(),
-    nomePai: $("nomePai").value.trim(),
-    responsavel: $("responsavel").value.trim(),
-    grauParentesco: $("grauParentesco").value.trim(),
-    cpfResponsavel: $("cpfResponsavel").value.trim(),
-    cidade: $("cidade").value.trim(),
-    estado: $("estado").value.trim(),
-    pais: $("pais").value.trim(),
-    sintomas: sintomas,
-    updatedAt: new Date().toISOString(),
+    cpf: (current && current.cpf) || null,
+    data_nascimento: $("dataNascimento").value.trim(),
+    sexo_biologico: SEXO_PARA_API[$("sexoBiologico").value.trim()] || "",
+    nome_mae: $("nomeMae").value.trim() || null,
+    nome_pai: $("nomePai").value.trim() || null,
+    cidade: $("cidade").value.trim() || null,
+    estado: $("estado").value.trim() || null,
+    pais: $("pais").value.trim() || null,
+    sintomas: lerSintomas(),
   };
+
+  const responsavel = $("responsavel").value.trim();
+  if (responsavel) {
+    payload.responsaveis = [
+      {
+        nome: responsavel,
+        parentesco: $("grauParentesco").value.trim() || "Não informado",
+        cpf: $("cpfResponsavel").value.trim() || null,
+      },
+    ];
+  }
+
+  return payload;
 }
 
 function fillForm(p) {
   $("nomePaciente").value = p.nome || "";
   $("dataNascimento").value = p.dataNascimento || p.data_nascimento || "";
-  $("sexoBiologico").value = p.sexoBiologico || p.sexo_biologico || "";
-  $("nomeMae").value = p.nomeMae || "";
-  $("nomePai").value = p.nomePai || "";
-  $("responsavel").value = p.responsavel || "";
-  $("grauParentesco").value = p.grauParentesco || "";
-  $("cpfResponsavel").value = p.cpfResponsavel || "";
+  const sexo = p.sexoBiologico || p.sexo_biologico || "";
+  $("sexoBiologico").value = SEXO_DA_API[sexo] || sexo || "";
+  $("nomeMae").value = p.nomeMae || p.nome_mae || "";
+  $("nomePai").value = p.nomePai || p.nome_pai || "";
+
+  // Responsável principal vem da API como lista (responsaveis[0])
+  const resp = (p.responsaveis && p.responsaveis[0]) || null;
+  $("responsavel").value = (resp && resp.nome) || p.responsavel || "";
+  $("grauParentesco").value = (resp && resp.parentesco) || p.grauParentesco || "";
+  $("cpfResponsavel").value = (resp && resp.cpf) || p.cpfResponsavel || "";
+
   $("cidade").value = p.cidade || "";
   $("estado").value = p.estado || "";
   $("pais").value = p.pais || "";
@@ -333,36 +355,67 @@ function renderPhotos(photos) {
     reader.readAsDataURL(file);
   });
 
-  $("btnSave").addEventListener("click", () => {
+  const btnSave = $("btnSave");
+  btnSave.addEventListener("click", async () => {
     if (!requiredCheck()) return;
 
-    const updated = readForm(current);
-    updated.fotos = current.fotos;
-
-    const all = loadPacientes();
-    const idx = all.findIndex((p) => p.id === id);
-    if (idx < 0) return;
-
-    all[idx] = { ...all[idx], ...updated };
-
+    btnSave.disabled = true;
     try {
-      savePacientes(all);
-      mostrarToast("Paciente atualizado.");
-      current = { ...all[idx] };
+      const token = localStorage.getItem("aura_token");
+      const res = await fetch(`${API_URL}${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(serializeFormAPI(current)),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const atualizado = await res.json();
+      // Preserva as fotos (mantidas no estado local) e reflete a resposta da API
+      current = { ...current, ...atualizado, fotos: current.fotos };
       fillForm(current);
+      mostrarToast("Paciente atualizado.");
     } catch (e) {
-      // Pode estourar quota se as fotos forem grandes
-      mostrarToast(
-        "Não foi possível salvar (talvez fotos muito grandes no navegador).",
-      );
-      console.error(e);
+      console.error("Erro ao salvar paciente:", e);
+      mostrarToast("Não foi possível salvar as alterações.");
+    } finally {
+      btnSave.disabled = false;
     }
   });
 
   const btnSaveForm = $("btnSaveForm");
   if (btnSaveForm) {
-    btnSaveForm.addEventListener("click", () => {
-      $("btnSave").click(); // Dispara o processo de salvar original
+    btnSaveForm.addEventListener("click", async () => {
+      // Coleta o estado atual do checklist clínico
+      const sintomas = {};
+      document
+        .querySelectorAll('#clinicalWrap input[type="checkbox"]')
+        .forEach((cb) => {
+          sintomas[cb.name] = cb.checked;
+        });
+
+      btnSaveForm.disabled = true;
+      try {
+        const token = localStorage.getItem("aura_token");
+        const res = await fetch(`${API_URL}${id}/sintomas`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ sintomas }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        current.sintomas = sintomas;
+        mostrarToast("Formulário clínico salvo.");
+      } catch (e) {
+        console.error("Erro ao salvar formulário clínico:", e);
+        mostrarToast("Não foi possível salvar o formulário clínico.");
+      } finally {
+        btnSaveForm.disabled = false;
+      }
     });
   }
 })();

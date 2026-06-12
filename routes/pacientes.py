@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from schemas.paciente import Paciente, PacienteCreate, VinculoFamiliar, VinculoFamiliarCreate
+from schemas.paciente import Paciente, PacienteCreate, VinculoFamiliar, VinculoFamiliarCreate, SintomasUpdate
 from services import paciente_service, grupo_service
 from models.paciente import PacienteModel
 from models.medico import MedicoModel
@@ -42,6 +42,8 @@ async def listar_pacientes(db: Session = Depends(get_db)):
 async def obter_paciente(id_paciente: UUID, db: Session = Depends(get_db)):
     paciente = db.query(PacienteModel).filter(PacienteModel.id == id_paciente).first()
     if paciente:
+        # Anexa os responsáveis vinculados para a ficha completa do front-end
+        paciente.responsaveis = paciente_service.listar_responsaveis(db, paciente.id)
         return paciente
     raise HTTPException(status_code=404, detail="Paciente não encontrado")
 
@@ -50,8 +52,17 @@ async def atualizar_paciente(id_paciente: UUID, paciente_in: PacienteCreate, db:
     medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email).first()
     paciente_atualizado = await paciente_service.atualizar_paciente(db, str(id_paciente), paciente_in, ator=medico)
     if paciente_atualizado:
+        paciente_atualizado.responsaveis = paciente_service.listar_responsaveis(db, paciente_atualizado.id)
         return paciente_atualizado
     raise HTTPException(status_code=404, detail="Paciente não encontrado")
+
+@router.patch("/{id_paciente}/sintomas", response_model=Paciente)
+async def atualizar_sintomas_paciente(id_paciente: UUID, dados: SintomasUpdate, db: Session = Depends(get_db)):
+    """Salva apenas o formulário clínico (checklist de sintomas) do paciente."""
+    paciente = await paciente_service.atualizar_sintomas(db, str(id_paciente), dados.sintomas)
+    if not paciente:
+        raise HTTPException(status_code=404, detail="Paciente não encontrado")
+    return paciente
 
 @router.delete("/{id_paciente}", response_model=Paciente)
 async def inativar_paciente(id_paciente: UUID, db: Session = Depends(get_db)):

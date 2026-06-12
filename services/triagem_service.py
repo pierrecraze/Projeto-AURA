@@ -10,6 +10,16 @@ async def listar_triagens(db: Session):
 async def obter_triagem(db: Session, triagem_id):
     return db.query(AvaliacaoModel).filter(AvaliacaoModel.id == triagem_id).first()
 
+async def atualizar_conduta(db: Session, triagem_id, recomendacao_encaminhamento: bool):
+    """Atualiza a conduta (encaminhamento/monitoramento) de uma avaliação já registrada."""
+    avaliacao = db.query(AvaliacaoModel).filter(AvaliacaoModel.id == triagem_id).first()
+    if avaliacao:
+        avaliacao.recomendacao_encaminhamento = recomendacao_encaminhamento
+        db.commit()
+        db.refresh(avaliacao)
+        return avaliacao
+    return None
+
 async def criar_triagem(db: Session, triagem_in: TriagemCreate, profissional_id: int):
     nova_avaliacao = AvaliacaoModel(
         paciente_id=triagem_in.paciente_id,
