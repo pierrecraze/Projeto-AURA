@@ -54,10 +54,10 @@ async function carregarDadosDashboard() {
         if (!Array.isArray(dbPac)) dbPac = [];
 
         kpis = [
-            { label: "Grupos / Convênios", value: dashboardData.total_grupos, delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE" },
-            { label: "Total de Médicos", value: dashboardData.total_medicos, delta: `+${dashboardData.medicos_mes}`, deltaLabel: "este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD" },
-            { label: "Pacientes na Base", value: dashboardData.total_pacientes, delta: `+${dashboardData.pacientes_mes}`, deltaLabel: "este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE" },
-            { label: "Triagens — SXF", value: dashboardData.total_triagens, delta: `+${dashboardData.triagens_mes}`, deltaLabel: "este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0" }
+            { label: "Grupos / Convênios", value: dashboardData.total_grupos, delta: "Ativos", deltaLabel: "no ecossistema", icon: "building", color: "#1D4ED8", bg: "#EFF6FF", bar: "#BFDBFE", link: "../convenios/index.html" },
+            { label: "Total de Médicos", value: dashboardData.total_medicos, delta: `+${dashboardData.medicos_mes}`, deltaLabel: "este mês", icon: "stethoscope", color: "#0369A1", bg: "#E0F2FE", bar: "#BAE6FD", link: "../medicos/index.html" },
+            { label: "Pacientes na Base", value: dashboardData.total_pacientes, delta: `+${dashboardData.pacientes_mes}`, deltaLabel: "este mês", icon: "users", color: "#6D28D9", bg: "#F5F3FF", bar: "#DDD6FE", link: "../pacientes/index.html" },
+            { label: "Triagens — SXF", value: dashboardData.total_triagens, delta: `+${dashboardData.triagens_mes}`, deltaLabel: "este mês", icon: "clipboard-list", color: "#047857", bg: "#ECFDF5", bar: "#A7F3D0", link: "../triagens/index.html" }
         ];
 
         const mesesLabel = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -218,6 +218,14 @@ function renderKPIs() {
     kpis.forEach(kpi => {
         const div = document.createElement("div");
         div.className = "kpi-card";
+        div.style.cursor = "pointer";
+        div.style.transition = "border-color 0.2s, transform 0.2s";
+        div.setAttribute("onmouseover", "this.style.borderColor='#94A3B8'; this.style.transform='translateY(-2px)'");
+        div.setAttribute("onmouseout", "this.style.borderColor='#E8EEF6'; this.style.transform='none'");
+        if (kpi.link) {
+            div.dataset.link = kpi.link;
+            div.setAttribute("onclick", "window.location.href=this.dataset.link;");
+        }
         div.innerHTML = `
             <div class="kpi-header">
                 <p class="kpi-label">${kpi.label}</p>
