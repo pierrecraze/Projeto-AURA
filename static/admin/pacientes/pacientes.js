@@ -287,10 +287,6 @@ function setupFiltros() {
     paginaAtual = 1;
     aplicarFiltros();
   });
-
-  document.getElementById("btnNovo").addEventListener("click", () => {
-    abrirModalNovo();
-  });
 }
 
 function atualizarKPIsPacientes() {
