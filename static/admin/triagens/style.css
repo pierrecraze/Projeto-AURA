@@ -489,10 +489,16 @@ tr:hover td { background: var(--log-row-hov) !important; cursor: default; }
 }
 
 @media (max-width: 768px) {
-  #modalExportOverlay > div { width: 100% !important; max-width: 100% !important; margin: 10px !important; max-height: 90vh; overflow-y: auto; }
+  #modalExportOverlay > div { width: 100% !important; max-width: 100% !important; margin: 10px !important; max-height: 90vh; overflow-y: auto !important; }
   .export-format-card { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
   #modalExportOverlay > div > div:nth-child(2) { flex-direction: column; height: auto; }
   #modalExportOverlay > div > div:nth-child(2) > div { width: 100% !important; border-right: none; border-bottom: 1px solid #E2E8F0; }
+  
+  /* Adiciona responsividade ao rodapé do modal para telas menores */
+  #modalExportOverlay > div > div:last-child {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 
@@ -548,7 +554,7 @@ tr:hover td { background: var(--log-row-hov) !important; cursor: default; }
 }
 
 @media (max-width: 768px) {
-  #modalExportOverlay > div, .modal-overlay > div { width: 100% !important; max-width: 100% !important; margin: 10px !important; max-height: 90vh; overflow-y: auto; }
+  #modalExportOverlay > div, .modal-overlay > div { width: 100% !important; max-width: 100% !important; margin: 10px !important; max-height: 90vh; overflow-y: auto !important; }
   .export-format-card { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
   .export-live-preview { font-size: 10px !important; padding: 10px !important; }
 }
