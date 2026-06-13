@@ -11,6 +11,15 @@
   <link rel="icon" href="favicon.ico">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* As abas do painel usam <main> com flex centralizado (herdado do layout de
+       login). Em tabelas altas, o align-items:center empurra o conteúdo pra fora
+       e corta o rodapé (paginação). Aqui o conteúdo é alinhado ao topo. */
+    main {
+      align-items: flex-start;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
     /* Badge de score na lista de avaliações */
     .score-pill {
       display: inline-block;
@@ -234,7 +243,7 @@
           </div>
         </div>
 
-        <div class="table-card panel">
+        <div class="table-card">
           <table class="patient-table">
             <thead>
               <tr>
@@ -495,7 +504,7 @@
       function celulaUltimaAval(ultimaAvalPorPaciente, pid) {
         const t = ultimaAvalPorPaciente[String(pid)];
         if (!t) return '<span style="color: var(--text-muted);">Não avaliado</span>';
-        const dataBr = new Date(t.data_hora).toLocaleDateString('pt-BR');
+        const dataBr = dataBR(t.data_hora);
         const { classe, categoria } = classificarScorePct(Number(t.score_total));
         return `<span style="display:inline-flex; align-items:center; gap:8px; white-space:nowrap;">${dataBr} <span class="score-pill score-pill--${classe}" title="${categoria}">${t.score_total}%</span></span>`;
       }
@@ -537,12 +546,11 @@
               tbodyHome.innerHTML = '';
               const recentes = ativos.slice(-5).reverse(); 
               recentes.forEach(p => {
-                const d = (p.dataNascimento || p.data_nascimento || '').split('-');
-                const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
+                const dateBr = dataBR(p.dataNascimento || p.data_nascimento);
                 const isM = (p.sexoBiologico || p.sexo_biologico) === 'M';
                 const badgeClass = isM ? 'badge--m' : 'badge--f';
                 const badgeText = isM ? 'Masculino' : 'Feminino';
-                const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
+                const inic = iniciais(p.nome, 'PA');
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -565,12 +573,11 @@
             if (tbodyTodos) {
               tbodyTodos.innerHTML = '';
               ativos.forEach(p => {
-                const d = (p.dataNascimento || p.data_nascimento || '').split('-');
-                const dateBr = d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : '-';
+                const dateBr = dataBR(p.dataNascimento || p.data_nascimento);
                 const isM = (p.sexoBiologico || p.sexo_biologico) === 'M';
                 const badgeClass = isM ? 'badge--m' : 'badge--f';
                 const badgeText = isM ? 'Masculino' : 'Feminino';
-                const inic = p.nome ? p.nome.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase() : 'PA';
+                const inic = iniciais(p.nome, 'PA');
                 
                 const resp = p.nome_responsavel || p.responsavel || '-';
                 const loc = p.cidade ? `${p.cidade}/${p.estado || ''}` : '-';
@@ -612,13 +619,7 @@
       let avalPagina = 1;
       let avaliacoes = [];
 
-      function avalIniciais(nome) {
-        const partes = String(nome || '').trim().split(/\s+/).filter(Boolean);
-        if (partes.length === 0) return '??';
-        return partes.length >= 2
-          ? (partes[0][0] + partes[1][0]).toUpperCase()
-          : partes[0][0].toUpperCase();
-      }
+      // iniciais() e dataBR() vêm do home.js.
 
       function avalFiltradas() {
         const q = (document.getElementById('searchReports')?.value || '').toLowerCase().trim();
@@ -650,16 +651,15 @@
         } else {
           if (empty) empty.style.display = 'none';
           tbody.innerHTML = pagina.map((r) => {
-            const data = new Date(r.data_hora);
-            const dataBr = data.toLocaleDateString('pt-BR');
-            const horaBr = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const dataBr = dataBR(r.data_hora);
+            const horaBr = new Date(r.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             const { classe, categoria } = classificarScorePct(r.score_total);
             const scoreBadge = `<span class="score-pill score-pill--${classe}" title="${categoria}">${r.score_total}%</span>`;
             return `
               <tr class="row-click" onclick="window.location.href='paciente.html?id=${r.paciente_id}'">
                 <td>
                   <span class="patient-name">
-                    <span class="patient-initials">${avalIniciais(r.pacienteNome)}</span>
+                    <span class="patient-initials">${iniciais(r.pacienteNome)}</span>
                     ${r.pacienteNome || 'Paciente removido'}
                   </span>
                 </td>

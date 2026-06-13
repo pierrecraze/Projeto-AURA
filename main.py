@@ -12,30 +12,13 @@ from routes import grupos, pacientes, medicos, logs, dashboard, triagens, auth, 
 # --- Configuração do Banco de Dados ---
 from database.db import engine, Base
 from models.admin import AdminModel # Importa o modelo para o SQLAlchemy conhecê-lo
-Base.metadata.create_all(bind=engine) # Cria a tabela admin_sistema automaticamente se não existir
 
-# Mini-migração: create_all não altera tabelas existentes, então garante a
-# coluna 'sintomas' em avaliacao (snapshot dos sintomas, usado no relatório PDF)
-from sqlalchemy import text
-try:
-    with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE avaliacao ADD COLUMN IF NOT EXISTS sintomas TEXT"))
-        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS sintomas JSONB"))
-        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS nome_mae VARCHAR(150)"))
-        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS nome_pai VARCHAR(150)"))
-        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS cidade VARCHAR(100)"))
-        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS estado VARCHAR(2)"))
-        conn.execute(text("ALTER TABLE paciente ADD COLUMN IF NOT EXISTS pais VARCHAR(100)"))
-        conn.execute(text("ALTER TABLE responsavel ADD COLUMN IF NOT EXISTS cpf VARCHAR(14)"))
-        # Médico pertence a uma instituição; pacientes são compartilhados na instituição
-        conn.execute(text("ALTER TABLE profissional_saude ADD COLUMN IF NOT EXISTS instituicao_id INTEGER REFERENCES instituicao(id)"))
-        # Backfill: médicos sem instituição entram na instituição padrão (a primeira)
-        conn.execute(text(
-            "UPDATE profissional_saude SET instituicao_id = (SELECT MIN(id) FROM instituicao) "
-            "WHERE instituicao_id IS NULL AND EXISTS (SELECT 1 FROM instituicao)"
-        ))
-except Exception as e:
-    print(f"[AVISO] Não foi possível garantir as colunas extras (sintomas/ficha): {e}")
+# create_all cria as tabelas que faltam (bootstrap em deploy serverless, onde não
+# há etapa de migração). Mudanças de schema (novas colunas etc.) agora são feitas
+# por migrações versionadas com Alembic — ver pasta migrations/ e migrations/README.
+# (O antigo bloco de "ALTER TABLE ... IF NOT EXISTS" foi removido: os models já
+#  declaram todas essas colunas, então create_all as cria num banco novo.)
+Base.metadata.create_all(bind=engine)
 
 # Inicialização do Aplicativo
 app = FastAPI(
@@ -45,10 +28,16 @@ app = FastAPI(
 )
 
 # Configuração de CORS (Cross-Origin Resource Sharing)
+# Por padrão libera tudo (dev). Em produção, defina CORS_ORIGINS com a lista de
+# origens permitidas separadas por vírgula, ex.: "https://app.ibk.org.br".
+_cors_env = os.getenv("CORS_ORIGINS", "*").strip()
+cors_origins = ["*"] if _cors_env == "*" else [o.strip() for o in _cors_env.split(",") if o.strip()]
+# `allow_credentials=True` com origin "*" é inválido pelo padrão CORS; como a API
+# usa token Bearer (não cookies), só habilitamos credenciais quando há lista fixa.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=(cors_origins != ["*"]),
     allow_methods=["*"], # Permite GET, POST, PUT, DELETE, etc.
     allow_headers=["*"],
 )

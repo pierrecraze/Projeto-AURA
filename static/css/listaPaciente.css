@@ -187,6 +187,8 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
   overflow: hidden;
+  /* Em telas estreitas a tabela rola horizontalmente em vez de espremer/cortar */
+  overflow-x: auto;
 }
 
 table {

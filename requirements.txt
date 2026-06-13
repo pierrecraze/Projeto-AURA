@@ -4,6 +4,7 @@ pyjwt
 passlib[bcrypt]
 bcrypt==3.2.2
 sqlalchemy
+alembic
 psycopg2-binary
 python-multipart
 python-dotenv

@@ -56,7 +56,7 @@ async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoCreate,
     return None
 
 @registrar_auditoria(entidade="Médico", acao="Reset de Senha")
-async def resetar_senha_medico(db: Session, id_medico: int):
+async def resetar_senha_medico(db: Session, id_medico: int, *, ator=None):
     medico = db.query(MedicoModel).filter(MedicoModel.id == id_medico).first()
     if not medico:
         return None

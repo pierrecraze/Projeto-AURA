@@ -1,3 +1,4 @@
+import os
 import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
@@ -8,9 +9,11 @@ from fastapi.security import OAuth2PasswordBearer
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-secret_key = "chave_secreta_projeto_aura_ibk_muito_segura_2026_oficial"  
+# Lê o segredo do ambiente (.env). O literal é só fallback de dev — em produção,
+# defina JWT_SECRET para que ninguém com acesso ao código consiga forjar tokens.
+secret_key = os.getenv("JWT_SECRET", "chave_secreta_projeto_aura_ibk_muito_segura_2026_oficial")
 algorithm = "HS256"
-token_expiration_minutes = 60
+token_expiration_minutes = int(os.getenv("JWT_EXPIRATION_MINUTES", "60"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

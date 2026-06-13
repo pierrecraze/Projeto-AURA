@@ -6,3 +6,9 @@ venv/
 __pycache__/
 *.pyc
 .vercel
+
+# Testes
+.pytest_cache/
+
+# Alembic
+migrations/**/__pycache__/

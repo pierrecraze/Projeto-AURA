@@ -35,20 +35,7 @@ async function loadPacientes() {
 // Utilitários
 // ─────────────────────────────────────────────
 
-function iniciais(nome) {
-  const partes = String(nome || "").trim().split(/\s+/).filter(Boolean);
-  if (partes.length === 0) return "??";
-  return partes.length >= 2
-    ? (partes[0][0] + partes[1][0]).toUpperCase()
-    : partes[0][0].toUpperCase();
-}
-
-function isoToBR(iso) {
-  if (!iso) return "-";
-  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return iso;
-  return `${m[3]}/${m[2]}/${m[1]}`;
-}
+// iniciais() e dataBR() vêm do home.js (carregado antes deste script).
 
 function getReturnPage() {
   const file = window.location.pathname.split("/").pop();
@@ -126,7 +113,7 @@ function renderizar() {
             ${p.nome ?? ""}
           </span>
         </td>
-        <td>${isoToBR(p.dataNascimento || p.data_nascimento)}</td>
+        <td>${dataBR(p.dataNascimento || p.data_nascimento)}</td>
         <td>${p.sexoBiologico || p.sexo_biologico || "-"}</td>
         <td>${p.responsavel ?? "-"}</td>
         <td>${[p.cidade, p.estado].filter(Boolean).join(" / ") || "-"}</td>

@@ -143,7 +143,7 @@ async def atualizar_sintomas(db: Session, id_paciente: str, sintomas: dict):
     return None
 
 @registrar_auditoria(entidade="Vínculo Familiar", acao="Criação")
-async def vincular_pacientes(db: Session, paciente_origem_id: str, vinculo_in: VinculoFamiliarCreate):
+async def vincular_pacientes(db: Session, paciente_origem_id: str, vinculo_in: VinculoFamiliarCreate, *, ator=None):
     novo_vinculo = VinculoFamiliarModel(
         paciente_origem_id=paciente_origem_id,
         paciente_destino_id=str(vinculo_in.paciente_destino_id),
@@ -158,7 +158,7 @@ async def vincular_pacientes(db: Session, paciente_origem_id: str, vinculo_in: V
     return novo_vinculo
 
 @registrar_auditoria(entidade="Paciente", acao="Inativação")
-async def inativar_paciente(db: Session, id_paciente: str):
+async def inativar_paciente(db: Session, id_paciente: str, *, ator=None):
     paciente = db.query(PacienteModel).filter(PacienteModel.id == id_paciente).first()
     if paciente:
         paciente.deletado_em = datetime.utcnow()

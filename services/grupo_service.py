@@ -27,7 +27,7 @@ async def obter_instituicao_padrao(db: Session):
     return instituicao
 
 @registrar_auditoria(entidade="Grupo", acao="Criação")
-async def criar_grupo(db: Session, grupo_in: GrupoCreate):
+async def criar_grupo(db: Session, grupo_in: GrupoCreate, *, ator=None):
     novo_grupo = GrupoModel(
         nome_fantasia=grupo_in.nome_fantasia,
         cnpj=grupo_in.cnpj,
@@ -40,7 +40,7 @@ async def criar_grupo(db: Session, grupo_in: GrupoCreate):
     return novo_grupo
 
 @registrar_auditoria(entidade="Grupo", acao="Atualização")
-async def atualizar_grupo(db: Session, id_grupo: int, grupo_in: GrupoCreate):
+async def atualizar_grupo(db: Session, id_grupo: int, grupo_in: GrupoCreate, *, ator=None):
     grupo = db.query(GrupoModel).filter(GrupoModel.id == id_grupo).first()
     if grupo:
         grupo.nome_fantasia = grupo_in.nome_fantasia
@@ -53,7 +53,7 @@ async def atualizar_grupo(db: Session, id_grupo: int, grupo_in: GrupoCreate):
     return None
 
 @registrar_auditoria(entidade="Grupo", acao="Inativação")
-async def inativar_grupo(db: Session, id_grupo: int):
+async def inativar_grupo(db: Session, id_grupo: int, *, ator=None):
     grupo = db.query(GrupoModel).filter(GrupoModel.id == id_grupo).first()
     if grupo:
         grupo.deletado_em = datetime.now()
@@ -64,7 +64,7 @@ async def inativar_grupo(db: Session, id_grupo: int):
     return None
 
 @registrar_auditoria(entidade="Grupo", acao="Reativação")
-async def reativar_grupo(db: Session, id_grupo: int):
+async def reativar_grupo(db: Session, id_grupo: int, *, ator=None):
     grupo = db.query(GrupoModel).filter(GrupoModel.id == id_grupo).first()
     if grupo:
         grupo.deletado_em = None

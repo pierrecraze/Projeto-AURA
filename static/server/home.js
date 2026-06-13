@@ -6,6 +6,31 @@
      - Bloqueio de acesso sem autenticação
    ============================================================ */
 
+/* ============================================================
+   Utilitários compartilhados — disponíveis em todas as páginas que
+   carregam o home.js (que carrega antes dos demais scripts).
+   Evita reescrever "iniciais" e formatação de data em cada arquivo.
+   ============================================================ */
+
+/** Iniciais a partir do nome (1 ou 2 letras). `fallback` quando vazio. */
+function iniciais(nome, fallback = "??") {
+  const partes = String(nome || "").trim().split(/\s+/).filter(Boolean);
+  if (!partes.length) return fallback;
+  const ini = partes.length >= 2 ? partes[0][0] + partes[1][0] : partes[0][0];
+  return ini.toUpperCase();
+}
+
+/** Formata data BR (DD/MM/AAAA). Aceita "AAAA-MM-DD" ou ISO com hora. */
+function dataBR(valor) {
+  if (!valor) return "-";
+  const s = String(valor);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  // Data pura: formata direto, evitando o desvio de fuso do new Date().
+  if (m && s.length <= 10) return `${m[3]}/${m[2]}/${m[1]}`;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? "-" : d.toLocaleDateString("pt-BR");
+}
+
 const SESSION_TIMEOUT_MS  = 10 * 60 * 1000;   // 10 min de inatividade (RNF14)
 const SESSION_WARNING_MS  =  2 * 60 * 1000;   // aviso com 2 min restantes (RF20)
 

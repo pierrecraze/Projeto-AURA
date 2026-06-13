@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -8,6 +9,11 @@ from schemas.perfil import SenhaUpdate
 from core.security import verificar_senha, criar_token_jwt, gerar_hash_senha, obter_usuario_atual
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+
+# O seed automático do admin (admin@admin.com / admin123) é só para bootstrap em
+# ambiente novo. Em produção mantenha desligado: defina ALLOW_ADMIN_SEED=1 apenas
+# quando precisar criar o primeiro admin, e remova depois.
+ALLOW_ADMIN_SEED = os.getenv("ALLOW_ADMIN_SEED", "0") == "1"
 
 class PerfilUpdate(BaseModel):
     nome: str
@@ -32,8 +38,9 @@ async def realizar_login(credenciais: OAuth2PasswordRequestForm = Depends(), db:
     usuario = db.query(AdminModel).filter(AdminModel.email == email_usuario).first()
     tipo_usuario = "admin"
 
-    # Seed automático do admin (caso o banco esteja vazio)
-    if not usuario and email_usuario == "admin@admin.com":
+    # Seed automático do admin (caso o banco esteja vazio) — só se explicitamente
+    # habilitado por ALLOW_ADMIN_SEED, para não virar uma porta dos fundos.
+    if ALLOW_ADMIN_SEED and not usuario and email_usuario == "admin@admin.com":
         usuario = AdminModel(
             nome="Admin Principal",
             email="admin@admin.com",
@@ -116,7 +123,11 @@ async def atualizar_perfil(dados: PerfilUpdate, db: Session = Depends(get_db), u
 @router.put("/senha", summary="Alterar a senha do usuário logado")
 async def atualizar_senha(dados: SenhaUpdate, db: Session = Depends(get_db), usuario_logado: str = Depends(obter_usuario_atual)):
     admin = db.query(AdminModel).filter(AdminModel.email == usuario_logado["email"]).first()
-    
+
+    # Sem isto, um médico chamando esta rota causava 500 (admin == None).
+    if not admin:
+        raise HTTPException(status_code=404, detail="Administrador não encontrado.")
+
     if not verificar_senha(dados.senha_atual, admin.senha_hash):
         raise HTTPException(status_code=400, detail="A senha atual está incorreta.")
         
