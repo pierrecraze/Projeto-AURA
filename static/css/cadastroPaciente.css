@@ -119,8 +119,22 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
+}
 
+/* Telas estreitas: empilha os passos (antes o min-width:0 os espremia e cortava
+   os rótulos "Paciente/Responsável/Endereço"). */
+@media (max-width: 620px) {
+  .stepper {
+    flex-direction: column;
+    gap: 8px;
+  }
   .stepper-item {
     min-width: 0;
+    width: 100%;
+  }
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }

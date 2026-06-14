@@ -1,5 +1,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* O atributo `hidden` deve sempre esconder, mesmo quando o elemento tem uma
+   classe com display próprio (ex.: .btn-primary{display:inline-flex}). Sem isto,
+   botões/elementos alternados via `el.hidden = true` continuavam visíveis. */
+[hidden] { display: none !important; }
+
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
@@ -250,27 +255,26 @@ main {
     width: 100%;
     margin-top: 0.75rem;
   }
+  /* Menu na própria linha: centraliza e quebra em várias linhas se faltar espaço */
+  .header-nav {
+    justify-content: center;
+  }
+  .header-nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
   .header-sub {
     display: none;
   }
 }
 
-/* 3. Celulares (768px ou menos): Carrossel horizontal rolável e ajuste global */
+/* 3. Celulares (768px ou menos): chips do menu ocupam a largura e ajuste global */
 @media (max-width: 768px) {
   header {
     padding: 1rem;
   }
-  .header-nav {
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
-    -webkit-overflow-scrolling: touch;
-  }
-  .header-nav ul {
-    flex-wrap: nowrap;
-  }
   .btn-center {
-    padding: 0 0.8rem;
+    padding: 0 0.9rem;
     font-size: 13px;
   }
   .header-right .user-name,
