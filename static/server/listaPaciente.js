@@ -10,6 +10,24 @@ const POR_PAGINA = 8;
 
 let paginaAtual = 1;
 let pacientes = [];
+// id do médico -> nome, para a coluna "Criado por"
+let medicosPorId = {};
+
+async function loadMedicos() {
+  try {
+    const token = localStorage.getItem('aura_token');
+    const res = await fetch('/api/medicos/', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (res.ok) {
+      const data = await res.json();
+      const mapa = {};
+      data.forEach(m => { mapa[m.id] = m.nome; });
+      return mapa;
+    }
+  } catch (err) {
+    console.error("Erro ao carregar médicos:", err);
+  }
+  return {};
+}
 
 // ─────────────────────────────────────────────
 // Storage
@@ -115,7 +133,7 @@ function renderizar() {
         </td>
         <td>${dataBR(p.dataNascimento || p.data_nascimento)}</td>
         <td>${p.sexoBiologico || p.sexo_biologico || "-"}</td>
-        <td>${p.responsavel ?? "-"}</td>
+        <td>${medicosPorId[p.cadastrado_por_id] || "-"}</td>
         <td>${[p.cidade, p.estado].filter(Boolean).join(" / ") || "-"}</td>
         <td>
           <div class="actions-cell">
@@ -215,6 +233,6 @@ async function excluirPaciente(id) {
     searchEl.addEventListener("input", () => filtrar());
   }
 
-  pacientes = await loadPacientes();
+  [pacientes, medicosPorId] = await Promise.all([loadPacientes(), loadMedicos()]);
   renderizar();
 })();

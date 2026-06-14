@@ -251,7 +251,7 @@
                 <th>Paciente</th>
                 <th>Nascimento</th>
                 <th>Sexo</th>
-                <th>Responsável</th>
+                <th>Criado por</th>
                 <th>Cidade/UF</th>
                 <th>Ações</th>
               </tr>
@@ -518,9 +518,10 @@
         try {
           const token = localStorage.getItem('aura_token');
           const headers = { 'Authorization': `Bearer ${token}` };
-          const [res, resTri] = await Promise.all([
+          const [res, resTri, resMed] = await Promise.all([
             fetch('/api/pacientes/', { headers }),
-            fetch('/api/triagens/resumo', { headers })
+            fetch('/api/triagens/resumo', { headers }),
+            fetch('/api/medicos/', { headers })
           ]);
 
           if (res.ok) {
@@ -539,6 +540,12 @@
                 ultimaAvalPorPaciente[k] = t;
               }
             });
+
+            // Mapa id do médico -> nome (p/ coluna "Criado por"). Se o paciente foi
+            // cadastrado por um admin (id não encontrado entre os médicos), fica "-".
+            const medicos = resMed.ok ? await resMed.json() : [];
+            const medicosPorId = {};
+            (Array.isArray(medicos) ? medicos : []).forEach(m => { medicosPorId[m.id] = m.nome; });
 
             // Sincroniza o contador do card azul com a quantidade real
             const metricTotal = document.getElementById('metricTotalPacientes');
@@ -583,7 +590,7 @@
                 const badgeText = isM ? 'Masculino' : 'Feminino';
                 const inic = iniciais(p.nome, 'PA');
                 
-                const resp = p.nome_responsavel || p.responsavel || '-';
+                const criadoPor = medicosPorId[p.cadastrado_por_id] || '-';
                 const loc = p.cidade ? `${p.cidade}/${p.estado || ''}` : '-';
 
                 const tr = document.createElement('tr');
@@ -591,7 +598,7 @@
                   <td><div class="patient-cell"><div class="patient-avatar" aria-hidden="true">${inic}</div><span>${p.nome}</span></div></td>
                   <td>${dateBr}</td>
                   <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-                  <td>${resp}</td>
+                  <td>${criadoPor}</td>
                   <td>${loc}</td>
                   <td class="actions-cell">
                     <button type="button" class="btn-icon" title="Avaliar paciente" onclick="window.location.href='paciente.html?id=${p.id}#clinicalWrap'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></button>
