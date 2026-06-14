@@ -82,7 +82,7 @@
     </div>
 
     <div class="header-right">
-      <span class="header-sub">Instituto Buko Kaesemodel</span>
+      <a class="header-sub" href="https://institutobk.org.br/" target="_blank" rel="noopener noreferrer" title="Visitar o site do Instituto Buko Kaesemodel" style="text-decoration:none;color:inherit;cursor:pointer;">Instituto Buko Kaesemodel</a>
       <div class="header-user">
         <div class="user-avatar" aria-hidden="true">DR</div>
         <div class="user-info">
@@ -132,8 +132,9 @@
               </svg>
             </div>
             <div class="metric-body">
-              <span class="metric-label">Lista total de pacientes</span>
+              <span class="metric-label">Pacientes</span>
               <span class="metric-value" id="metricTotalPacientes">0</span>
+              <span class="metric-trend trend-neutral">cadastrados</span>
             </div>
           </button>
 
@@ -144,9 +145,9 @@
               </svg>
             </div>
             <div class="metric-body">
-              <span class="metric-label">Estatísticas</span>
-              <span class="metric-value">Gráficos</span>
-              <span class="metric-trend trend-neutral">ver desempenho</span>
+              <span class="metric-label">Score médio</span>
+              <span class="metric-value" id="metricScoreMedioHome">—</span>
+              <span class="metric-trend trend-neutral">das avaliações</span>
             </div>
           </button>
 
@@ -162,8 +163,8 @@
             </div>
             <div class="metric-body">
               <span class="metric-label">Avaliações</span>
-              <span class="metric-value">Gerar</span>
-              <span class="metric-trend trend-neutral">encaminhamentos</span>
+              <span class="metric-value" id="metricTotalAvaliacoesHome">0</span>
+              <span class="metric-trend trend-neutral">realizadas</span>
             </div>
           </button>
 
@@ -547,9 +548,20 @@
             const medicosPorId = {};
             (Array.isArray(medicos) ? medicos : []).forEach(m => { medicosPorId[m.id] = m.nome; });
 
-            // Sincroniza o contador do card azul com a quantidade real
+            // Cards de resumo da Início (padronizados como métricas)
+            const listaTriagens = Array.isArray(triagens) ? triagens : [];
             const metricTotal = document.getElementById('metricTotalPacientes');
             if (metricTotal) metricTotal.textContent = ativos.length;
+
+            const metricAval = document.getElementById('metricTotalAvaliacoesHome');
+            if (metricAval) metricAval.textContent = listaTriagens.length;
+
+            const metricScore = document.getElementById('metricScoreMedioHome');
+            if (metricScore) {
+              metricScore.textContent = listaTriagens.length
+                ? `${(listaTriagens.reduce((s, t) => s + Number(t.score_total || 0), 0) / listaTriagens.length).toFixed(0)}%`
+                : '—';
+            }
 
             // Monta as linhas de Pacientes Recentes (Aba Início)
             const tbodyHome = document.getElementById('patientTableBodyHome');
