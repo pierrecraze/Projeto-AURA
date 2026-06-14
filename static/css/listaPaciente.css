@@ -187,7 +187,11 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  /* Em telas estreitas a tabela rola horizontalmente em vez de espremer/cortar */
+}
+
+/* Só a TABELA rola na horizontal (telas estreitas). A paginação fica fora deste
+   wrapper, então nunca é cortada pela barra de rolagem da tabela. */
+.table-scroll {
   overflow-x: auto;
 }
 
@@ -334,6 +338,14 @@ tbody td {
   background: var(--primary-light);
   flex-wrap: wrap;
   gap: 10px;
+}
+
+/* O .pagination do home.css traz margens NEGATIVAS (feitas para o contexto de
+   .panel, que tem padding). Dentro do .table-card (padding 0) elas empurram a
+   paginação para fora do card e o overflow:hidden corta o "Exibindo" e o rodapé.
+   Aqui zeramos a margem só no contexto do card. */
+.table-card .pagination {
+  margin: 0;
 }
 
 .pagination-info {
