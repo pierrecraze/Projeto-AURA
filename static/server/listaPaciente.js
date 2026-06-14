@@ -138,7 +138,6 @@ function renderizar() {
         <td>
           <div class="actions-cell">
             <button class="btn-acao" onclick="event.stopPropagation(); editarPaciente('${p.id}')">Editar</button>
-            <button class="btn-acao" onclick="event.stopPropagation(); excluirPaciente('${p.id}')">Excluir</button>
           </div>
         </td>
       </tr>`,
@@ -198,26 +197,7 @@ function editarPaciente(id) {
   window.location.href = `cadastroPaciente.html?id=${encodeURIComponent(id)}&return=${ret}`;
 }
 
-async function excluirPaciente(id) {
-  if (!confirm("Deseja excluir este paciente?")) return;
-  
-  try {
-    const token = localStorage.getItem('aura_token');
-    const res = await fetch(`${API_URL}${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (res.ok) {
-      pacientes = pacientes.filter((p) => p.id !== id);
-      renderizar();
-    } else {
-      alert("Erro ao excluir o paciente.");
-    }
-  } catch (err) {
-    console.error("Erro ao deletar:", err);
-  }
-}
+// Exclusão de paciente removida da interface (não deve ser possível pelo painel).
 
 // ─────────────────────────────────────────────
 // Init
