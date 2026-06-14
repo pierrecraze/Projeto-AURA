@@ -225,23 +225,23 @@
   <div id="page-lista-pacientes" hidden>
     <main>
       <div class="page-wrapper" style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.75rem;">
-        <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+        <div class="section-header">
           <div>
             <h2 class="section-title" style="font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--text);">Todos os Pacientes</h2>
             <p class="section-sub" style="font-size: 0.85rem; color: var(--text-muted);">Gerencie e acompanhe todos os pacientes</p>
           </div>
-          <button type="button" class="btn-action btn-primary" onclick="window.location.href='cadastroPaciente.html'">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <div class="search-wrap" style="position: relative; flex: 1 1 220px;">
+            <input class="search-input" type="text" id="searchInput" placeholder="Buscar por nome, responsável, cidade, estado…" oninput="if(typeof filtrar === 'function') filtrar()" style="width: 100%; height: 40px; padding: 0 1rem; font-family: inherit; font-size: 0.875rem; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); outline: none;"/>
+          </div>
+          <button type="button" class="btn-action btn-primary" onclick="window.location.href='cadastroPaciente.html'" style="flex-shrink: 0; height: 40px;">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width: 15px; height: 15px; margin-right: 4px; display: inline-block; vertical-align: middle;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Novo Paciente
           </button>
-        </div>
-
-        <div class="search-bar">
-          <div class="search-wrap" style="position: relative; width: 100%;">
-            <input class="search-input" type="text" id="searchInput" placeholder="Buscar por nome, responsável, cidade, estado…" oninput="if(typeof filtrar === 'function') filtrar()" style="width: 100%; height: 40px; padding: 0 1rem; font-family: inherit; font-size: 0.875rem; color: var(--text); background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius-md); outline: none;"/>
-          </div>
         </div>
 
         <div class="table-card">
