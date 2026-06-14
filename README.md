@@ -16,6 +16,12 @@
 O sistema AURA está hospedado na nuvem via **Vercel** e o banco de dados no **Supabase**. O sistema está disponível 24/7 de forma automática (Serverless). Não é necessário configurar nada localmente para utilizar a versão final.
 👉 **Acesse aqui:** https://projeto-aura.vercel.app
 
+## Tutoriais:
+
+Tutorial de uso:
+
+Tutorial de "instalação": https://youtu.be/_51cRwNbKxQ
+
 <br>
 
 ## 📼 Tecnologias implementadas:
