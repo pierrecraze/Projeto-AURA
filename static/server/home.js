@@ -146,6 +146,14 @@ function preencherHeaderUsuario() {
     const iniciais = dados.nome.trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
     avatarEl.textContent = iniciais || 'DR';
   }
+
+  // Saudação da Início (dashboard médico) com o nome real e o horário
+  const greetEl = document.getElementById('welcomeGreeting');
+  if (greetEl && dados.nome) {
+    const h = new Date().getHours();
+    const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+    greetEl.textContent = `${saud}, ${dados.nome}.`;
+  }
 }
 
 /* ---- Interceptor global: redireciona ao login em respostas 401 ---- */
