@@ -18,10 +18,10 @@ O sistema AURA está hospedado na nuvem via **Vercel** e o banco de dados no **S
 
 ## Tutoriais:
 
-Tutorial de uso:
+Tutorial de uso: https://youtu.be/R0Ud4DwH8OA
 
 Tutorial de "instalação": https://youtu.be/_51cRwNbKxQ
-Video apresentação: https://youtu.be/R0Ud4DwH8OA
+
 <br>
 
 ## 📼 Tecnologias implementadas:
