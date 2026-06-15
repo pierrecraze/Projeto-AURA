@@ -189,8 +189,12 @@ function openConvenioDetails(id) {
         }
     }
 
-    document.getElementById("hero-count-medicos").textContent = activeConvenio.medicos ? activeConvenio.medicos.length : 0;
-    document.getElementById("hero-count-pacientes").textContent = activeConvenio.pacientes ? activeConvenio.pacientes.length : 0;
+    const numMedicos = activeConvenio.medicos ? activeConvenio.medicos.length : 0;
+    const numPacientes = activeConvenio.pacientes ? activeConvenio.pacientes.length : 0;
+    document.getElementById("hero-count-medicos").textContent = numMedicos;
+    document.getElementById("hero-count-pacientes").textContent = numPacientes;
+    document.getElementById("badge-tab-medicos").textContent = numMedicos;
+    document.getElementById("badge-tab-pacientes").textContent = numPacientes;
 
     switchTab('medicos');
     window.scrollTo(0, 0);
@@ -213,18 +217,19 @@ function switchTab(tabName) {
     if (tabName === "medicos") {
         thead.innerHTML = `<tr><th>Médico</th><th>CRM</th><th>Status</th><th style="text-align:right">Ações</th></tr>`;
         if (activeConvenio && activeConvenio.medicos && activeConvenio.medicos.length > 0) {
-            tbody.innerHTML = activeConvenio.medicos.map(m => `<tr><td>${m.nome}</td><td>${m.crm || '-'}</td><td>${m.status || 'Ativo'}</td><td style="text-align:right"><button class="btn-outline-small" onclick="window.location.href='../medicos/index.html'"><i data-lucide="user"></i> Ver Perfil</button></td></tr>`).join('');
+            tbody.innerHTML = activeConvenio.medicos.map(m => `<tr><td>${m.nome}</td><td>${m.crm || '-'}</td><td>${m.status || 'Ativo'}</td><td style="text-align:right"><button class="btn-outline-small" onclick="window.location.href='../medicos/index.html?perfil=${m.id}'"><i data-lucide="user"></i> Ver Perfil</button></td></tr>`).join('');
         } else {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum médico vinculado até o momento.</td></tr>`;
         }
     } else {
         thead.innerHTML = `<tr><th>Paciente</th><th>CPF</th><th>Status</th><th style="text-align:right">Ações</th></tr>`;
         if (activeConvenio && activeConvenio.pacientes && activeConvenio.pacientes.length > 0) {
-            tbody.innerHTML = activeConvenio.pacientes.map(p => `<tr><td>${p.nome}</td><td>${p.cpf || '-'}</td><td>${p.status || 'Ativo'}</td><td style="text-align:right"><button class="btn-outline-small" onclick="window.location.href='../pacientes/index.html'"><i data-lucide="user"></i> Ver Perfil</button></td></tr>`).join('');
+            tbody.innerHTML = activeConvenio.pacientes.map(p => `<tr><td>${p.nome}</td><td>${p.cpf || '-'}</td><td>${p.status || 'Ativo'}</td><td style="text-align:right"><button class="btn-outline-small" onclick="window.location.href='../pacientes/index.html?perfil=${p.id}'"><i data-lucide="user"></i> Ver Perfil</button></td></tr>`).join('');
         } else {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum paciente vinculado até o momento.</td></tr>`;
         }
     }
+    lucide.createIcons();
 }
 
 // ==========================================

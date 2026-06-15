@@ -1,6 +1,7 @@
 from pydantic import BaseModel, computed_field
 from typing import Optional, List
 from datetime import datetime
+from uuid import UUID
 
 class MedicoResumo(BaseModel):
     id: int
@@ -16,6 +17,7 @@ class MedicoResumo(BaseModel):
         from_attributes = True
 
 class PacienteResumo(BaseModel):
+    id: UUID
     nome: str
     cpf: Optional[str] = None
     deletado_em: Optional[datetime] = None

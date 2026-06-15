@@ -73,13 +73,12 @@ async function carregarDados() {
         pacientes = dbPac.map(p => ({
             id:        p.id,
             nome:      p.nome,
-            doc:       `CPF ${p.cpf}`,
-            status:    p.status,
-            convenios: (p.grupos || []).map(nome => {
-                const g = convenios.find(c => c.nome === nome);
-                return g ? g.id : null;
-            }).filter(x => x !== null),
-            medicoId:  p.medico_id || null
+            doc:       `CPF ${p.cpf || "—"}`,
+            status:    p.deletado_em ? "Inativo" : "Ativo",
+            // O convênio do paciente é a instituição à qual ele pertence
+            convenios: p.instituicao_id ? [p.instituicao_id] : [],
+            // O vínculo com o médico é o profissional que o cadastrou
+            medicoId:  p.cadastrado_por_id || null
         }));
 
         triagens = dbTriagens.map(t => ({
@@ -89,10 +88,24 @@ async function carregarDados() {
             dataHora: t.data_hora
         }));
 
+        abrirPerfilViaURL();
         renderApp();
     } catch (err) {
         console.error("Erro ao carregar:", err);
         usarDadosDemostracao();
+    }
+}
+
+/* Abre direto o perfil de um médico quando chega via ?perfil=<id> (ex.: vindo da tela de Convênios) */
+function abrirPerfilViaURL() {
+    const params = new URLSearchParams(window.location.search);
+    const perfilId = parseInt(params.get('perfil'), 10);
+    if (!perfilId) return;
+    const existe = medicos.some(m => m.id === perfilId);
+    if (existe) {
+        state.activeMedicoId = perfilId;
+        state.view = 'perfil';
+        state.pfTab = 'pacientes';
     }
 }
 

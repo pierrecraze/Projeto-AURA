@@ -98,8 +98,17 @@ async function carregarDados() {
     atualizarKPIsPacientes();
     aplicarFiltros();
     popularSelectsModal();
+    abrirPerfilViaURL();
   } catch (error) {
     console.error("Erro ao carregar dados:", error);
+  }
+}
+
+// Abre direto o detalhe de um paciente quando chega via ?perfil=<uuid> (ex.: vindo da tela de Convênios)
+function abrirPerfilViaURL() {
+  const perfilId = new URLSearchParams(window.location.search).get('perfil');
+  if (perfilId && pacientes.some(p => p.id === perfilId)) {
+    abrirModal(perfilId);
   }
 }
 
