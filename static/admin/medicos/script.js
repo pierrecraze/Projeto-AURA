@@ -67,10 +67,7 @@ async function carregarDados() {
             uf:           m.uf         || "—",
             ingresso:     m.ingresso   || "—",
             status:       m.deletado_em ? "Inativo" : "Ativo",
-            convenios:    (m.grupos || []).map(nome => {
-                const g = convenios.find(c => c.nome === nome);
-                return g ? g.id : null;
-            }).filter(x => x !== null)
+            convenios:    m.instituicao_id ? [m.instituicao_id] : []
         }));
 
         pacientes = dbPac.map(p => ({
@@ -704,7 +701,8 @@ window.saveMedico = async function() {
         telefone: telefone || null,
         cidade: cidade || null,
         uf: uf || null,
-        data_nascimento: dataNascimento
+        data_nascimento: dataNascimento,
+        instituicao_id: cbs.length > 0 ? cbs[0] : null
     };
 
     // Inclui a senha no payload apenas se for criação de um novo médico

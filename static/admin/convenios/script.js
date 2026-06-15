@@ -213,14 +213,14 @@ function switchTab(tabName) {
     if (tabName === "medicos") {
         thead.innerHTML = `<tr><th>Médico</th><th>CRM</th><th>Status</th><th style="text-align:right">Ações</th></tr>`;
         if (activeConvenio && activeConvenio.medicos && activeConvenio.medicos.length > 0) {
-            tbody.innerHTML = activeConvenio.medicos.map(m => `<tr><td>${m.nome}</td><td>${m.crm || '-'}</td><td>${m.status || 'Ativo'}</td><td style="text-align:right">-</td></tr>`).join('');
+            tbody.innerHTML = activeConvenio.medicos.map(m => `<tr><td>${m.nome}</td><td>${m.crm || '-'}</td><td>${m.status || 'Ativo'}</td><td style="text-align:right"><button class="btn-outline-small" onclick="window.location.href='../medicos/index.html'"><i data-lucide="user"></i> Ver Perfil</button></td></tr>`).join('');
         } else {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum médico vinculado até o momento.</td></tr>`;
         }
     } else {
         thead.innerHTML = `<tr><th>Paciente</th><th>CPF</th><th>Status</th><th style="text-align:right">Ações</th></tr>`;
         if (activeConvenio && activeConvenio.pacientes && activeConvenio.pacientes.length > 0) {
-            tbody.innerHTML = activeConvenio.pacientes.map(p => `<tr><td>${p.nome}</td><td>${p.cpf || '-'}</td><td>${p.status || 'Ativo'}</td><td style="text-align:right">-</td></tr>`).join('');
+            tbody.innerHTML = activeConvenio.pacientes.map(p => `<tr><td>${p.nome}</td><td>${p.cpf || '-'}</td><td>${p.status || 'Ativo'}</td><td style="text-align:right"><button class="btn-outline-small" onclick="window.location.href='../pacientes/index.html'"><i data-lucide="user"></i> Ver Perfil</button></td></tr>`).join('');
         } else {
             tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:#94A3B8;">Nenhum paciente vinculado até o momento.</td></tr>`;
         }

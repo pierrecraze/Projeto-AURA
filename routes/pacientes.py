@@ -4,6 +4,7 @@ from schemas.paciente import Paciente, PacienteCreate, VinculoFamiliar, VinculoF
 from services import paciente_service, grupo_service
 from models.paciente import PacienteModel
 from models.medico import MedicoModel
+from models.admin import AdminModel
 from uuid import UUID
 
 from core.security import obter_usuario_atual
@@ -21,19 +22,35 @@ router = APIRouter(dependencies=[Depends(obter_usuario_atual)])
 
 @router.post("/", response_model=Paciente, status_code=status.HTTP_201_CREATED)
 async def cadastrar_paciente(paciente_in: PacienteCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email["email"]).first()
-    if not medico:
-        raise HTTPException(status_code=403, detail="Apenas profissionais de saúde podem cadastrar pacientes.")
+    ator = None
+    instituicao_id = paciente_in.instituicao_id
+    cadastrado_por_id = paciente_in.cadastrado_por_id
 
-    # O paciente entra na instituição do médico (compartilhado com os colegas).
-    # Fallback para a instituição padrão se o médico ainda não tiver uma.
-    if medico.instituicao_id is None:
-        instituicao = await grupo_service.obter_instituicao_padrao(db)
-        medico.instituicao_id = instituicao.id
-        db.commit()
+    role = usuario_logado_email.get('role')
+    if role == 'admin':
+        if instituicao_id is None or cadastrado_por_id is None:
+            raise HTTPException(status_code=400, detail='Admin deve fornecer instituicao_id e cadastrado_por_id.')
+        ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email['email']).first()
+    else:
+        medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email['email']).first()
+        if not medico:
+            raise HTTPException(status_code=403, detail='Usuário inválido.')
+        
+        # Se não forneceu, usa os do médico logado
+        if instituicao_id is None:
+            if medico.instituicao_id is None:
+                instituicao = await grupo_service.obter_instituicao_padrao(db)
+                medico.instituicao_id = instituicao.id
+                db.commit()
+            instituicao_id = medico.instituicao_id
+            
+        if cadastrado_por_id is None:
+            cadastrado_por_id = medico.id
+            
+        ator = medico
 
     novo_paciente = await paciente_service.criar_paciente(
-        db, paciente_in, instituicao_id=medico.instituicao_id, cadastrado_por_id=medico.id, ator=medico
+        db, paciente_in, instituicao_id=instituicao_id, cadastrado_por_id=cadastrado_por_id, ator=ator
     )
     return novo_paciente
 
@@ -72,8 +89,13 @@ async def obter_paciente(id_paciente: UUID, db: Session = Depends(get_db)):
 
 @router.put("/{id_paciente}", response_model=Paciente)
 async def atualizar_paciente(id_paciente: UUID, paciente_in: PacienteCreate, db: Session = Depends(get_db), usuario_logado_email: str = Depends(obter_usuario_atual)):
-    medico = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email["email"]).first()
-    paciente_atualizado = await paciente_service.atualizar_paciente(db, str(id_paciente), paciente_in, ator=medico)
+    ator = None
+    role = usuario_logado_email.get('role')
+    if role == 'admin':
+        ator = db.query(AdminModel).filter(AdminModel.email == usuario_logado_email['email']).first()
+    else:
+        ator = db.query(MedicoModel).filter(MedicoModel.email == usuario_logado_email['email']).first()
+    paciente_atualizado = await paciente_service.atualizar_paciente(db, str(id_paciente), paciente_in, ator=ator)
     if paciente_atualizado:
         paciente_atualizado.responsaveis = paciente_service.listar_responsaveis(db, paciente_atualizado.id)
         return paciente_atualizado

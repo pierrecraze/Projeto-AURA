@@ -2,7 +2,7 @@ import secrets
 import string
 from datetime import datetime
 from sqlalchemy.orm import Session
-from schemas.medico import MedicoCreate
+from schemas.medico import MedicoCreate, MedicoUpdate
 from models.medico import MedicoModel
 from models.admin import AdminModel as AdminModelType
 from core.audit import registrar_auditoria
@@ -39,7 +39,7 @@ async def criar_medico(db: Session, medico_in: MedicoCreate, *, ator: AdminModel
     return novo_medico
 
 @registrar_auditoria(entidade="Médico", acao="Atualização")
-async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoCreate, *, ator: AdminModelType):
+async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoUpdate, *, ator: AdminModelType):
     medico = db.query(MedicoModel).filter(MedicoModel.id == id_medico).first()
     if medico:
         medico.nome = medico_in.nome
@@ -49,6 +49,8 @@ async def atualizar_medico(db: Session, id_medico: int, medico_in: MedicoCreate,
         medico.telefone = medico_in.telefone
         medico.cidade = medico_in.cidade
         medico.uf = medico_in.uf
+        if medico_in.instituicao_id is not None:
+            medico.instituicao_id = medico_in.instituicao_id
         db.commit()
         db.refresh(medico)
 

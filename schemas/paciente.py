@@ -22,6 +22,8 @@ class PacienteBase(BaseModel):
     pais: Optional[str] = None
 
 class PacienteCreate(PacienteBase):
+    instituicao_id: Optional[int] = None
+    cadastrado_por_id: Optional[int] = None
     responsaveis: Optional[list[ResponsavelBase]] = None
     # Checklist clínico {nome_do_sintoma: bool} — opcional na criação/edição
     sintomas: Optional[dict] = None
