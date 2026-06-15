@@ -71,6 +71,10 @@ async def atualizar_paciente(db: Session, id_paciente: str, paciente_in: Pacient
         paciente.cidade = paciente_in.cidade
         paciente.estado = paciente_in.estado
         paciente.pais = paciente_in.pais
+        if paciente_in.instituicao_id is not None:
+            paciente.instituicao_id = paciente_in.instituicao_id
+        if paciente_in.cadastrado_por_id is not None:
+            paciente.cadastrado_por_id = paciente_in.cadastrado_por_id
         # Só atualiza o checklist se ele veio no payload (não apaga ao editar a ficha)
         if paciente_in.sintomas is not None:
             paciente.sintomas = paciente_in.sintomas

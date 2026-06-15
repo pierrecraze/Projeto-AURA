@@ -21,7 +21,7 @@ class MedicoCreate(MedicoBase):
 
 # Usado para ATUALIZAR dados (PUT) - Não exige a senha
 class MedicoUpdate(MedicoBase):
-    pass
+    instituicao_id: Optional[int] = None
 
 # Usado para DEVOLVER dados (Tem o ID do banco) e omite a senha
 class Medico(MedicoBase):

@@ -1,6 +1,31 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, computed_field
+from typing import Optional, List
 from datetime import datetime
+
+class MedicoResumo(BaseModel):
+    id: int
+    nome: str
+    crm: str
+    deletado_em: Optional[datetime] = None
+
+    @computed_field
+    def status(self) -> str:
+        return "Inativo" if self.deletado_em else "Ativo"
+
+    class Config:
+        from_attributes = True
+
+class PacienteResumo(BaseModel):
+    nome: str
+    cpf: Optional[str] = None
+    deletado_em: Optional[datetime] = None
+
+    @computed_field
+    def status(self) -> str:
+        return "Inativo" if self.deletado_em else "Ativo"
+        
+    class Config:
+        from_attributes = True
 
 # Classe base com os atributos comuns
 class GrupoBase(BaseModel):
@@ -17,6 +42,8 @@ class Grupo(GrupoBase):
     id: int
     criado_em: datetime
     deletado_em: Optional[datetime] = None
+    medicos: Optional[List[MedicoResumo]] = []
+    pacientes: Optional[List[PacienteResumo]] = []
 
     class Config:
         # Permite que o Pydantic leia dados mesmo que venham como objetos de classes
