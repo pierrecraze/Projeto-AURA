@@ -1,7 +1,7 @@
 ## 📄 Descrição do projeto:
 
-<p>O sistema detém como proposta funcionar como uma ferramenta de triagem para auxiliar o Instituto Buko Kaesemodel (IBK) na identificação precoce de pessoas com suspeita da "Síndrome do X Frágil", a partir de um checklist estruturado que se baseia em sinais cognitivos, físicos e comportamentais do indivíduo.</p> 
-<p>Idealmente, a interface será bem objetiva, que conterá apenas as informações, dados e páginas que o usuário realmente precisar. Dessa forma, garante-se um sistema leve, rápido e profissional para quem for usufruir.</p>
+<p>O sistema detêm como proposta, funcionar como uma ferramenta de triagem para auxiliar o Instituto Buko Kaesemodel (IBK) na identifição prematura de pessoas que possuem suspeita de possuir a "Síndrome do X Frágil". a partir de um checklist estruturado que se baseia em sinais cognitivos, físicos e comportamentais do indivíduo.</p> 
+<p>Idealmente, a interface será bem objetiva, onde irá conter apenas as informações, dados e páginas que o usuário realmente precisar, dessa forma, garante um sistema leve, rápido e profissional para quem for usufruir</p>
 
 > Autores: João Pedro M. Correa, Matheus Antunes, Patrick Davidson, Pedro Magno e Pierre Craze.
 > <br>
@@ -32,12 +32,12 @@ Tutorial de "instalação": https://youtu.be/_51cRwNbKxQ
 
 ### BackEnd e Banco de Dados:
 - Python
-- PostgreSQL
+- PostGres
 
 <br>
 
 ## 🗂️ Estrutura das pastas e arquivos do repositório:
-```text
+``` text
 Projeto-AURA/
 ├── database/
 │   └── db.py
@@ -49,30 +49,31 @@ Projeto-AURA/
 │   └── item_service.py
 ├── static/                
 │   ├── css/
-│   │   ├── dashboard.css
-│   │   ├── formulario.css
-│   │   ├── home.css
-│   │   ├── listaPaciente.css
-│   │   ├── login.css
+│   │   └── dashboard.css
+│   │   └── formulario.css
+│   │   └── home.css
+│   │   └── listaPaciente.css
+│   │   └── login.css
 │   │   └── styles.css
-│   ├── server/
-│   │   ├── api.js
-│   │   ├── app.js
-│   │   ├── formulario.js
-│   │   ├── home.js
-│   │   ├── listaPaciente.js
-│   │   └── login.js
+│   └── server/
+│       ├── api.js
+│       └── app.js
+│       └── formulario.js
+│       └── home.js
+│       └── listaPaciente.js
+│       └── login.js
 │   ├── dashboard.html
 │   ├── dashboardMedico.html
 │   ├── favicon.ico
 │   ├── formulario.html
 │   ├── index.html
 │   ├── listaPaciente.html
-│   └── login.html
+│   ├── login.html
 ├── .env
 ├── README.md
 ├── main.py
 └── requirements.txt
+```
 
 <!-- VERSÃO ANTERIOR:
 Projeto-AURA/
@@ -191,7 +192,7 @@ Tudo pronto! Rode o comando abaixo para iniciar a API em **modo de desenvolvimen
 ```bash
 uvicorn main:app --reload
 ```
-
+what
 ---
 
 ## 7. Acessando e Testando as APIs
@@ -199,3 +200,4 @@ uvicorn main:app --reload
 O FastAPI gera a **documentação interativa** automaticamente. Abra o navegador e acesse o **Swagger UI** para testar as rotas de Médicos, Pacientes, Grupos e Logs:
 
 > 👉 **[http://localhost:8000/docs](http://localhost:8000/docs)**
+
